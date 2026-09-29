@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.8.2] — 2026-09-29
+
+### Fixed
+
+Found by having OpenAI Codex review every skill for a Codex port, then verified one by one before fixing.
+
+- **`/pickup` listed zero putdowns in repos without a `.putdowns/` folder.** In zsh an unmatched glob
+  aborts the whole `ls`, so the local putdowns vanished too. Listing now uses `find`, sorts by the
+  timestamp in the filename (not modification time, which a pull or checkout rewrites), and skips
+  `MEMORY-INBOX.md`. The advertised timestamp argument now actually loads that putdown directly, and
+  a branch with no upstream is reported instead of erroring.
+- **`/putdown` made a second commit on every run.** It recorded the pushed SHA in the in-repo handoff
+  after pushing, which needed another commit whose SHA was again one behind. The SHA now goes only in
+  the local handoff file; the in-repo copy points at its own commit.
+- **`/newproject` computed the wrong memory directory.** It stripped the leading `-` that Claude Code
+  keeps (`/Users/a/x` → `-Users-a-x`). It also ran `git add -A`, which could commit a pre-existing
+  folder's files unreviewed; it now stages the scaffold by name and asks about anything else.
+- **`/grill-me`** suggested `jq` on a TOML file; the example now uses `package.json`.
+- **`/skill-dict check-updates`** called itself read-only while running `git fetch`; reworded to what
+  it guarantees (nothing installed changes).
+
 ## [0.8.1] — 2026-09-29
 
 ### Changed

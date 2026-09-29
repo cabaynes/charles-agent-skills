@@ -115,7 +115,7 @@ Capitalize the project name appropriately (e.g., `tax-tracking` → `Tax Trackin
 Compute the project slug from the absolute project path (this matches how Claude Code derives memory dir names):
 
 ```bash
-SLUG="$(echo "$WORKSPACE_DIR/<name>" | tr '/' '-' | sed 's/^-//')"
+SLUG="$(echo "$WORKSPACE_DIR/<name>" | tr '/' '-')"   # keeps the leading '-': /Users/a/x → -Users-a-x
 MEMORY_DIR="$HOME/.claude/projects/$SLUG/memory"
 ```
 
@@ -219,10 +219,10 @@ If `origin` already points to a `github.com[:/]…` URL, **skip creation** and r
 6. **Bootstrap commit + push:**
 
    ```bash
-   cd "$WORKSPACE_DIR/<name>" && git add -A && git commit -m "Bootstrap <name> scaffold" && git branch -M main && git push -u origin main
+   cd "$WORKSPACE_DIR/<name>" && git add CLAUDE.md .gitignore $(test -d .claude/skills && echo .claude/skills) && git commit -m "Bootstrap <name> scaffold" && git branch -M main && git push -u origin main
    ```
 
-   The `-u` on the first push establishes upstream tracking. (`git add -A` only picks up the scaffold — `CLAUDE.md`, `.gitignore`, `.claude/skills/` — since the memory dir lives outside the project folder.)
+   The `-u` on the first push establishes upstream tracking. It stages only the scaffold, by name. The folder may already hold the user's own files (this skill runs on existing folders too), and `git add -A` would commit them unreviewed. After the push, run `git status --porcelain`: if other untracked files remain, list them and ask whether to commit them — never add them silently.
 
 ## Step 9 — Update the umbrella CLAUDE.md (only if applicable)
 

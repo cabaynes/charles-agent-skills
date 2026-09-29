@@ -116,7 +116,7 @@ This means:
     - `pandoc` — convert between document formats
     - `textlint` — lint natural language text
 
-  Use these when they're the right fit. For example, use `jq` to inspect a pyproject.toml's
+  Use these when they're the right fit. For example, use `jq` to inspect a package.json's
   dependencies, `htmlq` to extract structure from an HTML report, `mq` to pull frontmatter from
   markdown docs, or `fd` to quickly find files matching a pattern across multiple repos
 - If the user says "we handle X with Y", verify it in the code rather than taking it on faith

@@ -18,7 +18,7 @@ The user just started a fresh session and wants to continue from where the previ
 
 ## Step 0 — Sync check (CLI↔web handoff)
 
-If the CWD is a git repo with a remote, run `git fetch origin` then `git rev-list --count HEAD..@{u}` before anything else. If origin is **ahead**, work happened on another surface (most likely Claude Code on the web): tell the user and offer to `git pull` before resuming — the newest putdown may be inside the pulled `.putdowns/` folder. If fetch fails (offline, no remote), say so in one line and continue with local putdowns only.
+If the CWD is a git repo with a remote, run `git fetch origin` then `git rev-list --count HEAD..@{u}` before anything else. If origin is **ahead**, work happened on another surface (most likely Claude Code on the web): tell the user and offer to `git pull` before resuming — the newest putdown may be inside the pulled `.putdowns/` folder. If fetch fails (offline, no remote), or the branch has no upstream (`rev-list` errors with "no upstream configured"), say so in one line and continue with local putdowns only.
 
 ## Step 1 — Find the candidate putdown(s)
 
@@ -26,8 +26,12 @@ The current project's slug is the basename of the CWD. Putdowns live in two plac
 
 List all putdowns for this project from both locations, newest first, and grab the current time so you can label them accurately later:
 ```
-ls -t ~/.claude/putdowns/$(basename "$PWD")/*.md "$PWD"/.putdowns/*.md 2>/dev/null; date
+find ~/.claude/putdowns/"$(basename "$PWD")" "$PWD/.putdowns" -maxdepth 1 -name '20*.md' 2>/dev/null | awk -F/ '{print $NF "\t" $0}' | sort -r | cut -f2-; date
 ```
+
+Why this shape and not `ls -t <dir>/*.md <dir>/*.md`: in zsh a glob with no match aborts the **whole** command, so a repo without a `.putdowns/` folder (every public repo) would hide the local putdowns too. `-name '20*.md'` skips `.putdowns/MEMORY-INBOX.md`, which is not a putdown. Sorting by filename, not modification time, keeps the order right after a `git pull` or checkout rewrites mtimes.
+
+**If the user passed a timestamp argument** (e.g. `/pickup 2026-09-12-0901`), load the file with that name directly — skip the count branching and the picker below. If no file matches, say so and fall through to the normal flow.
 
 If the same `<YYYY-MM-DD-HHMM>.md` filename appears in both locations, treat it as ONE putdown and prefer the in-repo copy — it may carry edits pushed from the other surface.
 

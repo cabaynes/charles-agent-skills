@@ -55,7 +55,7 @@ Skip (no upstream).
 
 ## 4. Do NOT actually upgrade anything
 
-This is a read-only audit. Tell the user to invoke the relevant upgrade command themselves (or ask them if they want help running one).
+This audit changes nothing installed — `git fetch` only updates the marketplace clone's remote-tracking refs, never the checked-out plugin files. Tell the user to invoke the relevant upgrade command themselves (or ask them if they want help running one).
 
 ## 5. Network failures are non-fatal
 

@@ -48,7 +48,7 @@ You curate it by editing files in VSCode (no Claude session burning context). Th
 
 - **Run `/skill-dict sync` after installing a new plugin.** It scans `installed_plugins.json` and adds stub entries for anything not yet in the library. Existing entries are left alone — your hand-edits win.
 - **Use `show <name>` for one entry, not `list`.** `list` is the index; `show` is the detail. The index is short by design.
-- **Run `check-updates` monthly.** It's read-only and tells you which plugins have newer versions upstream. You decide whether to upgrade.
+- **Run `check-updates` monthly.** It changes nothing installed and tells you which plugins have newer versions upstream. You decide whether to upgrade.
 - **Don't auto-fill the "Where I use it" / "Why I kept it" sections** when running `sync` — those are personal notes. The skill leaves them as `_(fill in)_` stubs so you write them in VSCode at your own pace.
 
 ## Why this is better than alternatives

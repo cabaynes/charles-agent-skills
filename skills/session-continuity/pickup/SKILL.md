@@ -85,6 +85,8 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 
 **Where we left off:** <one sentence>
 
+**Must address:** <every item from "## Must address next session", verbatim — omit this line if the section is missing or "none">
+
 **Next up:** <the first 1-3 next steps from the putdown>
 
 **Blockers waiting on you:** <list, or "none">
@@ -92,11 +94,14 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 <If git state has drifted: a "⚠️ Note:" line about what changed since the putdown.>
 ```
 
+Never summarize or drop "Must address" items — they exist because the user wanted proof the next
+session saw them. Older putdowns won't have the section; that's fine.
+
 Then **stop and wait for the user to confirm or redirect.** Do NOT auto-execute the next steps. The user may want to adjust direction, skip a step, or hand off to a subagent. Once they confirm, proceed.
 
 ## Step 4 — Once confirmed, execute
 
-Pick up the work. Use TodoWrite to track the "Immediate next steps" list from the putdown. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out.
+Pick up the work. Use TodoWrite to track the "Must address" items (first) and the "Immediate next steps" list from the putdown; don't mark the session's work done while a "Must address" item is still open unless the user dropped it. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out.
 
 ## Notes on judgment
 

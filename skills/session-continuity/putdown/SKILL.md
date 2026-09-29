@@ -97,6 +97,9 @@ Use this structure exactly — the next agent will be reading it cold:
 ## Where we are right now
 <2-4 sentences. The single most important section. If the next agent reads only this, they should be unblocked.>
 
+## Must address next session
+- <specific item the next session must not let slip — or "none">
+
 ## What's done this session
 - <bullet>
 - <bullet>
@@ -126,8 +129,16 @@ Use this structure exactly — the next agent will be reading it cold:
 - Anything the user needs to manually do before resuming: <list or "none">
 
 ## First message to paste in the new session
-> <Literal text the user should send. Easiest: just have them type `/pickup` — the pickup skill will load this latest putdown automatically. Only write a custom message if there's something the next agent needs to know that isn't captured in the sections above.>
+> /pickup
 ```
+
+**"Must address next session" replaces a hand-written pickup prompt.** Put here anything the user asked
+to carry forward ("make sure next time we…"), plus anything whose slipping would waste or break work
+(an unverified fix, a promised check, a deadline). Keep it to the few items that truly must happen —
+routine next steps belong in "Immediate next steps". `/pickup` echoes this section verbatim in its
+briefing, so the user can see it landed. If the user asks for "a prompt to paste into the next
+session", write its content into this section and tell them plain `/pickup` will surface it — don't
+produce a separate chat-only prompt (it isn't saved or committed, and it's lost if not copied).
 
 ## Step 4.5 — Commit + push (a putdown means the session is ending)
 

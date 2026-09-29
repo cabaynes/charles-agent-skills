@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.8.1] — 2026-09-29
+
+### Changed
+
+- **`/putdown` + `/pickup` — a "Must address next session" section replaces hand-written pickup
+  prompts.** Users were asking putdown for a separate prompt to paste into the next session, to be sure
+  specific items got covered. That prompt lived only in chat (never saved or committed), and pickup's
+  briefing shows just the first 1–3 next steps, so an item lower in the file could be read but never
+  surfaced. Now putdown writes the must-happen items into the handoff file itself, the paste line is
+  plain `/pickup`, and pickup echoes the section verbatim in its briefing (a **Must address:** line)
+  and tracks those items first. Older putdowns without the section load unchanged. Descriptions
+  unchanged, so no trigger re-eval.
+
 ## [0.8.0] — 2026-09-25
 
 ### Changed

@@ -28,7 +28,7 @@ Claude Code's context window is finite. As a session grows, you hit limits. Thre
 2. **Auto-compaction.** Lossy and unstructured. Compresses recent history but doesn't differentiate "this was a dead end, don't redo" from "this is the next step."
 3. **"Reload Window" in VSCode.** This doesn't actually free Claude Code's context-window memory. It feels like it should, but it doesn't. Only closing the Claude Code window with `Cmd+W` and opening a new one starts a fresh agent process.
 
-`/putdown` solves all three by writing a structured markdown file with sections specifically designed for re-entering work: **Where we are right now**, **What's in progress (resume here)**, **Immediate next steps**, **Blockers**, **Key decisions made & why**, and **What NOT to redo**. The file lives at `~/.claude/putdowns/<project-slug>/<timestamp>.md`.
+`/putdown` solves all three by writing a structured markdown file with sections specifically designed for re-entering work: **Where we are right now**, **Must address next session**, **What's in progress (resume here)**, **Immediate next steps**, **Blockers**, **Key decisions made & why**, and **What NOT to redo**. The file lives at `~/.claude/putdowns/<project-slug>/<timestamp>.md`.
 
 `/pickup` then loads it in a fresh session and confirms with you before picking up the work.
 

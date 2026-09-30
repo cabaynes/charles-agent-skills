@@ -137,6 +137,41 @@ Make sure the putdown files exist at `~/.claude/putdowns/<project-slug>/`. If yo
 **`/newproject` keeps asking about `WORKSPACE_DIR`:**
 Export it in your shell rc so it persists across sessions (see step 2 above).
 
+## Using OpenAI Codex instead (or as well)
+
+All six skills also ship a **Codex version** in [`codex/`](codex/). Codex uses the same open
+[Agent Skills](https://agentskills.io/specification) format, so these are the same skills with the
+Claude-only parts swapped for Codex equivalents. They're generated, not hand-copied, so the two
+versions can't drift. See [MAINTAINING.md](MAINTAINING.md#codex-versions).
+
+```bash
+git clone https://github.com/cabaynes/charles-claude-skills.git
+mkdir -p ~/.agents/skills
+cp -r charles-claude-skills/codex/*/ ~/.agents/skills/
+```
+
+The same pairing rules apply: `putdown` + `pickup` together, `takenotes` optional. Start a new Codex
+chat afterwards so the skills register.
+
+| | Claude Code | Codex |
+|---|---|---|
+| Run a skill | `/putdown` | `$putdown` (or pick it from `/skills`) |
+| Project instructions | `CLAUDE.md` | `AGENTS.md` |
+| Handoff files | `~/.claude/putdowns/<project>/` | `~/.codex/putdowns/<project>/` |
+| Saved knowledge (`takenotes`) | Claude Code's memory folders | Markdown notes in `~/.codex/notes/global/` and `~/.codex/notes/projects/<slug>/` |
+| Fresh context | `/clear` (CLI) or a new window | `/new` (CLI) or **New chat** (app) |
+
+- **How notes load in Codex.** Codex doesn't load a notes folder by itself. The first time
+  `$takenotes` saves something, it appends a short block to your global `~/.codex/AGENTS.md` telling
+  every session to read the notes indexes. It never rewrites what's already there. Codex's own
+  built-in memories are left alone; `takenotes` never writes to them.
+- **Using both tools on one repo.** Handoffs committed to a private repo's `.putdowns/` folder use
+  the same format, so a putdown written in one tool can be picked up in the other.
+- **Tested in Codex.** Each skill has an end-to-end scenario run through `codex exec` in a throwaway
+  environment: [`tests/codex/run_tests.py`](tests/codex/run_tests.py), results in
+  [`tests/codex/last-run.json`](tests/codex/last-run.json). The trigger-accuracy numbers in
+  [eval-results.md](eval-results.md) were measured on Claude Code only.
+
 ## Uninstall
 
 ```bash

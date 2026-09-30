@@ -1,0 +1,22 @@
+@@ frontmatter
+name: grill-me
+description: >
+  Structured interrogation skill for stress-testing plans, designs, and ideas. Use when the user
+  says "grill me", "grill me about", "stress test my plan", or "poke holes in this", or asks to
+  resume an earlier grill session. Produces dialogue and a persistent session file — not code or
+  files. Works across domains: product design, software architecture, business strategy, creative
+  writing, research proposals. Do NOT use for code review, debugging, refactoring, implementation
+  tasks, or general feedback on existing code.
+
+@@ prepend
+> **Codex version.** Invoke with `$grill-me`, optionally followed by a topic or plan name
+> (`$grill-me db migration`). This skill only interviews and keeps a session file: nothing in the
+> environment enforces that, so hold to the "Not allowed" list below yourself.
+
+@@ replace
+  and related files. Beyond the built-in Grep, Glob, and Read tools, you have access to these
+  CLI tools via Bash:
+@@ with
+  and related files. Beyond your built-in file and shell tools (`rg`, `rg --files`, reading files),
+  these CLI tools may be installed — check with `command -v <tool>` before relying on one, and fall
+  back to `rg`/`find`/`python3` when it is missing:

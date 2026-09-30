@@ -1,0 +1,321 @@
+@@ frontmatter
+name: skill-dict
+description: Use when the user types `$skill-dict`, asks about their personal skill library at ~/skills-library/, asks "what does <skill> do" about a library entry, asks to sync the library after installing a Codex plugin or skill, or asks to add a skill to the library.
+
+@@ prepend
+> **Codex version.** Invoke with `$skill-dict` followed by a subcommand:
+> `$skill-dict list`, `$skill-dict show <name>`, `$skill-dict sync`, `$skill-dict add <name>`,
+> `$skill-dict check-updates`. The argument is plain text after the skill name — read it from the
+> user's message. Paths below use `$CODEX_DIR`, meaning `${CODEX_HOME:-$HOME/.codex}`.
+>
+> **One library, two platforms.** The same `~/skills-library/` can also be maintained by the Claude
+> version of this skill. Every entry this version writes carries `platform: codex` in its frontmatter,
+> is saved as `<name>.codex.md` (so a Codex `pdf` plugin never overwrites a Claude `pdf` entry), and
+> shows as `<name> (codex)` in `INDEX.md`. Entries without a `platform:` field belong to Claude —
+> list and show them, but never sync, retire, or update-check them from here.
+
+@@ replace
+# /skill-dict — Personal skill library at `~/skills-library/`
+@@ with
+# $skill-dict — Personal skill library at `~/skills-library/`
+
+@@ replace
+You maintain a hand-curated catalog of every Claude Code skill you've installed or authored.
+@@ with
+You maintain a hand-curated catalog of every Codex skill and plugin you've installed or authored (and, if you also use Claude, its skills too — see the note above).
+
+@@ replace
+├── plugins/           ← installed from marketplaces or npm
+│   └── *.md
+└── authored/          ← your own skills
+    └── *.md
+```
+@@ with
+├── plugins/           ← installed from marketplaces or npm
+│   └── *.md           ← Codex entries are <name>.codex.md
+└── authored/          ← your own skills
+    └── *.md           ← Codex entries are <name>.codex.md
+```
+
+@@ replace
+The skill has 5 subcommands. Pick the one matching the user's argument; if none was given, ask which.
+@@ with
+The skill has 5 subcommands. Pick the one matching the text after `$skill-dict`; if none was given, ask which as a numbered list in chat and wait for the answer.
+
+@@ replace
+1. Locate the file: try `plugins/<name>.md` first, then `authored/<name>.md`. Use `Glob` if the user used a partial name.
+2. If multiple matches, ask via `AskUserQuestion`.
+3. If no match, tell the user and suggest `/skill-dict list` to see what's available.
+4. Read just that one file with `Read` and print it. Do NOT read other library files.
+@@ with
+1. Locate the file: try `plugins/<name>.codex.md`, `plugins/<name>.md`, `authored/<name>.codex.md`, then `authored/<name>.md`. List the two folders (`ls`, or `rg --files`) if the user used a partial name.
+2. If multiple matches (including a Codex and a Claude entry with the same name), list them as a numbered question in chat and wait for the answer.
+3. If no match, tell the user and suggest `$skill-dict list` to see what's available.
+4. Read just that one file and print it. Do NOT read other library files.
+
+@@ replace
+### `check-updates`
+Read-only audit comparing installed plugin versions to upstream sources.
+@@ with
+### `check-updates`
+Audit comparing installed Codex plugin versions to what their marketplaces offer; changes nothing installed.
+
+@@ replace
+- **No git commits.** The CLAUDE workspace root is not a git repo. Don't try.
+@@ with
+- **No git commits.** Leave committing the library to the user, even if it lives in a git repo.
+
+@@ file references/add.md
+
+@@ replace
+# `/skill-dict add <name>` — interactive guided add
+@@ with
+# `$skill-dict add <name>` — interactive guided add
+
+@@ section ## 1. Ask via `AskUserQuestion`
+## 1. Ask the choice questions
+
+Ask these in chat as **one numbered list**, each with its options, and wait for the answers (a
+structured user-input tool may be used instead if this session has one; the numbered list always works):
+
+1. **Source**: self-authored | a Codex marketplace (name it) | npm | other (free-text)
+2. **Scope**: user (`~/.agents/skills/` or `$CODEX_DIR/skills/`) | project (a repo's `.agents/skills/`)
+3. **Status**: active | trial | retired
+4. **Activation**: auto-on-match (Codex may pick it when a request matches its description) | manual (`$name` only — implicit invocation turned off in its `agents/openai.yaml`) | combo
+5. **Folder**: `plugins/` or `authored/`?
+
+@@ section ## 2. Ask via free-text input
+## 2. Ask via free-text input
+
+- "What it is" (2-3 sentence summary)
+- How it is invoked (e.g. `$foo`, or the name it shows under in Codex's `/skills` list for a plugin skill)
+- Auto-trigger conditions if `activation` includes `auto-on-match` (e.g. "user mentions building a UI")
+
+@@ section ## 4. Compose the file
+## 4. Compose the file
+
+Use the full template from `README.md`, including `## How to trigger it` and `## When I'd trigger it` sections (latter as `_(fill in)_` for you to complete in your editor). Add `platform: codex` to the frontmatter and save as `<folder>/<name>.codex.md`.
+
+@@ section ## 5. Append a row to `INDEX.md`
+## 5. Append a row to `INDEX.md`
+
+All 6 columns: Skill | Installed | Source | Status | Activation | What. Write the Skill cell as `<name> (codex)`.
+
+@@ section ## 6. Print confirmation
+## 6. Print confirmation
+
+```
+Added <name> at skills-library/<folder>/<name>.codex.md and updated INDEX.md.
+```
+
+@@ file references/sync.md
+
+@@ replace
+# `/skill-dict sync` — reconcile library with disk
+@@ with
+# `$skill-dict sync` — reconcile library with disk
+
+@@ section ## 1. Read the plugin manifest
+## 1. Read the installed-plugin list
+
+```bash
+codex plugin list --json
+```
+
+This is read-only. Do **not** run `codex plugin add/remove` or `codex plugin marketplace upgrade` here.
+The JSON has an `installed` array; each item has `pluginId` (`<name>@<marketplace>`), `name`,
+`marketplaceName`, `version`, `installed`, `enabled`, `source`, and usually `marketplaceSource`,
+`installPolicy`, `authPolicy`. `source.source` is `local` (with a `path`) or `remote` (with an `id` —
+a server-managed connector plugin, no local files). Keep items whose `installed` is true.
+
+**There is no install-date field.** Never infer one from file timestamps; the stub records
+`installed: unknown`. If a field you expect is missing in this Codex version, record `unknown` too.
+
+@@ section ## 2. Inventory user-authored skills
+## 2. Inventory standalone skills
+
+List the folders that hold standalone (non-plugin) Codex skills:
+
+```bash
+CODEX_DIR="${CODEX_HOME:-$HOME/.codex}"
+ls -1 ~/.agents/skills/ "$CODEX_DIR/skills/" 2>/dev/null
+```
+
+- Skip `$CODEX_DIR/skills/.system/` — those are skills bundled with Codex itself.
+- Skip anything without a `SKILL.md`.
+- If the command runs inside a repo, also list `<repo root>/.agents/skills/` and record those with
+  `scope: project`.
+- A folder name alone can't tell a self-authored skill from one installed with `$skill-installer`.
+  Collect the skills that have no library entry yet and ask the user **once**, as a numbered list,
+  which are self-authored and where the others came from. Anything they don't answer gets
+  `source: unknown`.
+
+@@ section ## 4. Compute the diff
+## 4. Compute the diff
+
+Only Codex entries take part: `*.codex.md` files. Claude entries (no `platform:` field) are never
+added, flagged, or touched here.
+
+- **To add (plugins):** installed plugins with no `plugins/<name>.codex.md`.
+- **To add (authored):** standalone skills with no `authored/<name>.codex.md` (or `plugins/` if the
+  user said it was installed from somewhere).
+- **Possibly retired:** `*.codex.md` files whose plugin is no longer in the installed list and whose
+  skill folder no longer exists. A plugin present with `enabled: false` is **not** retired — note it as
+  disabled instead.
+
+@@ section ## 5. For each "to add" item, create a stub
+## 5. For each "to add" item, create a stub
+
+Use the template from `README.md`. Pre-fill what's known:
+
+- `name` from the plugin `name` or the skill folder name.
+- `display-name` Title-Cased.
+- `platform: codex`.
+- `source` — for plugins, `<marketplaceName>` plus `(remote)` when `source.source` is `remote`; for
+  standalone skills, what the user answered in step 2 (`self-authored`, a URL, or `unknown`).
+- `scope` — `user`, or `project` for a repo's `.agents/skills/`.
+- `installed: unknown` for plugins (Codex records no install date); today's date for skills the user
+  says they authored today, otherwise `unknown`.
+- `version` from the plugin list; `unknown` for standalone skills.
+- `status: active` (`disabled` in Notes if `enabled` is false).
+- `activation:` — classify only from evidence in the skill's own files:
+  - `manual` if its `agents/openai.yaml` sets `allow_implicit_invocation: false`.
+  - `auto-on-match` otherwise when the description states when to use it (Codex may pick it
+    implicitly; explicit `$name` still works).
+  - If you can't find the skill's files (a remote plugin), write `unknown`.
+  - Don't claim `always-on` unless you found a configuration that loads it every session.
+- "What it is" — write a 2-3 sentence description by reading the skill's own SKILL.md frontmatter `description:` field (for a plugin, its `.codex-plugin/plugin.json` `description`). Do NOT just copy it verbatim — distill it.
+- "How to trigger it" — fill in:
+  - **Invocation:** `$<skill-name>` for a standalone skill. For a plugin's skills, use the names Codex
+    shows in its `/skills` list if you can see them; otherwise write `unknown — check /skills`.
+  - **Auto-trigger conditions:** if `activation` includes `auto-on-match`, paraphrase the trigger conditions from the description. Otherwise write "none — fully manual."
+  - **Lifetime:** "one-shot per invocation" unless you found evidence otherwise.
+- "When I'd trigger it" — leave as `_(fill in — see <skill>'s description for canonical use cases)_` so the user writes their own. Don't auto-paraphrase the description here; that's their personal note section.
+- All remaining sections (Where I use it, Why I kept it, Notes, Related) empty (`_(fill in)_`).
+
+Save as `plugins/<name>.codex.md` or `authored/<name>.codex.md`.
+
+@@ section ## 6. Append rows to `INDEX.md`
+## 6. Append rows to `INDEX.md`
+
+For each new entry. Match the column order: Skill | Installed | Source | Status | Activation | What. Write the Skill cell as `<name> (codex)`.
+
+@@ section ## 7. For "possibly retired" items, do NOT delete or move them
+## 7. For "possibly retired" items, do NOT delete or move them
+
+Just print a heads-up: `looks like X was uninstalled (not in codex plugin list --json, no skill folder) — consider setting status: retired and moving it to a retired/ subfolder.`
+
+@@ section ## 8. Print a one-screen summary
+## 8. Print a one-screen summary
+
+```
+$skill-dict sync results:
+Added (plugins): <count> — <names>
+Added (authored): <count> — <names>
+Disabled (still installed): <count> — <names>
+Possibly retired: <count> — <names>
+No-op: <count of unchanged entries>
+```
+
+If everything matches, output `Added: 0, Possibly retired: 0 — library is in sync.`
+
+@@ file references/check-updates.md
+
+@@ replace
+# `/skill-dict check-updates` — audit plugin versions
+@@ with
+# `$skill-dict check-updates` — audit plugin versions
+
+@@ replace
+Check each plugin entry in the library for available updates from its upstream source. Read-only — never modifies anything except printing a summary table.
+@@ with
+Check each Codex plugin entry in the library for available updates. Changes nothing — it only prints a summary table.
+
+@@ section ## 1. Inventory plugin entries
+## 1. Inventory plugin entries
+
+```bash
+ls -1 ~/skills-library/plugins/*.codex.md
+```
+
+For each file, read its frontmatter and extract `name`, `version`, and `source`. Skip entries without
+`platform: codex` — Claude entries are checked by the Claude version of this skill.
+
+@@ section ## 2. For each entry, check upstream version based on `source`
+## 2. For each entry, compare against what Codex can see
+
+Get the installed versions once:
+
+```bash
+codex plugin list --json
+```
+
+Then, by where the plugin comes from (`source` in the entry, or `source.source` / `marketplaceName`
+in the list):
+
+### A local marketplace (`source.source` is `local`)
+
+The marketplace root is shown by `codex plugin marketplace list`. The version that marketplace offers
+is in `<root>/plugins/<name>/.codex-plugin/plugin.json` (`version` field). Compare it with the installed
+`version`:
+
+- Same → `✅ matches marketplace`.
+- Marketplace newer → `🔄 update available`.
+- File missing → `⚠️ can't determine`.
+
+This compares against the **local snapshot** of the marketplace, which may itself be behind. Refreshing
+it (`codex plugin marketplace upgrade <name>`) changes Codex's state, so this audit never runs it — say
+in the table that the user can run it first for a fresh comparison. Marketplaces bundled with the
+Codex or ChatGPT app (their roots sit inside the app's own cache folders) update when the app updates.
+
+### A remote plugin (`source.source` is `remote`)
+
+Server-managed; there is no local version to compare. Mark `ℹ️ managed by OpenAI`.
+
+### `source: npm: <package>`
+
+```bash
+npm view <package> version 2>/dev/null
+```
+
+Compare to the entry's `version:` field.
+
+### `source: self-authored`
+
+Skip (no upstream).
+
+### A plugin no longer in `codex plugin list --json`
+
+Mark `⚠️ not installed` and suggest `$skill-dict sync`.
+
+@@ section ## 3. Print a summary table
+## 3. Print a summary table
+
+```
+$skill-dict check-updates results:
+
+| Plugin | Installed | Marketplace offers | Status | Update command |
+|--------|-----------|--------------------|--------|----------------|
+| docket | 1.2.0 | 1.2.0 | ✅ matches marketplace | — |
+| cube | 0.3.1 | 0.4.0 | 🔄 update available | check the Plugins menu |
+| gmail | 0.1.10 | — | ℹ️ managed by OpenAI | — |
+| browser | 26.924.22138 | 26.924.22138 | ✅ matches marketplace | updates with the app |
+```
+
+Only put an update command in the table if you have confirmed it for that plugin (for example from
+`codex plugin --help`); otherwise write "check the Plugins menu". Under the table, add one line: which
+marketplaces were compared against a local snapshot that `codex plugin marketplace upgrade` would
+refresh.
+
+@@ section ## 4. Do NOT actually upgrade anything
+## 4. Do NOT actually upgrade anything
+
+This audit changes nothing — no `codex plugin add/remove`, no `codex plugin marketplace upgrade`, no
+edits to Codex's config. Tell the user which command to run themselves (or ask them if they want help
+running one).
+
+@@ section ## 5. Network failures are non-fatal
+## 5. Failures are non-fatal
+
+If `codex plugin list --json` or `npm view` fails (offline, rate-limited, etc.), mark the affected rows
+as `⚠️ check failed` and continue with the others.

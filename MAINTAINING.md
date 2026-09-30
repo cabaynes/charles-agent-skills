@@ -38,6 +38,9 @@ bash ~/CLAUDE/charles-claude-skills/scripts/snapshot.sh
 # 2. Review the diff
 cd ~/CLAUDE/charles-claude-skills && git diff
 
+# 2b. Rebuild + test the Codex versions (see "Codex versions" below)
+python3 scripts/build-codex.py && python3 tests/codex/run_tests.py
+
 # 3. If you changed a description: re-run the eval (see CONTRIBUTING.md)
 #    Paste the new precision/recall + judge summary into eval-results.md
 #    Update the headline table in eval-results.md if numbers changed
@@ -65,6 +68,32 @@ git push
 ```
 
 That's it. The repo now reflects your local change.
+
+## Codex versions
+
+`codex/` is **generated**. Never edit it by hand. Each Claude skill in `skills/` is the single
+source; `codex-overlays/<name>.overlay` holds only what differs for Codex (frontmatter, swapped
+sections, exact text replacements). The directive format is documented at the top of
+`scripts/build-codex.py`.
+
+After any change to a skill (snapshot or hand edit), rebuild and test before committing:
+
+```bash
+cd ~/CLAUDE/charles-claude-skills
+python3 scripts/build-codex.py          # rebuilds codex/ from skills/ + overlays
+python3 tests/codex/run_tests.py        # ~6 min; runs every skill through real `codex exec`
+```
+
+- **The build fails, and writes nothing, when an overlay's anchor text is gone.** That means a
+  Claude edit touched a passage the Codex version replaces. Update the overlay to match, and check
+  whether the Codex wording needs the same change.
+- **The build also fails on leftover Claude-only terms** in the output (`AskUserQuestion`,
+  `~/.claude`, `CLAUDE.md`, `/clear`, …). Add an `@@ allow <regex>` only for a deliberate mention.
+- **The tests never touch your real `~/.codex`.** Each run uses a throwaway Codex home with a
+  symlink to your sign-in, and pushes to a local bare repo. `--keep` keeps the logs.
+- **Git commits in tests need `--approve-for-me`.** Codex's sandbox write-protects `.git`; the
+  harness routes that approval through Codex's automatic review, standing in for a user approving
+  the commit.
 
 ## Releasing an edit to `/newproject` (the public version)
 

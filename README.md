@@ -58,6 +58,8 @@ Then **close your Claude Code window and open a fresh one** so the new skills re
 
 Full instructions, symlink-vs-copy trade-offs, and troubleshooting in [INSTALL.md](INSTALL.md).
 
+**Using OpenAI Codex?** Every skill also has a Codex version in [`codex/`](codex/) (run as `$putdown`, `$pickup`, …), generated from the same source and tested end to end in Codex: `cp -r charles-claude-skills/codex/*/ ~/.agents/skills/`. Details in [INSTALL.md](INSTALL.md#using-openai-codex-instead-or-as-well).
+
 ## How these were evaluated
 
 These aren't just "skills I wrote" — each was scored against an 18-rule rubric distilled from Anthropic's `writing-skills` and `skill-creator` reference docs, then run through skill-creator's description-optimization benchmark eval:

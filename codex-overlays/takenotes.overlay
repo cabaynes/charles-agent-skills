@@ -1,0 +1,353 @@
+@@ frontmatter
+name: takenotes
+description: Saves durable knowledge into permanent storage — a Markdown notes store, AGENTS.md, or a docs/ file — and corrects anything already stored that has gone stale. Handles both a single fact and a whole-session harvest. Use when the user says "takenotes", asks you to remember or record something, asks you to save what was learned this session, or asks you to update notes and AGENTS.md after solving a problem, making a decision, working out how a tool or permission actually behaves, hitting a roadblock, or reaching a natural checkpoint. Also invoked by $putdown. Do NOT use for transcribing a meeting, video, or article, or for capturing ephemeral session state (that is $putdown).
+
+@@ prepend
+> **Codex version.** Invoke with `$takenotes`, optionally followed by a topic (`$takenotes auth flow`).
+> Paths below use `$CODEX_DIR`, meaning `${CODEX_HOME:-$HOME/.codex}`. In this version a "memory" is a
+> **note**: one Markdown file in the notes store this skill owns (Step 1a), listed in that folder's
+> `INDEX.md`. Codex does not load that folder by itself — a short pointer in your global `AGENTS.md`
+> (Step 1b) is what makes every new session read the indexes. Nothing here writes to Codex's built-in
+> Memories feature.
+
+@@ replace
+# /takenotes — Harvest a session into durable memory
+
+Write this session's durable knowledge somewhere it survives a `/clear`.
+@@ with
+# $takenotes — Harvest a session into durable notes
+
+Write this session's durable knowledge somewhere it survives starting a fresh chat.
+
+@@ replace
+| A topic argument was passed (`/takenotes auth flow`) | Full harvest, but scope Steps 2–4 to that topic only. |
+| Called from `/putdown` | Full harvest. Continue to Step 1. |
+@@ with
+| A topic argument was passed (`$takenotes auth flow`) | Full harvest, but scope Steps 2–4 to that topic only. |
+| Called from `$putdown` | Full harvest. Continue to Step 1. |
+
+@@ section ### Single-fact path
+### Single-fact path
+
+Skipping Steps 2–5 must not mean skipping the rules for writing a note correctly. Do all of
+these, then stop:
+
+1. **Locate the notes folders** (Step 1a) — you still need to know where to write.
+2. **Check for an existing note on the topic** (`ls "$PROJ_NOTES" "$GLOBAL_NOTES"`) and update it
+   rather than adding a second file that says nearly the same thing.
+3. **Decide scope.** If the fact is about *how the assistant should work* or *who you are*, it
+   applies to every project, not just this one — it goes in the global notes (see **Global notes** in
+   Step 4a). If it's about *this codebase*, it's a project note.
+4. **Add the one-line pointer to that folder's `INDEX.md`**, and make sure the loader pointer from
+   Step 1b is in the global `AGENTS.md` — a note that no loaded index lists is a note nothing reads.
+5. **Say what you did**, including the file path and whether it applies beyond this project.
+
+@@ section ## Step 1 — Locate the targets
+## Step 1 — Locate the targets
+
+**1a. Resolve the notes folders.** This skill keeps its notes in two ordinary Markdown folders it
+owns, outside any repo:
+
+```bash
+CODEX_DIR="${CODEX_HOME:-$HOME/.codex}"
+SLUG=$(pwd | sed 's|/|-|g')            # /Users/a/my-app → -Users-a-my-app (leading '-' kept)
+PROJ_NOTES="$CODEX_DIR/notes/projects/$SLUG"
+GLOBAL_NOTES="$CODEX_DIR/notes/global"
+ls -d "$PROJ_NOTES" "$GLOBAL_NOTES" 2>&1
+```
+
+The slug is the **full** working-directory path, not its basename, so two checkouts named `app` never
+share notes. Create a folder (`mkdir -p "$PROJ_NOTES"`) only when there is genuinely something to
+store, and echo the variable first — it must never be empty.
+
+Throughout this skill `$PROJ_NOTES` holds this project's notes and `$GLOBAL_NOTES` holds notes that
+apply to every project. Each folder has an `INDEX.md`: one line per note, never content.
+
+**Codex's built-in Memories are not this store.** That feature (`/memories`, `$CODEX_DIR/memories/`,
+`memories_*.sqlite`) fills itself in the background from idle chats, may be switched off, and has no
+write interface. Never write to it, never edit its files or database, and never treat it as the place
+a required note lives. At most it is extra recall on top of these notes.
+
+**1b. Read the indexes, and check the loader pointer.** Read `$GLOBAL_NOTES/INDEX.md` and
+`$PROJ_NOTES/INDEX.md` — they tell you what already exists without reading every file. Then check
+that the global instructions file tells new sessions to read them:
+
+```bash
+AG="$CODEX_DIR/AGENTS.override.md"; [ -f "$AG" ] || AG="$CODEX_DIR/AGENTS.md"
+grep -F 'Notes (maintained by $takenotes)' "$AG" 2>/dev/null || echo "NO POINTER in $AG"
+```
+
+Codex reads `AGENTS.override.md` instead of `AGENTS.md` when the override exists, so the pointer
+goes in whichever one this picks. **This pointer is what makes notes load** — without it every note
+is written to a folder no session opens. If it is missing and you are about to store anything,
+append this block to `$AG` (create the file if needed; append only, never rewrite what is already
+there, and write `$CODEX_DIR` as the resolved absolute path):
+
+```markdown
+## Notes (maintained by $takenotes)
+At the start of every session, read `<CODEX_DIR>/notes/global/INDEX.md` and, for the current
+project, `<CODEX_DIR>/notes/projects/<slug>/INDEX.md` — `<slug>` is the working directory with every
+`/` turned into `-` — when those files exist. Open a note when its index line is relevant.
+```
+
+Report the addition in Step 5 — it changes what every future session reads.
+
+**1c. There is no symlink fan-out.** A global note is shared by living in `$GLOBAL_NOTES`, which the
+pointer makes every session read. Editing one changes the rule for every project — see **Global
+notes** in Step 4a.
+
+**1d. Find the AGENTS.md files and their sizes.**
+
+```bash
+git rev-parse --show-toplevel 2>/dev/null
+wc -lc ./AGENTS.md ./AGENTS.override.md 2>/dev/null
+ls docs/ 2>/dev/null
+```
+
+Codex assembles `AGENTS.md` files from the repo root down to the working directory (preferring an
+`AGENTS.override.md` at any level) plus the global one. List `docs/` too — you need to know which spoke
+files exist before creating new ones.
+
+**1e. Drain the handoff notes inbox, if one exists.**
+
+```bash
+cat .putdowns/MEMORY-INBOX.md 2>/dev/null
+```
+
+A session that could not reach `$CODEX_DIR/notes/` — a cloud session, another machine, or the Claude
+version of `putdown` running on the web — queues note-bound findings in this file rather than dropping
+them. If it exists and has content, treat each block as a harvest candidate alongside this session's
+own findings. Once the blocks are genuinely written to notes, clear the file back to its bare
+`# Memory inbox` heading (don't delete it) and note the drain in Step 5. If a block is stale or
+already covered, say so rather than writing a duplicate. No inbox is the normal case — say nothing.
+
+---
+
+@@ replace
+- **Stable project facts** — architecture, conventions, build/test/run commands. That's **CLAUDE.md**,
+  not memory.
+- **Gotchas** a fresh agent would step on. CLAUDE.md if short, `docs/` if not.
+@@ with
+- **Stable project facts** — architecture, conventions, build/test/run commands. That's **AGENTS.md**,
+  not a note.
+- **Gotchas** a fresh agent would step on. AGENTS.md if short, `docs/` if not.
+
+@@ replace
+- Ephemeral session state ("we're mid-refactor on line 142") — that's `/putdown`'s job, not memory's.
+- Anything the code, git history, or an existing CLAUDE.md already records. Memory is for what
+@@ with
+- Ephemeral session state ("we're mid-refactor on line 142") — that's `$putdown`'s job, not the notes'.
+- Anything the code, git history, or an existing AGENTS.md already records. Notes are for what
+
+@@ replace
+**This is the step that makes the skill worth running.** For every existing memory and CLAUDE.md
+section this session's work touched:
+@@ with
+**This is the step that makes the skill worth running.** For every existing note and AGENTS.md
+section this session's work touched:
+
+@@ replace
+Reconcile `MEMORY.md` too: if its one-line hooks no longer describe their files, fix them.
+@@ with
+Reconcile both `INDEX.md` files too: if their one-line hooks no longer describe their notes, fix them.
+
+@@ replace
+do not trust the `MEMORY.md` hooks to find every file
+@@ with
+do not trust the `INDEX.md` hooks to find every file
+
+@@ replace
+Grep for the **old** fact and reconcile every hit — this project's memory, plus the shared
+canonical store if Step 1c found symlinks:
+
+```bash
+grep -Rli "<old term>" "$MEMDIR/memory/" 2>/dev/null   # add the canonical store path if shared
+```
+@@ with
+Grep for the **old** fact and reconcile every hit — this project's notes and the global notes:
+
+```bash
+grep -Rli "<old term>" "$PROJ_NOTES" "$GLOBAL_NOTES" 2>/dev/null
+```
+
+@@ replace
+hits. Shared-store hits change the fact for every project: fix them through the canonical file,
+never a per-project symlink copy, and flag each in Step 5.
+@@ with
+hits. Global-note hits change the fact for every project: flag each in Step 5.
+
+@@ replace
+1. `grep -Rli "<the failure's distinctive term — the message it printed, the script name>" "$MEMDIR/memory/"`.
+@@ with
+1. `grep -Rli "<the failure's distinctive term — the message it printed, the script name>" "$PROJ_NOTES" "$GLOBAL_NOTES"`.
+
+@@ replace
+`/takenotes` does not write code
+@@ with
+`$takenotes` does not write code
+
+@@ replace
+     put a one-line gotcha in the project's CLAUDE.md instead — that file loads every session;
+     a memory loads only when someone opens it.
+@@ with
+     put a one-line gotcha in the project's AGENTS.md instead — that file loads every session;
+     a note loads only when someone opens it.
+
+@@ replace
+### 4a. Memory files
+
+Write to `$MEMDIR/memory/<name>.md` in the shape given under **Memory file format** in Step 0.
+@@ with
+### 4a. Note files
+
+Write to `$PROJ_NOTES/<name>.md` (or `$GLOBAL_NOTES/<name>.md` — see **Global notes** below) in the
+shape given under **Memory file format** in Step 0.
+
+@@ replace
+- **Add a one-line pointer to `MEMORY.md`** — `- [Title](file.md) — hook`. One line, never content.
+@@ with
+- **Add a one-line pointer to that folder's `INDEX.md`** — `- [Title](file.md) — hook`. One line,
+  never content. Then confirm the Step 1b loader pointer exists; add it if not.
+
+@@ replace
+**Shared memories (optional — skip unless Step 1c found symlinks).**
+
+Some multi-project setups keep cross-project rules (`feedback_*`, `user_*`) in one canonical store
+and symlink them into each project's memory dir, so a rule written once applies everywhere. If
+that's how this machine is set up:
+
+- *Editing a shared memory* changes the rule for every project. That's often correct — it is never
+  something to do silently. Say so in Step 5.
+- *Creating a new shared memory* means writing it to the canonical store and re-running whatever
+  sync step creates the symlinks. Skip that and it exists in one place and applies nowhere else.
+- *Deciding which it is:* a rule about **how the assistant should work** regardless of project is
+  shared. A fact about **this codebase** is local. When genuinely unsure, write it local — a local
+  memory that should have been shared is a small loss; a shared memory that should have been local
+  pollutes every project.
+@@ with
+**Global notes.**
+
+Cross-project rules (`feedback_*`, `user_*`) live in `$GLOBAL_NOTES`, which the loader pointer makes
+every session read, so a rule written once applies everywhere.
+
+- *Editing a global note* changes the rule for every project. That's often correct — it is never
+  something to do silently. Say so in Step 5.
+- *Creating a new global note* means writing it to `$GLOBAL_NOTES` and listing it in
+  `$GLOBAL_NOTES/INDEX.md`. Write it under the project instead and it applies nowhere else.
+- *A rule that must shape every response*, not just be findable, can also get one line in the
+  global `AGENTS.md` itself — keep that file short; the note holds the detail.
+- *Deciding which it is:* a rule about **how the assistant should work** regardless of project is
+  shared. A fact about **this codebase** is local. When genuinely unsure, write it local — a local
+  note that should have been shared is a small loss; a shared note that should have been local
+  pollutes every project.
+
+@@ replace
+| this repo's own code, build, or conventions | **local** — and usually CLAUDE.md, not memory |
+@@ with
+| this repo's own code, build, or conventions | **local** — and usually AGENTS.md, not a note |
+
+@@ replace
+If Step 1c found no symlinks, none of this applies — write everything local.
+@@ with
+**Local** means `$PROJ_NOTES`; **shared** means `$GLOBAL_NOTES`.
+
+@@ section ### 4b. CLAUDE.md — guarded
+### 4b. AGENTS.md — guarded
+
+The applicable `AGENTS.md` files are assembled into context on **every session start**. Every line
+costs tokens forever. Treat each as an index, not a document.
+
+**Which AGENTS.md?** Default to the project's own (`./AGENTS.md`, or the repo-root one when the working
+directory is nested). A workspace-level `AGENTS.md` is only correct for facts about the *workspace
+itself* — a new subproject, a convention spanning projects — and only works if it sits between the
+repo root and the working directory, the chain Codex loads. A file **above** the repo root is not
+loaded; put workspace-wide facts in a global note (or one line in the global `AGENTS.md`) instead. A
+fact about one project's code never belongs above that project.
+
+Before writing, apply this gate in order:
+
+1. **Does it belong here at all?** AGENTS.md holds stable, structural facts: what the project is,
+   critical gotchas, entry-point files, build/test/run commands, pointers to docs. It does **not**
+   hold history, rationale, session state, long prose, or anything already in a parent AGENTS.md.
+   Rationale and history go to **notes**. If it fails this test, stop — route it elsewhere.
+
+2. **How many lines would it add?**
+   - **≤ 15 lines** → inline it.
+   - **> 15 lines** → **extract to a `docs/` spoke** (4c) and inline only a pointer. Apply this
+     *regardless of the current size*. A 40-line block that fits under any cap still costs
+     context on every session start — size is the trigger, not the cap.
+
+   Measure the version you would actually write, not the tersest one you could compress it to —
+   otherwise the threshold just ratifies whichever way you were already leaning. Anchor: if it needs
+   more than a pointer plus two or three facts, it's a spoke.
+
+3. **Backstop: the combined instruction cap.** Codex loads roughly 32 KiB of `AGENTS.md` guidance in
+   total by default (global plus every file in the chain); guidance past the cap may not be seen.
+   Keep the project file to a few KiB (well under ~250 lines, target ~150). If an edit would push it
+   past that, refactor an existing oversized section out to `docs/` rather than declining to write.
+
+4. **Structural changes get shown before saving — but only actual restructuring.** Writing a *new*
+   `docs/` spoke for new content moves nothing; just write it. Moving content that is *already in*
+   AGENTS.md out to `docs/` is a refactor — show the diff and let the user approve. When invoked
+   from `$putdown` there may be no one available to approve; in that case make the change and report
+   it prominently rather than blocking.
+
+@@ replace
+   opening it cold shouldn't need the CLAUDE.md line to understand it.
+3. **Link it from CLAUDE.md with a pointer that earns its place.**
+@@ with
+   opening it cold shouldn't need the AGENTS.md line to understand it.
+3. **Link it from AGENTS.md with a pointer that earns its place.**
+
+@@ replace
+```
+Memory
+  updated    project_sync.md — polling replaced by webhooks; old "no webhooks" claim was false
+  created    reference_vendor_signing.md — HMAC ordering gotcha
+  deleted    project_old_approach.md — superseded, abandoned 2026-08-03
+  reconciled MEMORY.md — 2 hooks rewritten
+
+CLAUDE.md / docs
+  ./CLAUDE.md  +3 lines (now 88) — added the sync entry point
+  created      docs/webhook-signing.md (58 lines) — new spoke, new content; linked from CLAUDE.md
+@@ with
+```
+Notes
+  updated    project_sync.md — polling replaced by webhooks; old "no webhooks" claim was false
+  created    reference_vendor_signing.md — HMAC ordering gotcha
+  deleted    project_old_approach.md — superseded, abandoned 2026-08-03
+  reconciled INDEX.md — 2 hooks rewritten
+  loader     pointer added to ~/.codex/AGENTS.md — new sessions now read the note indexes
+
+AGENTS.md / docs
+  ./AGENTS.md  +3 lines (now 88) — added the sync entry point
+  created      docs/webhook-signing.md (58 lines) — new spoke, new content; linked from AGENTS.md
+
+@@ replace
+  RECURRED staging orphan (2026-08-28 note) — guard named: age check in stage.py; gotcha added to CLAUDE.md
+
+Not stored
+  mid-refactor state at receiver.py:142 — ephemeral, belongs in /putdown
+```
+@@ with
+  RECURRED staging orphan (2026-08-28 note) — guard named: age check in stage.py; gotcha added to AGENTS.md
+
+Not stored
+  mid-refactor state at receiver.py:142 — ephemeral, belongs in $putdown
+```
+
+@@ replace
+- **Flag shared-memory writes explicitly.** "This now applies to all your projects" is something the
+  user must actually see.
+- **Do not commit.** Mid-session runs leave changes for `/putdown` to sweep
+@@ with
+- **Flag global-note writes and loader-pointer additions explicitly.** "This now applies to all your
+  projects" is something the user must actually see.
+- **Do not commit.** Mid-session runs leave changes for `$putdown` to sweep
+
+@@ replace
+When something is both memory-worthy and too long for
+  CLAUDE.md, write the short version in memory
+@@ with
+When something is both note-worthy and too long for
+  AGENTS.md, write the short version in a note

@@ -1,0 +1,140 @@
+@@ frontmatter
+name: putdown
+description: Writes a session handoff file that a fresh Codex session reads via $pickup, harvests durable knowledge into notes and AGENTS.md (via $takenotes when installed), then commits and pushes all session work. Use when the user says "putdown", when ending or stepping away from a working session, or when the context is filling up. Do NOT use for pausing media, downloads, background processes, or VMs.
+
+@@ prepend
+> **Codex version.** Invoke with `$putdown`, optionally followed by a project slug (`$putdown my-app`).
+> Paths below use `$CODEX_DIR`, meaning `${CODEX_HOME:-$HOME/.codex}` — resolve it once with
+> `echo "${CODEX_HOME:-$HOME/.codex}"`. Handoffs copied into a repo's `.putdowns/` folder use the same
+> format as the Claude version of this skill, so either tool's `pickup` can read them.
+
+@@ replace
+# /putdown — Context handoff before clearing
+@@ with
+# $putdown — Context handoff before starting a fresh chat
+
+@@ replace
+The user is about to clear the context window and start fresh.
+@@ with
+The user is about to start a fresh chat.
+
+@@ replace
+> Renamed from `/checkpoint` on 2026-06-12 (paired with `/resume` → `/pickup`) because those names shadow Claude Code built-ins (`/checkpoint` aliases `/rewind`; `/resume` opens the conversation picker). On 2026-06-13 the handoff files also moved from `.checkpoints/` → `.putdowns/` to drop the old term entirely. If you ever see a stray `.checkpoints/` folder, it predates the move — treat it as a putdown.
+@@ with
+> A stray `.checkpoints/` folder, if you see one, is the pre-2026-06-13 name for `.putdowns/` — treat it as a putdown.
+
+@@ section ## Step 0 — Announce what's about to run
+## Step 0 — Announce what's about to run
+
+If the `takenotes` skill is installed (a `takenotes/SKILL.md` in `$CODEX_DIR/skills/`, `~/.agents/skills/`, or the repo's `.agents/skills/`), a putdown is two operations, not one. Print this first so the user knows what's running and in what order:
+
+```
+$putdown runs two skills, in this order:
+  1. $takenotes — harvest this session into notes, AGENTS.md, and docs/
+  2. $putdown   — write the handoff file, then commit and push everything
+```
+
+If it is not installed, skip the announcement. Either way this is an announcement, not a prompt — don't wait for confirmation, continue to Step 1.
+
+@@ replace
+- Read the project-level `CLAUDE.md` if one exists in the CWD
+- Read `~/.claude/projects/<project-slug>/memory/MEMORY.md` to know which memory files exist
+- Check the current TodoWrite list state (if you have one in this session — recall from conversation, don't invent)
+- `echo "$CLAUDE_CODE_ENTRYPOINT"` — which surface this is. `cli` = terminal (standalone **or** VSCode's integrated terminal); anything else (or empty) = VSCode's visual-editor chat panel or another GUI surface. This decides the clear-context instructions in Step 5.
+@@ with
+- Read the project-level `AGENTS.md` if one exists in the CWD
+- Read `$CODEX_DIR/notes/projects/<slug>/INDEX.md` if it exists (`<slug>` = the CWD with every `/` turned into `-`) to know which notes exist
+- Check the current plan state (the `update_plan` plan, or any checklist you kept in chat — recall from conversation, don't invent)
+
+@@ section ## Steps 2–3 — Harvest durable knowledge
+## Steps 2–3 — Harvest durable knowledge
+
+**If the `takenotes` skill is installed** — it ships alongside this skill in the session-continuity
+package — **open its `SKILL.md`, read it, and follow it to completion before continuing.** (There is no
+tool that runs another skill for you; reading and following its instructions is how it runs.) It
+harvests the session, reconciles what is already in the notes and `AGENTS.md` against what this session
+actually established (correcting anything that has since become false), and routes each finding to a
+note, `AGENTS.md`, or a `docs/` spoke.
+
+**If it isn't installed**, do this inline instead — a reduced version with no reconcile pass:
+
+- Write durable findings (user preferences, corrections to your approach, project status, external
+  references) as short Markdown notes in `$CODEX_DIR/notes/projects/<slug>/`, one fact per file, each
+  listed as one line in that folder's `INDEX.md`. Convert relative dates to absolute. Update an existing
+  note rather than adding a near-duplicate.
+- If there's an `AGENTS.md` in the project directory, add or update **stable** facts only
+  (architecture, conventions, how to run and test it). Do NOT put session state in it — that belongs
+  in the handoff file. If none exists and the project has accumulated real conventions, suggest
+  creating one; don't create it unprompted.
+
+Either way, two things hold:
+
+- **Ephemeral session state stays out of the notes.** It belongs in the handoff file below.
+- **Nothing here commits.** Step 4.5 commits and pushes everything, including whatever this step wrote.
+
+Keep the result — you'll echo a one-line version in Step 5.
+
+@@ replace
+Save to `~/.claude/putdowns/<project-slug>/<YYYY-MM-DD-HHMM>.md`.
+@@ with
+Save to `$CODEX_DIR/putdowns/<project-slug>/<YYYY-MM-DD-HHMM>.md`.
+
+@@ replace
+(e.g. `/putdown my-app`)
+@@ with
+(e.g. `$putdown my-app`)
+
+@@ replace
+(e.g. CWD is `CLAUDE` but the work is about my-app).
+@@ with
+(e.g. CWD is `projects` but the work is about my-app).
+
+@@ replace
+(e.g. `CLAUDE`) and no argument was given
+@@ with
+(e.g. `projects`) and no argument was given
+
+@@ replace
+## First message to paste in the new session
+> /pickup
+@@ with
+## First message to paste in the new session
+> $pickup
+
+@@ replace
+routine next steps belong in "Immediate next steps". `/pickup` echoes this section verbatim in its
+briefing, so the user can see it landed. If the user asks for "a prompt to paste into the next
+session", write its content into this section and tell them plain `/pickup` will surface it
+@@ with
+routine next steps belong in "Immediate next steps". `$pickup` echoes this section verbatim in its
+briefing, so the user can see it landed. If the user asks for "a prompt to paste into the next
+session", write its content into this section and tell them plain `$pickup` will surface it
+
+@@ replace
+This is what makes the putdown readable from Claude Code on the web. For **public repos** and Pages-served repos, skip the copy — committed putdowns there would be published; the local file in `~/.claude/putdowns/` is the only copy. Check visibility with `gh repo view --json visibility` or the project CLAUDE.md; if still unsure, skip the copy and say so.
+@@ with
+This is what makes the putdown readable from another machine, a cloud session, or a Claude session in the same repo. For **public repos** and Pages-served repos, skip the copy — committed putdowns there would be published; the local file in `$CODEX_DIR/putdowns/` is the only copy. Check visibility with `gh repo view --json visibility` or the project `AGENTS.md`; if still unsure, skip the copy and say so.
+
+@@ replace
+**in the local handoff file only** (`~/.claude/putdowns/…`, outside the repo)
+@@ with
+**in the local handoff file only** (`$CODEX_DIR/putdowns/…`, outside the repo)
+
+@@ replace
+never fail silently; unpushed work is invisible to web sessions.
+@@ with
+never fail silently; unpushed work is invisible to every other machine and session.
+
+@@ section ## Step 5 — Show it to the user
+## Step 5 — Show it to the user
+
+After saving, print to chat — in this exact order:
+1. The full path to the saved putdown file (so they can re-open it later)
+2. **How to start fresh.** In the Codex CLI: type `/new` (or `/clear`, which also clears the screen), then `$pickup`. In the Codex desktop app: start a **New chat** in the same project (`Cmd+N` on macOS), then `$pickup`. If you can't tell which surface this is, give both. If MCP servers or config changed this session, a new chat may not load them — tell them to quit and relaunch Codex first.
+3. A code block containing exactly `$pickup` — what they type in the fresh chat
+4. **The result of Steps 2–3, labelled with its source** — which notes, `AGENTS.md`, and `docs/` files were written or corrected. If `takenotes` ran, label it as such so the user can see both skills fired, e.g. `takenotes: 2 notes updated, 1 created, AGENTS.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
+5. The commit + push result: `<branch> @ <short SHA> pushed to <repo>` — or a **prominent warning** if there was no remote or the push failed (that work is invisible to other machines and sessions until pushed)
+
+Keep your final reply tight — the handoff document does the heavy lifting; don't summarize it again in chat.
+
+@@ allow In the Codex CLI: type `/new`

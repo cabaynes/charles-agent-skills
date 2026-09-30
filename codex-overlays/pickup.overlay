@@ -1,0 +1,89 @@
+@@ frontmatter
+name: pickup
+description: Loads the most recent putdown handoff file for the current project and primes the session with full prior context. Use when the user says "pickup", asks "where were we" after opening a fresh chat, or wants to resume work from a prior session that ended with $putdown. Do NOT use for reopening a previous Codex conversation (that is `codex resume`) or for resuming media, downloads, paused processes, or VMs.
+
+@@ prepend
+> **Codex version.** Invoke with `$pickup`, optionally followed by a putdown timestamp
+> (`$pickup 2026-09-12-0901`). Paths below use `$CODEX_DIR`, meaning `${CODEX_HOME:-$HOME/.codex}`.
+> Putdowns in a repo's `.putdowns/` folder are shared with the Claude Code version of this skill,
+> so a handoff written in either tool can be picked up in the other.
+
+@@ replace
+# /pickup — Pick up from a prior putdown
+@@ with
+# $pickup — Pick up from a prior putdown
+
+@@ replace
+> Renamed from `/resume` on 2026-06-12 (paired with `/checkpoint` → `/putdown`) because those names shadow Claude Code built-ins. On 2026-06-13 the handoff files also moved from `.checkpoints/` → `.putdowns/`. A stray `.checkpoints/` folder, if you see one, predates the move — read it the same way.
+@@ with
+> A stray `.checkpoints/` folder, if you see one, is the pre-2026-06-13 name for `.putdowns/` — read it the same way.
+
+@@ replace
+work happened on another surface (most likely Claude Code on the web)
+@@ with
+work happened on another machine or tool (another Codex or Claude session pushed it)
+
+@@ replace
+the local `~/.claude/putdowns/<project-slug>/` dir
+@@ with
+the local `$CODEX_DIR/putdowns/<project-slug>/` dir
+
+@@ replace
+(synced via git so web sessions can read and write them)
+@@ with
+(synced via git, and shared with Claude sessions working in the same repo)
+
+@@ replace
+find ~/.claude/putdowns/"$(basename "$PWD")" "$PWD/.putdowns"
+@@ with
+CODEX_DIR="${CODEX_HOME:-$HOME/.codex}"
+find "$CODEX_DIR/putdowns/$(basename "$PWD")" "$PWD/.putdowns"
+
+@@ replace
+(e.g. `/pickup 2026-09-12-0901`)
+@@ with
+(e.g. `$pickup 2026-09-12-0901`)
+
+@@ replace
+Check `~/.claude/putdowns/` to list all available project subfolders, in case the user is in a different CWD than when they made the putdown (e.g. they ran `/putdown` from `<workspace-root>/my-app` but ran `/pickup` from `<workspace-root>/my-app/src`).
+@@ with
+Check `$CODEX_DIR/putdowns/` to list all available project subfolders, in case the user is in a different CWD than when they made the putdown (e.g. they ran `$putdown` from `<workspace-root>/my-app` but ran `$pickup` from `<workspace-root>/my-app/src`).
+
+@@ replace
+Call `AskUserQuestion` with:
+
+- `question`: `"Which putdown do you want to load?"`
+- `header`: `"Load which?"`
+- `multiSelect`: `false`
+- `options`: one per putdown, newest first. For each option:
+  - `label`: `"<relative-time> — <session-goal truncated>"` (e.g. `"2h ago — Pipeline seed flag bug"`). Append `" (Recommended)"` to the **first** option only — it's the newest, which is the same as today's default behavior.
+  - `description`: first sentence of "Where we are right now". If that section can't be parsed, use `"(no summary available)"`.
+@@ with
+Ask **"Which putdown do you want to load?"** as a numbered list in chat, newest first, then stop and wait for the answer. (If a structured user-input tool is available in this session and accepts four choices, you may use it instead; the numbered list always works.) For each entry:
+
+- **Line 1:** `<n>. <relative-time> — <session-goal truncated>` (e.g. `1. 2h ago — Pipeline seed flag bug`). Mark the **first** entry `(recommended)` — it's the newest.
+- **Line 2, indented:** first sentence of "Where we are right now". If that section can't be parsed, use `(no summary available)`.
+
+@@ replace
+print one line of chat above the picker like: `"Showing the 4 most recent of N putdowns — pick 'Other' to specify an older timestamp."` The harness's auto-provided `"Other"` option lets the user paste an older timestamp (e.g. `2026-03-12-0901`) if they really want one.
+@@ with
+print one line above the list like: `"Showing the 4 most recent of N putdowns — or reply with an older timestamp."` The user can then paste an older timestamp (e.g. `2026-03-12-0901`) if they really want one.
+
+@@ replace
+- Read the project `CLAUDE.md` if one exists
+- Read the user's auto-memory `MEMORY.md` index (already loaded by the harness, but re-confirm)
+@@ with
+- Read the project `AGENTS.md` if one exists
+- Read the project notes index `$CODEX_DIR/notes/projects/<slug>/INDEX.md` if it exists (written by `$takenotes`; `<slug>` is the CWD with every `/` turned into `-`). Nothing loads it automatically unless the global `AGENTS.md` says to, so read it here.
+
+@@ replace
+or hand off to a subagent.
+@@ with
+or hand off to another agent.
+
+@@ replace
+Use TodoWrite to track the "Must address" items (first)
+@@ with
+Track the "Must address" items (first) — with the plan tool (`update_plan`) if this session has it, otherwise as a Markdown checklist in chat —
+
+@@ allow shared with the Claude Code version of this skill

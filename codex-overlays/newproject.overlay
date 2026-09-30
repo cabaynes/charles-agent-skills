@@ -1,0 +1,186 @@
+@@ frontmatter
+name: newproject
+description: Use when bootstrapping a new project under a configured workspace directory ($WORKSPACE_DIR, default ~/projects/), or when an existing project folder needs the standard infrastructure (AGENTS.md stub, notes folder, optional git init + GitHub repo, optional umbrella entry). Triggers only when the user references a project folder under the workspace — do NOT use for generic git init, npm/Xcode init, or single-file creation. Idempotent — never overwrites existing user content.
+
+@@ prepend
+> **Codex version.** Invoke with `$newproject`, optionally followed by the project name
+> (`$newproject tax-tracking`). Paths below use `$CODEX_DIR`, meaning `${CODEX_HOME:-$HOME/.codex}` —
+> resolve it once with `echo "${CODEX_HOME:-$HOME/.codex}"`. Ask every question below as a plain
+> numbered question in chat and wait for the answer (a structured user-input tool, if this session
+> has one, is fine too).
+
+@@ replace
+# /newproject — Bootstrap or finish setting up a workspace project
+@@ with
+# $newproject — Bootstrap or finish setting up a workspace project
+
+@@ section ## What ends up created
+## What ends up created
+
+1. `$WORKSPACE_DIR/<name>/` — empty project directory
+2. `$WORKSPACE_DIR/<name>/AGENTS.md` — starter project instructions (stub); Codex loads it at the start of every session in this project
+3. `$CODEX_DIR/notes/projects/<project-slug>/INDEX.md` — the project's notes folder, the same layout `$takenotes` writes to
+4. **Optional:** `$WORKSPACE_DIR/<name>/.git/` — initialized git repo with sensible `.gitignore`
+5. **Optional:** a GitHub repo (private by default) with `origin` set and a bootstrap commit pushed — plus any repo-level Codex skills copied into `$WORKSPACE_DIR/<name>/.agents/skills/` if your workspace keeps a `scripts/codex-skills/` source (private repos only)
+6. **Optional:** updated `$WORKSPACE_DIR/AGENTS.md` — if an umbrella file exists with a `## Subprojects` section, append an entry
+
+@@ replace
+- If unset, **ask the user once** via `AskUserQuestion`:
+  > "WORKSPACE_DIR isn't set. Default is `~/projects/`. Use that, or specify a different path?"
+  > Options: `Use ~/projects/` | `Use a different path` (free-text)
+@@ with
+- If unset, **ask the user once**, then wait for the answer:
+  > "WORKSPACE_DIR isn't set. Default is `~/projects/`.
+  > 1. Use `~/projects/`
+  > 2. Use a different path (reply with it)"
+
+@@ replace
+> "One-line description for the umbrella CLAUDE.md? (e.g., 'Personal tax document tracker' or 'Recipe collection app')"
+
+If `$WORKSPACE_DIR/CLAUDE.md` doesn't exist, the description is optional — skip if blank.
+@@ with
+> "One-line description for the umbrella AGENTS.md? (e.g., 'Personal tax document tracker' or 'Recipe collection app')"
+
+If `$WORKSPACE_DIR/AGENTS.md` doesn't exist, the description is optional — skip if blank.
+
+@@ replace
+- `test -f "$WORKSPACE_DIR/<name>/CLAUDE.md" && echo HAS_CLAUDE_MD || echo NO_CLAUDE_MD` — note whether the project already has a CLAUDE.md.
+@@ with
+- `test -f "$WORKSPACE_DIR/<name>/AGENTS.md" && echo HAS_AGENTS_MD || echo NO_AGENTS_MD` — note whether the project already has an AGENTS.md.
+
+@@ replace
+- `test -f "$WORKSPACE_DIR/CLAUDE.md" && echo HAS_UMBRELLA || echo NO_UMBRELLA` — does the workspace have an umbrella CLAUDE.md to update?
+- `test -x "$WORKSPACE_DIR/scripts/fanout-memory.sh" && echo HAS_FANOUT || echo NO_FANOUT` — does the optional fan-out helper exist?
+@@ with
+- `test -f "$WORKSPACE_DIR/AGENTS.md" && echo HAS_UMBRELLA || echo NO_UMBRELLA` — does the workspace have an umbrella AGENTS.md to update?
+
+@@ replace
+> "Folder already exists. Has: nothing yet. Will set up: CLAUDE.md stub, memory dir, optionally git. Umbrella file: present, will append entry. Fan-out script: not found, will use plain mkdir for memory dir."
+@@ with
+> "Folder already exists. Has: nothing yet. Will set up: AGENTS.md stub, notes folder, optionally git. Umbrella file: present, will append entry."
+
+@@ replace
+## Step 6 — Generate the starter CLAUDE.md (ONLY if missing)
+
+If the survey reported `HAS_CLAUDE_MD`, **skip this step entirely** and tell the user "CLAUDE.md already exists, leaving alone." Never overwrite a CLAUDE.md the user may have already started writing.
+
+If `NO_CLAUDE_MD`, write `$WORKSPACE_DIR/<name>/CLAUDE.md` with this template (substituting name and description):
+@@ with
+## Step 6 — Generate the starter AGENTS.md (ONLY if missing)
+
+If the survey reported `HAS_AGENTS_MD`, **skip this step entirely** and tell the user "AGENTS.md already exists, leaving alone." Never overwrite an AGENTS.md the user may have already started writing.
+
+If `NO_AGENTS_MD`, write `$WORKSPACE_DIR/<name>/AGENTS.md` with this template (substituting name and description). Keep it short — Codex loads every applicable AGENTS.md into each session, within a combined size cap:
+
+@@ section ## Step 7 — Set up the memory directory
+## Step 7 — Set up the notes folder
+
+Compute the project slug from the absolute project path — every `/` becomes `-`, the leading `-` is kept. `$takenotes` and `$pickup` derive the same slug, so they find this folder:
+
+```bash
+CODEX_DIR="${CODEX_HOME:-$HOME/.codex}"
+SLUG="$(echo "$WORKSPACE_DIR/<name>" | tr '/' '-')"   # /Users/a/x → -Users-a-x
+NOTES_DIR="$CODEX_DIR/notes/projects/$SLUG"
+mkdir -p "$NOTES_DIR"
+# Seed an index if one doesn't exist
+if [ ! -f "$NOTES_DIR/INDEX.md" ]; then
+  printf '# Notes index — %s\n\n' "<name>" > "$NOTES_DIR/INDEX.md"
+fi
+```
+
+This is a plain folder of Markdown notes, not Codex's built-in memory feature — never write into Codex's own memory database or generated memory files. Nothing loads `INDEX.md` automatically; `$takenotes` adds the one standing line to the global `$CODEX_DIR/AGENTS.md` that tells future sessions to read it, so this skill doesn't touch that file. Global (cross-project) notes live in `$CODEX_DIR/notes/global/` and are also managed by `$takenotes`.
+
+Show the user what was created vs. already present.
+
+@@ replace
+5. **Optional — seed web-session skills (private repos only):** some workspaces keep copies of session-continuity skills to commit into each repo so cloud/web sessions can resume work. If such a source exists, copy it in. **Skip entirely for public repos** so nothing private gets published.
+
+   ```bash
+   if [ -d "$WORKSPACE_DIR/scripts/web-skills" ]; then
+     mkdir -p "$WORKSPACE_DIR/<name>/.claude/skills"
+     cp -R "$WORKSPACE_DIR/scripts/web-skills/"* "$WORKSPACE_DIR/<name>/.claude/skills/"
+   fi
+   ```
+@@ with
+5. **Optional — seed repo-level Codex skills (private repos only):** some workspaces keep copies of the session-continuity skills to commit into each repo, so a Codex session on another machine or in the cloud can resume work (Codex discovers repo skills in `.agents/skills/`). If such a source exists, copy it in, including each skill's `references/`. **Skip entirely for public repos** so nothing private gets published.
+
+   ```bash
+   if [ -d "$WORKSPACE_DIR/scripts/codex-skills" ]; then
+     mkdir -p "$WORKSPACE_DIR/<name>/.agents/skills"
+     cp -R "$WORKSPACE_DIR/scripts/codex-skills/"* "$WORKSPACE_DIR/<name>/.agents/skills/"
+   fi
+   ```
+
+@@ replace
+git add CLAUDE.md .gitignore $(test -d .claude/skills && echo .claude/skills) && git commit
+@@ with
+git add AGENTS.md .gitignore $(test -d .agents/skills && echo .agents/skills) && git commit
+
+@@ section ## Step 9 — Update the umbrella CLAUDE.md (only if applicable)
+## Step 9 — Update the umbrella AGENTS.md (only if applicable)
+
+If `NO_UMBRELLA` (no `$WORKSPACE_DIR/AGENTS.md` exists), **skip this step**. Don't create an umbrella file unprompted.
+
+If `HAS_UMBRELLA`, look for a `## Subprojects` section in `$WORKSPACE_DIR/AGENTS.md`. If absent, **skip** — don't restructure the user's umbrella file unprompted.
+
+If present, check whether the project is already listed:
+
+```bash
+grep -q "^- \[<name>/](<name>/) " "$WORKSPACE_DIR/AGENTS.md" && echo HAS_ENTRY || echo NO_ENTRY
+```
+
+If `NO_ENTRY`, append a new line in the same format as existing entries:
+
+```
+- [<name>/](<name>/) — <one-line description from Step 2>
+```
+
+Keep alphabetical order if the existing list is alphabetical, otherwise append at the end.
+
+Codex only loads `AGENTS.md` files from the project's git root down to the working directory, so an umbrella file **above** a project's repo is usually not loaded in that project's sessions. Treat the umbrella as an index that people and agents read on purpose — never put instructions the project depends on only there.
+
+@@ replace
+  ✓ Created CLAUDE.md (starter — fill in as you go)
+  ✓ Memory dir set up at ~/.claude/projects/-Users-alice-projects-tax-tracking/memory/ (fallback — no fan-out script found)
+@@ with
+  ✓ Created AGENTS.md (starter — fill in as you go)
+  ✓ Notes folder set up at ~/.codex/notes/projects/-Users-alice-projects-tax-tracking/
+
+@@ replace
+  ✓ Added entry to umbrella /Users/alice/projects/CLAUDE.md
+@@ with
+  ✓ Added entry to umbrella /Users/alice/projects/AGENTS.md
+
+@@ replace
+  Open in VSCode:  code /Users/alice/projects/tax-tracking
+  Or in this session:  cd /Users/alice/projects/tax-tracking
+@@ with
+  Start Codex there:  cd /Users/alice/projects/tax-tracking && codex
+  (desktop app: open that folder as a project)
+
+@@ replace
+If this skill ran in a session launched inside the new folder, note that the freshly written `CLAUDE.md` and memory dir won't be in context until a fresh window is opened ("Reload Window" doesn't pick them up).
+@@ with
+Future Codex sessions started in the project discover its `AGENTS.md` automatically. If you continue in this chat, the freshly written `AGENTS.md` is not in context yet — read it explicitly before relying on it.
+
+@@ replace
+Never overwrite existing `CLAUDE.md`, `.git`, or other user content.
+@@ with
+Never overwrite existing `AGENTS.md`, `.git`, or other user content. A project that already has a `CLAUDE.md` (from Claude Code) keeps it — leave it alone and create `AGENTS.md` alongside.
+
+@@ replace
+- **Fan-out script missing**: not an error — use the plain `mkdir` fallback in Step 7 and tell the user.
+@@ with
+- **Notes folder already exists**: fine — leave its files and `INDEX.md` untouched.
+
+@@ replace
+- **Public repo chosen**: skip the web-session skills copy (8b step 5) so nothing private gets published.
+@@ with
+- **Public repo chosen**: skip the repo-level Codex skills copy (8b step 5) so nothing private gets published.
+
+@@ replace
+- Adapt the starter CLAUDE.md template to match existing-project conventions
+@@ with
+- Adapt the starter AGENTS.md template to match existing-project conventions
+
+@@ allow ^A project that already has a `CLAUDE\.md` \(from Claude Code\)|already has a `CLAUDE\.md` \(from Claude Code\) keeps it

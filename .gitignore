@@ -17,3 +17,6 @@ grill-me-sessions/
 .playwright-cli/
 .playwright-mcp/
 # --- end workspace baseline ---
+
+# Python bytecode (build-codex / test harness)
+__pycache__/

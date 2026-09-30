@@ -147,10 +147,10 @@ See the root [INSTALL.md](../../INSTALL.md). Quick version:
 
 ```bash
 # The required pair:
-cp -r charles-claude-skills/skills/session-continuity/{putdown,pickup} ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
 
 # Plus the optional third:
-cp -r charles-claude-skills/skills/session-continuity/takenotes ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/takenotes ~/.claude/skills/
 ```
 
 Then close your Claude Code window and open a fresh one.

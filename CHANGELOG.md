@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.9.1] — 2026-09-29
+
+### Changed
+
+- **Renamed the repo `charles-claude-skills` → `charles-agent-skills`**, since it now serves both
+  Claude Code and Codex. GitHub redirects the old URLs, including `git clone` and raw file links.
+- **Moved the Claude versions `skills/` → `claude/`**, beside `codex/`, so the two tools' folders are
+  symmetric. Install commands changed accordingly. **Breaking:** old copy-paste commands that
+  reference `skills/…` need `claude/…` instead (GitHub's redirect covers the repo name, not paths
+  inside it).
+- **README front page rewritten for both tools:** a pick-your-tool table, the folder layout, a note
+  for agents installing on someone's behalf, and separate Claude and Codex install and evaluation
+  sections.
+
 ## [0.9.0] — 2026-09-29
 
 ### Added

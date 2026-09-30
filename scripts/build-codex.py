@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """build-codex.py — generate the Codex versions of the skills from the Claude versions.
 
-Source of truth: skills/**/SKILL.md (the Claude Code versions, refreshed by snapshot.sh).
+Source of truth: claude/**/SKILL.md (the Claude Code versions, refreshed by snapshot.sh).
 Overlays:        codex-overlays/<name>.overlay   (only what differs for Codex)
 Output:          codex/<name>/                   (never edit by hand — rebuilt every run)
 
@@ -30,12 +30,12 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKILLS = {
-    "grill-me": "skills/grill-me",
-    "newproject": "skills/newproject",
-    "skill-dict": "skills/skill-dict",
-    "putdown": "skills/session-continuity/putdown",
-    "pickup": "skills/session-continuity/pickup",
-    "takenotes": "skills/session-continuity/takenotes",
+    "grill-me": "claude/grill-me",
+    "newproject": "claude/newproject",
+    "skill-dict": "claude/skill-dict",
+    "putdown": "claude/session-continuity/putdown",
+    "pickup": "claude/session-continuity/pickup",
+    "takenotes": "claude/session-continuity/takenotes",
 }
 # Files copied from each Claude skill folder into its Codex folder (README.md is Claude install
 # docs, so it is not carried over; the repo INSTALL.md covers Codex).
@@ -199,7 +199,7 @@ def build(only=None):
         print(f"  built codex/{name}/ ({len(files)} file{'s' if len(files) != 1 else ''})")
     (out_root / "README.md").write_text(
         "# Codex versions — generated, do not edit\n\n"
-        "Built by `scripts/build-codex.py` from the Claude Code skills in `skills/` plus the overlays in\n"
+        "Built by `scripts/build-codex.py` from the Claude Code skills in `claude/` plus the overlays in\n"
         "`codex-overlays/`. Edit those, then rebuild. Install: see the Codex section of `INSTALL.md`.\n"
     )
     return 0

@@ -26,11 +26,11 @@ PRs are welcome. These skills were authored for a specific personal workflow but
    - Report precision and recall in the PR description.
    - Threshold to merge: ≥80% on both metrics. The current bar is 100% — don't regress it without good reason.
 
-2. **Run the snapshot script.** If you edited a skill in `~/.claude/skills/<name>/` locally (the canonical source for the pair + `/skill-dict`), re-run `scripts/snapshot.sh` to refresh the repo copy. `/newproject` is maintained separately in the repo — edit `skills/newproject/SKILL.md` directly there.
+2. **Run the snapshot script.** If you edited a skill in `~/.claude/skills/<name>/` locally (the canonical source for the pair + `/skill-dict`), re-run `scripts/snapshot.sh` to refresh the repo copy. `/newproject` is maintained separately in the repo — edit `claude/newproject/SKILL.md` directly there.
 
 3. **Verify no personal paths leaked back in:**
    ```bash
-   grep -rnE '/Users/charles|Charles' skills/
+   grep -rnE '/Users/charles|Charles' claude/
    ```
    Should return zero matches.
 

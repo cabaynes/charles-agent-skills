@@ -15,10 +15,10 @@ A person may point you at this page and say "set me up like this." Treat it as a
 5. **Finish by running the test** from the cloned repo and showing the person its last line, then tell them to open a fresh Claude Code window:
 
 ```
-bash /tmp/charles-claude-skills/workspace/test-fanout.sh
+bash /tmp/charles-agent-skills/workspace/test-fanout.sh
 ```
 
-If they want the extra tooling the maintainer runs, [STACK.md](STACK.md) in this folder lists it in install order with the reason for each. This file's raw URL, for fetching directly: https://raw.githubusercontent.com/cabaynes/charles-claude-skills/main/workspace/README.md
+If they want the extra tooling the maintainer runs, [STACK.md](STACK.md) in this folder lists it in install order with the reason for each. This file's raw URL, for fetching directly: https://raw.githubusercontent.com/cabaynes/charles-agent-skills/main/workspace/README.md
 
 ## Why this layout
 
@@ -73,11 +73,11 @@ Skills have to exist **before** Claude Code starts, so this step is Terminal, no
 
 ```
 mkdir -p ~/CLAUDE/scripts ~/CLAUDE/docs ~/.claude/skills
-cd /tmp && rm -rf charles-claude-skills && git clone https://github.com/cabaynes/charles-claude-skills.git
-cp -r charles-claude-skills/skills/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
-cp -r charles-claude-skills/skills/newproject ~/.claude/skills/
-cp charles-claude-skills/workspace/fanout-memory.sh ~/CLAUDE/scripts/ && chmod +x ~/CLAUDE/scripts/fanout-memory.sh
-if [ ! -f ~/CLAUDE/CLAUDE.md ]; then cp charles-claude-skills/workspace/CLAUDE.md.template ~/CLAUDE/CLAUDE.md; fi
+cd /tmp && rm -rf charles-agent-skills && git clone https://github.com/cabaynes/charles-agent-skills.git
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
+cp -r charles-agent-skills/claude/newproject ~/.claude/skills/
+cp charles-agent-skills/workspace/fanout-memory.sh ~/CLAUDE/scripts/ && chmod +x ~/CLAUDE/scripts/fanout-memory.sh
+if [ ! -f ~/CLAUDE/CLAUDE.md ]; then cp charles-agent-skills/workspace/CLAUDE.md.template ~/CLAUDE/CLAUDE.md; fi
 grep -q 'WORKSPACE_DIR' ~/.zshrc 2>/dev/null || echo 'export WORKSPACE_DIR=~/CLAUDE' >> ~/.zshrc
 export WORKSPACE_DIR=~/CLAUDE
 ls ~/.claude/skills ~/CLAUDE ~/CLAUDE/scripts
@@ -92,7 +92,7 @@ Open `~/CLAUDE` in your editor and start Claude Code. Every prompt below is past
 Claude Code creates a project's memory directory the first time it needs one, but the hub has to exist before the helper can fan anything out. This prompt creates it and runs the helper once.
 
 ```
-I'm setting up a Claude Code workspace following the workspace pattern from the charles-claude-skills repo. My workspace root is ~/CLAUDE, WORKSPACE_DIR=~/CLAUDE is exported in my shell, the umbrella ~/CLAUDE/CLAUDE.md already exists, and ~/CLAUDE/scripts/fanout-memory.sh is installed. Do the following, creating only what is missing and never overwriting anything that exists. Use absolute paths in everything you report back.
+I'm setting up a Claude Code workspace following the workspace pattern from the charles-agent-skills repo. My workspace root is ~/CLAUDE, WORKSPACE_DIR=~/CLAUDE is exported in my shell, the umbrella ~/CLAUDE/CLAUDE.md already exists, and ~/CLAUDE/scripts/fanout-memory.sh is installed. Do the following, creating only what is missing and never overwriting anything that exists. Use absolute paths in everything you report back.
 
 1. Claude Code keeps per-folder memory at ~/.claude/projects/<slug>/memory/, where <slug> is the folder's absolute path with every "/" replaced by "-" (for example /Users/alice/CLAUDE becomes -Users-alice-CLAUDE). Work out the slug for ~/CLAUDE on this machine, mkdir -p that memory directory, and create an empty MEMORY.md inside it if there isn't one. Show me the exact path.
 
@@ -190,7 +190,7 @@ Remember this as a universal rule that applies in every project, not just this o
 `fanout-memory.sh` depends on two things Claude Code does today that are observed behavior, not a documented contract: memory lives at `~/.claude/projects/<slug>/memory/`, and `<slug>` is the absolute path with `/` replaced by `-`. Both have held through 2026. If a release changes either, the fix is the `HUB_SLUG` and `HUB_MEMORY` lines near the top of the script; `test-fanout.sh` will tell you the moment it breaks:
 
 ```
-bash /tmp/charles-claude-skills/workspace/test-fanout.sh
+bash /tmp/charles-agent-skills/workspace/test-fanout.sh
 ```
 
 That path is where Step 1 cloned the repo; macOS clears `/tmp` on reboot, so re-clone or run it from wherever you keep the checkout.

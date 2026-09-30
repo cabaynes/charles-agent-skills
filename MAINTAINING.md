@@ -1,11 +1,11 @@
-# Maintaining `charles-claude-skills`
+# Maintaining `charles-agent-skills`
 
 The release workflow. If you edited a local skill and want the change to show up in the public repo, this is the path.
 
 ## Mental model
 
 - **Canonical source** = `~/.claude/skills/<name>/SKILL.md` (the local copies Claude Code uses day-to-day for the maintainer).
-- **Public repo** = this folder (`~/CLAUDE/charles-claude-skills/`). A **one-way snapshot** of the canonical source, with personal paths and names sanitized.
+- **Public repo** = this folder (`~/CLAUDE/charles-agent-skills/`). A **one-way snapshot** of the canonical source, with personal paths and names sanitized.
 - **Source of truth flows one direction**: local → repo. Never the other way.
 - **`/newproject` is the exception** — it diverges intentionally. Local is hard-coded to `~/CLAUDE/`; the public copy uses `$WORKSPACE_DIR`. `snapshot.sh` skips it.
 
@@ -13,17 +13,17 @@ The release workflow. If you edited a local skill and want the change to show up
 
 | Repo path | Canonical source | Refreshed by |
 |---|---|---|
-| `skills/session-continuity/putdown/SKILL.md` | **canonical here** (hand-maintained fork: degrades gracefully without /takenotes) | Edit directly |
-| `skills/session-continuity/takenotes/SKILL.md` | **canonical here** (hand-maintained fork: detects the shared-memory symlink pattern instead of requiring it) | Edit directly |
-| `skills/session-continuity/pickup/SKILL.md` | `~/.claude/skills/pickup/SKILL.md` | `snapshot.sh` |
-| `skills/skill-dict/SKILL.md` | `~/.claude/skills/skill-dict/SKILL.md` | `snapshot.sh` |
-| `skills/skill-dict/references/*.md` | `~/.claude/skills/skill-dict/references/*.md` | `snapshot.sh` |
-| `skills/newproject/SKILL.md` | **this file is canonical here** (parameterized fork) | Edit directly |
+| `claude/session-continuity/putdown/SKILL.md` | **canonical here** (hand-maintained fork: degrades gracefully without /takenotes) | Edit directly |
+| `claude/session-continuity/takenotes/SKILL.md` | **canonical here** (hand-maintained fork: detects the shared-memory symlink pattern instead of requiring it) | Edit directly |
+| `claude/session-continuity/pickup/SKILL.md` | `~/.claude/skills/pickup/SKILL.md` | `snapshot.sh` |
+| `claude/skill-dict/SKILL.md` | `~/.claude/skills/skill-dict/SKILL.md` | `snapshot.sh` |
+| `claude/skill-dict/references/*.md` | `~/.claude/skills/skill-dict/references/*.md` | `snapshot.sh` |
+| `claude/newproject/SKILL.md` | **this file is canonical here** (parameterized fork) | Edit directly |
 | `skills/*/README.md` | **canonical here** | Edit directly |
 | `skills/*/LICENSE` | Copy of root `LICENSE` | Manual copy or `cp` after editing root |
 | `README.md`, `INSTALL.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `eval-results.md` | **canonical here** | Edit directly |
 | `scripts/snapshot.sh` | **canonical here** | Edit directly |
-| `skills/grill-me/SKILL.md` | `~/.claude/skills/grill-me/SKILL.md` (a symlink to `~/CLAUDE/skills-library/grill-me/SKILL.md`, which is the file to edit) | `snapshot.sh` |
+| `claude/grill-me/SKILL.md` | `~/.claude/skills/grill-me/SKILL.md` (a symlink to `~/CLAUDE/skills-library/grill-me/SKILL.md`, which is the file to edit) | `snapshot.sh` |
 | `workspace/fanout-memory.sh` | **canonical here** (parameterized fork of the maintainer's local `$WORKSPACE_DIR/scripts/fanout-memory.sh`, which hard-codes one hub path) | Edit directly; run `bash workspace/test-fanout.sh` |
 | `workspace/test-fanout.sh`, `workspace/CLAUDE.md.template`, `workspace/README.md`, `workspace/STACK.md` | **canonical here** | Edit directly; re-verify `STACK.md` install commands against `claude --help` when Claude Code updates |
 
@@ -33,10 +33,10 @@ You changed `~/.claude/skills/putdown/SKILL.md` (or `pickup`, or `skill-dict`). 
 
 ```bash
 # 1. Refresh the repo snapshot (copy + sanitize)
-bash ~/CLAUDE/charles-claude-skills/scripts/snapshot.sh
+bash ~/CLAUDE/charles-agent-skills/scripts/snapshot.sh
 
 # 2. Review the diff
-cd ~/CLAUDE/charles-claude-skills && git diff
+cd ~/CLAUDE/charles-agent-skills && git diff
 
 # 2b. Rebuild + test the Codex versions (see "Codex versions" below)
 python3 scripts/build-codex.py && python3 tests/codex/run_tests.py
@@ -58,10 +58,10 @@ python3 scripts/build-codex.py && python3 tests/codex/run_tests.py
 #    sanitizing aborts the snapshot. If it does, fix the LOCAL source — rewrite
 #    third-person subject lines ("Charles maintains ... he's installed") as
 #    possessives ("Charles's") or second person ("You maintain") — then re-run.)
-grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-claude-skills/skills/
+grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-agent-skills/claude/
 
 # 7. Commit + push
-cd ~/CLAUDE/charles-claude-skills
+cd ~/CLAUDE/charles-agent-skills
 git add .
 git commit -m "<version>: <one-line summary>"
 git push
@@ -71,7 +71,7 @@ That's it. The repo now reflects your local change.
 
 ## Codex versions
 
-`codex/` is **generated**. Never edit it by hand. Each Claude skill in `skills/` is the single
+`codex/` is **generated**. Never edit it by hand. Each Claude skill in `claude/` is the single
 source; `codex-overlays/<name>.overlay` holds only what differs for Codex (frontmatter, swapped
 sections, exact text replacements). The directive format is documented at the top of
 `scripts/build-codex.py`.
@@ -79,8 +79,8 @@ sections, exact text replacements). The directive format is documented at the to
 After any change to a skill (snapshot or hand edit), rebuild and test before committing:
 
 ```bash
-cd ~/CLAUDE/charles-claude-skills
-python3 scripts/build-codex.py          # rebuilds codex/ from skills/ + overlays
+cd ~/CLAUDE/charles-agent-skills
+python3 scripts/build-codex.py          # rebuilds codex/ from claude/ + overlays
 python3 tests/codex/spec_check.py       # instant; Agent Skills spec + repo conventions
 python3 tests/codex/run_tests.py        # ~6 min; runs every skill through real `codex exec`
 ```
@@ -108,7 +108,7 @@ Record notable runs in `tests/codex/RESULTS.md`.
 
 ```bash
 # Edit directly in the repo:
-vim ~/CLAUDE/charles-claude-skills/skills/newproject/SKILL.md
+vim ~/CLAUDE/charles-agent-skills/claude/newproject/SKILL.md
 
 # Then steps 3–7 above (eval if description changed, bump CHANGELOG, verify, commit, push)
 ```
@@ -119,18 +119,18 @@ If you want to update the **local** (Charles-specific) version, edit `~/.claude/
 
 You authored a new skill at `~/.claude/skills/<new-name>/SKILL.md` and want it shipped.
 
-1. **Decide bundling**: standalone (like `/skill-dict`) or paired with another skill (like the session-continuity pair)? If paired, the two skills live in a shared parent folder under `skills/`.
+1. **Decide bundling**: standalone (like `/skill-dict`) or paired with another skill (like the session-continuity pair)? If paired, the two skills live in a shared parent folder under `claude/`.
 2. **Edit `scripts/snapshot.sh`**:
    - Add the new skill to the copy block at the top.
    - Add its `SKILL.md` (and any `references/*.md`) to the `SANITIZE_TARGETS` array.
-3. **Run snapshot.sh**: produces `skills/<new-name>/SKILL.md` in the repo.
-4. **Write `skills/<new-name>/README.md`**: ~400-500 words, sections: What / Benefits / Best practices / Why better than alternatives / Eval result / Install. Use `skills/skill-dict/README.md` as a template.
-5. **Copy LICENSE**: `cp LICENSE skills/<new-name>/LICENSE`
+3. **Run snapshot.sh**: produces `claude/<new-name>/SKILL.md` in the repo.
+4. **Write `claude/<new-name>/README.md`**: ~400-500 words, sections: What / Benefits / Best practices / Why better than alternatives / Eval result / Install. Use `claude/skill-dict/README.md` as a template.
+5. **Copy LICENSE**: `cp LICENSE claude/<new-name>/LICENSE`
 6. **Update top-level `README.md`**: add a row to the "Standalone utilities" table (or create a new bundle section if it's a pair).
 7. **Update `INSTALL.md`**: add a copy-command block for the new skill.
 8. **Update `CHANGELOG.md`**: new version entry under a new `##` heading.
 9. **Run the 20-query eval** on the new skill's description. Methodology in `CONTRIBUTING.md`. Append results to `eval-results.md` (headline table + per-skill section).
-10. **Verify sanitization**: `grep -rnE '/Users/charles|Charles' skills/`
+10. **Verify sanitization**: `grep -rnE '/Users/charles|Charles' claude/`
 11. **Commit + push**.
 
 ## Verifying the release
@@ -139,17 +139,17 @@ Before pushing, sanity-check:
 
 ```bash
 # Sanitization sweep (zero matches outside LICENSE copyright lines and snapshot.sh self-references)
-grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-claude-skills/
+grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-agent-skills/
 
-# Confirm skills/ has no personal paths or names
-grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-claude-skills/skills/
+# Confirm claude/ has no personal paths or names
+grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-agent-skills/claude/
 
 # Workspace folder: sanitization plus the helper's own test
-grep -rnE '/Users/charles|Charles|job' ~/CLAUDE/charles-claude-skills/workspace/
-bash ~/CLAUDE/charles-claude-skills/workspace/test-fanout.sh
+grep -rnE '/Users/charles|Charles|job' ~/CLAUDE/charles-agent-skills/workspace/
+bash ~/CLAUDE/charles-agent-skills/workspace/test-fanout.sh
 
 # Diff against last release
-cd ~/CLAUDE/charles-claude-skills && git diff HEAD~1
+cd ~/CLAUDE/charles-agent-skills && git diff HEAD~1
 ```
 
 After pushing, open the GitHub repo and confirm:
@@ -183,19 +183,19 @@ You can spawn 4 parallel sub-agents (one per skill, one query batch each) to mak
 
 ```bash
 # Most common: I changed a local skill and want to push the update
-bash ~/CLAUDE/charles-claude-skills/scripts/snapshot.sh \
-  && cd ~/CLAUDE/charles-claude-skills \
+bash ~/CLAUDE/charles-agent-skills/scripts/snapshot.sh \
+  && cd ~/CLAUDE/charles-agent-skills \
   && git diff  # review
 # ...bump CHANGELOG, then:
 git add . && git commit -m "..." && git push
 
 # Less common: I changed only the parameterized /newproject in the repo
-cd ~/CLAUDE/charles-claude-skills && git diff
+cd ~/CLAUDE/charles-agent-skills && git diff
 git add . && git commit -m "..." && git push
 
 # Verify nothing personal leaked
-grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-claude-skills/skills/
+grep -rnE '/Users/charles|Charles' ~/CLAUDE/charles-agent-skills/claude/
 
 # Re-snapshot from scratch (if local skills changed substantially)
-bash ~/CLAUDE/charles-claude-skills/scripts/snapshot.sh
+bash ~/CLAUDE/charles-agent-skills/scripts/snapshot.sh
 ```

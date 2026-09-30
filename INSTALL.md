@@ -2,6 +2,8 @@
 
 Install any combination of the six skills in this repo. They're all standalone except for the **session-continuity pair** (`/putdown` + `/pickup`), which must always be installed together. `/takenotes` lives in the same folder as that pair but is independent — install it with them, without them, or add it later.
 
+**Using OpenAI Codex?** Skip to [Using OpenAI Codex instead (or as well)](#using-openai-codex-instead-or-as-well); the same pairing rules apply. Everything between here and that section is for Claude Code, installing from `claude/`.
+
 ## Prerequisite
 
 You need Claude Code installed. User-scope skills live at `~/.claude/skills/<name>/SKILL.md` and are auto-discovered on session start.
@@ -11,8 +13,8 @@ You need Claude Code installed. User-scope skills live at `~/.claude/skills/<nam
 These are a matched pair — `/pickup` reads the handoff files that `/putdown` writes. Installing one without the other gets you half a feature.
 
 ```bash
-git clone https://github.com/cabaynes/charles-claude-skills.git
-cp -r charles-claude-skills/skills/session-continuity/{putdown,pickup} ~/.claude/skills/
+git clone https://github.com/cabaynes/charles-agent-skills.git
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
 ```
 
 That copies **both** skill folders into `~/.claude/skills/` in one command. Verify:
@@ -28,7 +30,7 @@ No environment-variable setup required.
 Lives in the same folder but is **not** part of the required pair — `/putdown` and `/pickup` work without it. Install it if you want session *knowledge* kept permanently, not just session *state* carried forward:
 
 ```bash
-cp -r charles-claude-skills/skills/session-continuity/takenotes ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/takenotes ~/.claude/skills/
 ```
 
 ```bash
@@ -46,7 +48,7 @@ No environment-variable setup required.
 Bootstraps a new project directory with a starter `CLAUDE.md`, memory directory, optional git init, and optional umbrella-file entry.
 
 ```bash
-cp -r charles-claude-skills/skills/newproject ~/.claude/skills/
+cp -r charles-agent-skills/claude/newproject ~/.claude/skills/
 ```
 
 **Configure your workspace directory once** (the skill asks the first time, but setting this in your shell rc skips that step forever):
@@ -63,7 +65,7 @@ Optional: if `$WORKSPACE_DIR/scripts/fanout-memory.sh` exists, the skill uses it
 Maintain a hand-curated catalog of every Claude Code skill you've installed or authored.
 
 ```bash
-cp -r charles-claude-skills/skills/skill-dict ~/.claude/skills/
+cp -r charles-agent-skills/claude/skill-dict ~/.claude/skills/
 ```
 
 By default, the skill looks for the catalog at `~/skills-library/`. If you want a different path, edit `~/.claude/skills/skill-dict/SKILL.md` and replace the `~/skills-library/` references with your preferred location.
@@ -74,15 +76,15 @@ If you keep more than one project, the [`workspace/`](workspace/) folder turns t
 
 ```bash
 mkdir -p ~/CLAUDE/scripts
-cp charles-claude-skills/workspace/fanout-memory.sh ~/CLAUDE/scripts/ && chmod +x ~/CLAUDE/scripts/fanout-memory.sh
-[ -f ~/CLAUDE/CLAUDE.md ] || cp charles-claude-skills/workspace/CLAUDE.md.template ~/CLAUDE/CLAUDE.md
+cp charles-agent-skills/workspace/fanout-memory.sh ~/CLAUDE/scripts/ && chmod +x ~/CLAUDE/scripts/fanout-memory.sh
+[ -f ~/CLAUDE/CLAUDE.md ] || cp charles-agent-skills/workspace/CLAUDE.md.template ~/CLAUDE/CLAUDE.md
 export WORKSPACE_DIR=~/CLAUDE   # use the SAME value you set in section 2; this guide's examples use ~/CLAUDE
 ```
 
 Prove the helper works on your machine before relying on it:
 
 ```bash
-bash charles-claude-skills/workspace/test-fanout.sh
+bash charles-agent-skills/workspace/test-fanout.sh
 ```
 
 ## 5. Optional: `/grill-me`
@@ -90,7 +92,7 @@ bash charles-claude-skills/workspace/test-fanout.sh
 Interrogates a plan or idea instead of building it. Sessions are written to `grill-me-sessions/` in the current directory; add that folder to your project's `.gitignore` if you do not want planning notes committed.
 
 ```bash
-cp -r charles-claude-skills/skills/grill-me ~/.claude/skills/
+cp -r charles-agent-skills/claude/grill-me ~/.claude/skills/
 ```
 
 ## Symlink vs. copy
@@ -104,8 +106,8 @@ The instructions above use `cp -r` (copy). The alternative is `ln -s` (symlink) 
 **Symlink:**
 ```bash
 # Example for the session-continuity pair:
-ln -s "$(pwd)/charles-claude-skills/skills/session-continuity/putdown" ~/.claude/skills/putdown
-ln -s "$(pwd)/charles-claude-skills/skills/session-continuity/pickup" ~/.claude/skills/pickup
+ln -s "$(pwd)/charles-agent-skills/claude/session-continuity/putdown" ~/.claude/skills/putdown
+ln -s "$(pwd)/charles-agent-skills/claude/session-continuity/pickup" ~/.claude/skills/pickup
 ```
 - ✓ `git pull` updates your installed skills
 - ✗ Deleting the repo breaks your installed skills
@@ -145,9 +147,9 @@ Claude-only parts swapped for Codex equivalents. They're generated, not hand-cop
 versions can't drift. See [MAINTAINING.md](MAINTAINING.md#codex-versions).
 
 ```bash
-git clone https://github.com/cabaynes/charles-claude-skills.git
+git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.agents/skills
-cp -r charles-claude-skills/codex/*/ ~/.agents/skills/
+cp -r charles-agent-skills/codex/*/ ~/.agents/skills/
 ```
 
 The same pairing rules apply: `putdown` + `pickup` together, `takenotes` optional. Start a new Codex

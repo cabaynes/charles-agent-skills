@@ -3,7 +3,7 @@
 # snapshot.sh — refresh the public repo from local skills with sanitization.
 #
 # Source of truth: ~/.claude/skills/<name>/  (Charles's local, daily-use copies)
-# Target:          this repo's skills/<name>/  (sanitized public snapshot)
+# Target:          this repo's claude/<name>/  (sanitized public snapshot)
 #
 # Copies pickup, skill-dict, and grill-me. The other three are NOT copied — each has a
 # parameterized public fork that is
@@ -29,7 +29,7 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCAL_SKILLS="${HOME}/.claude/skills"
-PUBLIC_SKILLS="${REPO_DIR}/skills"
+PUBLIC_SKILLS="${REPO_DIR}/claude"
 
 echo "Refreshing public snapshot in ${PUBLIC_SKILLS}/ from ${LOCAL_SKILLS}/"
 

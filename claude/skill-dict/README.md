@@ -75,7 +75,7 @@ Trigger-accuracy benchmark: 100% precision and 100% recall on a 20-query test se
 See the root [INSTALL.md](../../INSTALL.md). Quick version:
 
 ```bash
-cp -r charles-claude-skills/skills/skill-dict ~/.claude/skills/
+cp -r charles-agent-skills/claude/skill-dict ~/.claude/skills/
 mkdir -p ~/skills-library/{plugins,authored}
 ```
 

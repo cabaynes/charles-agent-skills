@@ -16,6 +16,15 @@ All notable changes to this project will be documented here. Format roughly foll
   for agents installing on someone's behalf, and separate Claude and Codex install and evaluation
   sections.
 
+### Fixed
+
+- **Install commands, found by running the README's blocks verbatim in a fresh home folder:**
+  - The Codex command `cp -r codex/*/ ~/.agents/skills/` **broke on macOS**: with a trailing
+    slash, BSD `cp` copies each folder's *contents*, so all six skills merged into one heap. It now
+    names the six folders explicitly.
+  - The Claude commands assumed `~/.claude/skills/` already existed; they now `mkdir -p` it first
+    (README, INSTALL.md and every per-skill README).
+
 ## [0.9.0] — 2026-09-29
 
 ### Added

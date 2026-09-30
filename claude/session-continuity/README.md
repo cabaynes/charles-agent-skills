@@ -147,6 +147,7 @@ See the root [INSTALL.md](../../INSTALL.md). Quick version:
 
 ```bash
 # The required pair:
+mkdir -p ~/.claude/skills
 cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
 
 # Plus the optional third:

@@ -79,6 +79,7 @@ The guide opens with a runbook section written for a Claude agent acting on a pe
 
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
+mkdir -p ~/.claude/skills
 # Session-continuity pair (one command, both halves):
 cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
 # Optional third — memory harvesting; /putdown will chain to it if present:
@@ -94,8 +95,8 @@ Then **close your Claude Code window and open a fresh one** so the new skills re
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.agents/skills
-# All six (or copy just the ones you want — putdown + pickup go together):
-cp -r charles-agent-skills/codex/*/ ~/.agents/skills/
+# All six (or drop the ones you don't want — putdown + pickup go together):
+cp -r charles-agent-skills/codex/{grill-me,newproject,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
 ```
 
 Then start a **new chat** (`/new` in the CLI, `Cmd+N` in the app) and run them as `$putdown`, `$pickup`, and so on.

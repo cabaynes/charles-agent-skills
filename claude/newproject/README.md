@@ -80,6 +80,7 @@ Trigger-accuracy benchmark: 100% precision and 100% recall on a 20-query test se
 See the root [INSTALL.md](../../INSTALL.md). Quick version:
 
 ```bash
+mkdir -p ~/.claude/skills
 cp -r charles-agent-skills/claude/newproject ~/.claude/skills/
 export WORKSPACE_DIR=~/projects  # in your shell rc, so it persists
 ```

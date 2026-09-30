@@ -44,6 +44,7 @@ Trigger-accuracy benchmark, LLM-as-judge over 20 queries (10 realistic should-tr
 ## Install
 
 ```bash
+mkdir -p ~/.claude/skills
 cp -r charles-agent-skills/claude/grill-me ~/.claude/skills/
 ```
 

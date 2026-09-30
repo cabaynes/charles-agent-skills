@@ -14,6 +14,7 @@ These are a matched pair — `/pickup` reads the handoff files that `/putdown` w
 
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
+mkdir -p ~/.claude/skills
 cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
 ```
 
@@ -149,7 +150,7 @@ versions can't drift. See [MAINTAINING.md](MAINTAINING.md#codex-versions).
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.agents/skills
-cp -r charles-agent-skills/codex/*/ ~/.agents/skills/
+cp -r charles-agent-skills/codex/{grill-me,newproject,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
 ```
 
 The same pairing rules apply: `putdown` + `pickup` together, `takenotes` optional. Start a new Codex

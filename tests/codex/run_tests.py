@@ -7,7 +7,9 @@ auth.json — credentials are never copied, and the link is removed at the end. 
 to a local bare repo. Your real ~/.codex (global AGENTS.md, notes, putdowns, memories) is never
 written.
 
-Usage:  python3 tests/codex/run_tests.py [scenario ...] [--keep]
+Usage:  python3 tests/codex/run_tests.py [scenario ...] [--keep] [--api-key-from FILE]
+        --api-key-from signs the throwaway home in with FILE's OPENAI_API_KEY (billed per token)
+        instead of linking your ChatGPT sign-in — useful when the plan's Codex limit is used up.
         Scenarios: grill-me takenotes putdown pickup newproject skill-dict (default: all, in order;
         pickup needs putdown's handoff, so it runs putdown first if you name only pickup).
 """
@@ -43,7 +45,7 @@ class UsageLimit(Exception):
 
 
 class Env:
-    def __init__(self, keep):
+    def __init__(self, keep, key_file=None):
         self.keep = keep
         self.root = pathlib.Path(tempfile.mkdtemp(prefix="codex-skilltest-")).resolve()
         self.home = self.root / "codex-home"
@@ -51,13 +53,29 @@ class Env:
         self.logs = self.root / "logs"
         for d in (self.home / "skills", self.work, self.logs):
             d.mkdir(parents=True)
-        auth = REAL_HOME / "auth.json"
-        if not auth.exists():
-            sys.exit(f"no Codex sign-in at {auth} — sign in to Codex first")
-        (self.home / "auth.json").symlink_to(auth)
         cfg = (REAL_HOME / "config.toml").read_text() if (REAL_HOME / "config.toml").exists() else ""
         keep_lines = [l for l in cfg.splitlines() if re.match(r"(model|model_reasoning_effort)\s*=", l)]
+        if key_file:  # keep the key in this throwaway home's auth.json, never the OS keychain
+            keep_lines.append('cli_auth_credentials_store = "file"')
         (self.home / "config.toml").write_text("\n".join(keep_lines) + "\n")
+        if key_file:
+            # Sign the throwaway home in with an API key. Only the OPENAI_API_KEY line is read,
+            # it goes to `codex login` on stdin, and it is never printed or put in any env.
+            m = re.search(r"^\s*(?:export\s+)?OPENAI_API_KEY\s*=\s*['\"]?([^'\"\s#]+)",
+                          pathlib.Path(key_file).expanduser().read_text(), re.M)
+            if not m:
+                sys.exit(f"no OPENAI_API_KEY line in {key_file}")
+            r = subprocess.run(["codex", "login", "--with-api-key"], input=m.group(1) + "\n", text=True,
+                               capture_output=True, env=dict(os.environ, CODEX_HOME=str(self.home)))
+            if r.returncode:
+                sys.exit("codex login --with-api-key failed (output withheld: it may echo the key)")
+            if not (self.home / "auth.json").is_file():
+                sys.exit("API key did not land in the throwaway auth.json — refusing to continue")
+        else:
+            auth = REAL_HOME / "auth.json"
+            if not auth.exists():
+                sys.exit(f"no Codex sign-in at {auth} — sign in to Codex first")
+            (self.home / "auth.json").symlink_to(auth)
         for d in (REPO / "codex").iterdir():
             if d.is_dir():
                 shutil.copytree(d, self.home / "skills" / d.name)
@@ -215,14 +233,20 @@ SCEN = {"grill-me": t_grill_me, "takenotes": t_takenotes, "putdown": t_putdown,
 
 
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    keep = "--keep" in sys.argv
+    argv = sys.argv[1:]
+    key_file = None
+    if "--api-key-from" in argv:  # e.g. --api-key-from path/to/.env (uses its OPENAI_API_KEY line)
+        i = argv.index("--api-key-from")
+        key_file = argv[i + 1]
+        del argv[i:i + 2]
+    args = [a for a in argv if not a.startswith("--")]
+    keep = "--keep" in argv
     want = [s for s in ORDER if not args or s in args]
     if "pickup" in want and "putdown" not in want:
         want.insert(want.index("pickup"), "putdown")
     if not (REPO / "codex").is_dir():
         sys.exit("codex/ not built — run scripts/build-codex.py first")
-    e = Env(keep)
+    e = Env(keep, key_file)
     R = []
     print(f"test root: {e.root}", flush=True)
     try:

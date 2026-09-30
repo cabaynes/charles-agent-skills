@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.9.0] — 2026-09-29
+
+### Added
+
+- **OpenAI Codex versions of all six skills** in `codex/` (run as `$putdown`, `$pickup`, …). Codex
+  uses the same open Agent Skills format; the Claude-only parts are swapped for Codex equivalents:
+  - `AGENTS.md` in place of `CLAUDE.md`;
+  - numbered chat questions in place of `AskUserQuestion`;
+  - `/new` or a New chat in place of `/clear`;
+  - the Codex plugin CLI for `skill-dict`;
+  - Markdown notes plus a loader block in the global `AGENTS.md` for `takenotes`, since a skill
+    can't write to Codex's own memory feature.
+- **Generated, not hand-copied.** `skills/` stays the single source. `codex-overlays/` hold only what
+  differs, and `scripts/build-codex.py` builds `codex/`. The build fails if a Claude edit breaks an
+  overlay, or if Claude-only terms leak into a Codex version.
+- **Tested in Codex.** `tests/codex/run_tests.py` runs every skill end to end through `codex exec`
+  in a throwaway Codex home (30/30). `tests/codex/spec_check.py` checks the Agent Skills spec
+  (53/54: `skill-dict`'s description lacks a when-not-to-use clause, in both versions). A behavior
+  rubric showed a preference saved by `takenotes` being followed in a later, separate session.
+  Details: `tests/codex/RESULTS.md`. Codex trigger accuracy is not measured; the published trigger
+  numbers remain Claude Code only.
+- The skills were first reviewed by Codex itself (read-only), which also surfaced the 0.8.2 fixes.
+
 ## [0.8.2] — 2026-09-29
 
 ### Fixed

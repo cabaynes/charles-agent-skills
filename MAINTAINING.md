@@ -81,8 +81,15 @@ After any change to a skill (snapshot or hand edit), rebuild and test before com
 ```bash
 cd ~/CLAUDE/charles-claude-skills
 python3 scripts/build-codex.py          # rebuilds codex/ from skills/ + overlays
+python3 tests/codex/spec_check.py       # instant; Agent Skills spec + repo conventions
 python3 tests/codex/run_tests.py        # ~6 min; runs every skill through real `codex exec`
 ```
+
+If your ChatGPT plan's Codex limit is used up, `--api-key-from path/to/.env` signs the throwaway
+test home in with that file's `OPENAI_API_KEY` instead (billed per token). The key goes to
+`codex login` on stdin, is stored only in the throwaway home's `auth.json` (file storage is forced,
+never the keychain), and that file is deleted at the end of every run, even with `--keep`.
+Record notable runs in `tests/codex/RESULTS.md`.
 
 - **The build fails, and writes nothing, when an overlay's anchor text is gone.** That means a
   Claude edit touched a passage the Codex version replaces. Update the overlay to match, and check

@@ -1,0 +1,152 @@
+[
+ {
+  "scenario": "grill-me",
+  "pass": true,
+  "check": "codex exited 0 (27s)"
+ },
+ {
+  "scenario": "grill-me",
+  "pass": true,
+  "check": "session file grill-me-sessions/db-migration.grill.md created"
+ },
+ {
+  "scenario": "grill-me",
+  "pass": true,
+  "check": "ended by asking a question"
+ },
+ {
+  "scenario": "grill-me",
+  "pass": true,
+  "check": "wrote nothing besides the session file "
+ },
+ {
+  "scenario": "takenotes",
+  "pass": true,
+  "check": "codex exited 0 (42s)"
+ },
+ {
+  "scenario": "takenotes",
+  "pass": true,
+  "check": "project INDEX.md at notes/projects/<slug>/"
+ },
+ {
+  "scenario": "takenotes",
+  "pass": true,
+  "check": "vendor rate-limit finding stored as a project note"
+ },
+ {
+  "scenario": "takenotes",
+  "pass": true,
+  "check": "cross-project preference (dry-run) stored in global notes"
+ },
+ {
+  "scenario": "takenotes",
+  "pass": true,
+  "check": "global AGENTS.md points at notes/global/INDEX.md"
+ },
+ {
+  "scenario": "takenotes",
+  "pass": true,
+  "check": "report includes the required Operational block"
+ },
+ {
+  "scenario": "takenotes",
+  "pass": true,
+  "check": "second run keeps one pointer (was 1, now 1; 17s)"
+ },
+ {
+  "scenario": "putdown",
+  "pass": true,
+  "check": "codex exited 0 (70s)"
+ },
+ {
+  "scenario": "putdown",
+  "pass": true,
+  "check": "handoff written to $CODEX_HOME/putdowns/app/"
+ },
+ {
+  "scenario": "putdown",
+  "pass": true,
+  "check": "'Must address next session' carries the seed-verification item"
+ },
+ {
+  "scenario": "putdown",
+  "pass": true,
+  "check": "paste line is $pickup"
+ },
+ {
+  "scenario": "putdown",
+  "pass": true,
+  "check": "working tree clean after commit"
+ },
+ {
+  "scenario": "putdown",
+  "pass": true,
+  "check": "exactly one new commit (got 1)"
+ },
+ {
+  "scenario": "putdown",
+  "pass": true,
+  "check": "pushed: origin/main matches local HEAD"
+ },
+ {
+  "scenario": "pickup",
+  "pass": true,
+  "check": "codex exited 0 (30s)"
+ },
+ {
+  "scenario": "pickup",
+  "pass": true,
+  "check": "briefing echoes the Must-address seed item"
+ },
+ {
+  "scenario": "pickup",
+  "pass": true,
+  "check": "stopped for confirmation (no edits, no commits)"
+ },
+ {
+  "scenario": "newproject",
+  "pass": true,
+  "check": "codex exited 0 (33s)"
+ },
+ {
+  "scenario": "newproject",
+  "pass": true,
+  "check": "AGENTS.md stub created"
+ },
+ {
+  "scenario": "newproject",
+  "pass": true,
+  "check": "no CLAUDE.md created"
+ },
+ {
+  "scenario": "newproject",
+  "pass": true,
+  "check": "notes folder with INDEX.md at notes/projects/<slug>/"
+ },
+ {
+  "scenario": "newproject",
+  "pass": true,
+  "check": "git initialized"
+ },
+ {
+  "scenario": "skill-dict",
+  "pass": true,
+  "check": "codex exited 0 (63s)"
+ },
+ {
+  "scenario": "skill-dict",
+  "pass": true,
+  "check": "library INDEX.md created"
+ },
+ {
+  "scenario": "skill-dict",
+  "pass": true,
+  "check": "installed skills (grill-me, putdown) catalogued"
+ },
+ {
+  "scenario": "skill-dict",
+  "pass": true,
+  "check": "show pickup prints its entry (11s)"
+ }
+]

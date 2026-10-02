@@ -61,6 +61,14 @@ The cross-session row is the most important result. Codex doesn't load a notes f
 the Codex takenotes relies on a loader block in the global `AGENTS.md` to make notes load. This run
 shows the block working.
 
+## Re-runs
+
+- **2026-10-02, after making putdown + pickup + takenotes one required set (0.9.2):** putdown and
+  pickup re-ran **10/10** on the ChatGPT plan. A separate run installed only putdown + pickup, and
+  Codex's own message printed the incomplete-set warning
+  (`$putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes.`),
+  checked in the agent's messages, not the log, where the skill text itself also appears.
+
 ## Not measured
 
 **Trigger accuracy in Codex.** Whether Codex picks each skill *implicitly* at the right moments is

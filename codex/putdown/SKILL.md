@@ -16,7 +16,7 @@ The user is about to start a fresh chat. Your job: capture **everything a new ag
 
 ## Step 0 — Announce what's about to run
 
-If the `takenotes` skill is installed (a `takenotes/SKILL.md` in `$CODEX_DIR/skills/`, `~/.agents/skills/`, or the repo's `.agents/skills/`), a putdown is two operations, not one. Print this first so the user knows what's running and in what order:
+The `takenotes` skill ships with this one as part of the session-continuity set (putdown + pickup + takenotes), so a putdown is two operations, not one. Check it is there (a `takenotes/SKILL.md` in `~/.agents/skills/`, `$CODEX_DIR/skills/`, or the repo's `.agents/skills/`). Print this first so the user knows what's running and in what order:
 
 ```
 $putdown runs two skills, in this order:
@@ -24,7 +24,14 @@ $putdown runs two skills, in this order:
   2. $putdown   — write the handoff file, then commit and push everything
 ```
 
-If it is not installed, skip the announcement. Either way this is an announcement, not a prompt — don't wait for confirmation, continue to Step 1.
+If it is missing (someone installed only part of the set), print this instead of the announcement:
+
+```
+$putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes.
+          Using the reduced memory step instead; install takenotes for the full harvest.
+```
+
+Either way this is an announcement, not a prompt — don't wait for confirmation, continue to Step 1.
 
 ## Step 1 — Read current state (parallel)
 
@@ -47,14 +54,14 @@ Also pull from your conversation memory:
 
 ## Steps 2–3 — Harvest durable knowledge
 
-**If the `takenotes` skill is installed** — it ships alongside this skill in the session-continuity
-package — **open its `SKILL.md`, read it, and follow it to completion before continuing.** (There is no
+**Run the `takenotes` skill** — it ships with this skill as part of the session-continuity set —
+**open its `SKILL.md`, read it, and follow it to completion before continuing.** (There is no
 tool that runs another skill for you; reading and following its instructions is how it runs.) It
 harvests the session, reconciles what is already in the notes and `AGENTS.md` against what this session
 actually established (correcting anything that has since become false), and routes each finding to a
 note, `AGENTS.md`, or a `docs/` spoke.
 
-**If it isn't installed**, do this inline instead — a reduced version with no reconcile pass:
+**If it's missing** (a partial install — Step 0 already told the user), do this inline instead — a reduced version with no reconcile pass:
 
 - Write durable findings (user preferences, corrections to your approach, project status, external
   references) as short Markdown notes in `$CODEX_DIR/notes/projects/<slug>/`, one fact per file, each

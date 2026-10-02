@@ -1,46 +1,30 @@
 # Install
 
-Install any combination of the six skills in this repo. They're all standalone except for the **session-continuity pair** (`/putdown` + `/pickup`), which must always be installed together. `/takenotes` lives in the same folder as that pair but is independent — install it with them, without them, or add it later.
+Install any combination of the six skills in this repo. They're all standalone except for the **session-continuity set** (`/putdown` + `/pickup` + `/takenotes`), which always goes in together.
 
-**Using OpenAI Codex?** Skip to [Using OpenAI Codex instead (or as well)](#using-openai-codex-instead-or-as-well); the same pairing rules apply. Everything between here and that section is for Claude Code, installing from `claude/`.
+**Using OpenAI Codex?** Skip to [Using OpenAI Codex instead (or as well)](#using-openai-codex-instead-or-as-well); the same install rule applies. Everything between here and that section is for Claude Code, installing from `claude/`.
 
 ## Prerequisite
 
 You need Claude Code installed. User-scope skills live at `~/.claude/skills/<name>/SKILL.md` and are auto-discovered on session start.
 
-## 1. Session-continuity pair: `/putdown` + `/pickup`
+## 1. Session-continuity set: `/putdown` + `/pickup` + `/takenotes`
 
-These are a matched pair — `/pickup` reads the handoff files that `/putdown` writes. Installing one without the other gets you half a feature.
+These three go together. `/pickup` reads the handoff files that `/putdown` writes, and `/putdown` runs `/takenotes` as its harvest step, so one `/putdown` saves both the session *state* (for the next session) and the session *knowledge* (for good).
 
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
 ```
 
-That copies **both** skill folders into `~/.claude/skills/` in one command. Verify:
+That copies all three skill folders into `~/.claude/skills/` in one command. Verify:
 
 ```bash
-ls ~/.claude/skills/putdown/SKILL.md ~/.claude/skills/pickup/SKILL.md
+ls ~/.claude/skills/{putdown,pickup,takenotes}/SKILL.md
 ```
 
-No environment-variable setup required.
-
-### 1b. Recommended companion: `/takenotes`
-
-Lives in the same folder but is **not** part of the required pair — `/putdown` and `/pickup` work without it. Install it if you want session *knowledge* kept permanently, not just session *state* carried forward:
-
-```bash
-cp -r charles-agent-skills/claude/session-continuity/takenotes ~/.claude/skills/
-```
-
-```bash
-ls ~/.claude/skills/takenotes/SKILL.md
-```
-
-**Install order doesn't matter, but the effect is one-directional:** once `/takenotes` is present, `/putdown` detects it and runs it automatically as its Steps 2–3, announcing both skills up front. Without it, `/putdown` uses its own reduced inline memory step. Nothing breaks either way, and you can add or remove `/takenotes` later without touching `/putdown`.
-
-`/takenotes` also works entirely on its own — you can install it without `/putdown` or `/pickup` at all.
+**If one is missing, `/putdown` still works:** without `/takenotes` it says the set is incomplete and falls back to a reduced memory step, with no check of what's already stored. Install the full set to get the real thing. `/takenotes` can also be run on its own mid-session ("remember this", "save what we learned").
 
 No environment-variable setup required.
 
@@ -153,7 +137,7 @@ mkdir -p ~/.agents/skills
 cp -r charles-agent-skills/codex/{grill-me,newproject,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
 ```
 
-The same pairing rules apply: `putdown` + `pickup` together, `takenotes` optional. Start a new Codex
+The same install rule applies: `putdown`, `pickup` and `takenotes` go together. Start a new Codex
 chat afterwards so the skills register.
 
 | | Claude Code | Codex |

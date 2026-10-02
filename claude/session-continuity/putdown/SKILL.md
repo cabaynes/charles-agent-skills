@@ -19,7 +19,7 @@ The user is about to clear the context window and start fresh. Your job: capture
 
 ## Step 0 — Announce what's about to run
 
-If `/takenotes` is installed, a putdown is two operations, not one. Print this first so the user knows what's running and in what order:
+`/takenotes` ships with this skill as part of the session-continuity set (putdown + pickup + takenotes), so a putdown is two operations, not one. Print this first so the user knows what's running and in what order:
 
 ```
 /putdown runs two skills, in this order:
@@ -27,7 +27,14 @@ If `/takenotes` is installed, a putdown is two operations, not one. Print this f
   2. /putdown   — write the handoff file, then commit and push everything
 ```
 
-If `/takenotes` is not installed, skip the announcement. Either way this is an announcement, not a prompt — don't wait for confirmation, continue to Step 1.
+If `/takenotes` is missing (someone installed only part of the set), print this instead of the announcement:
+
+```
+/putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes.
+          Using the reduced memory step instead; install takenotes for the full harvest.
+```
+
+Either way this is an announcement, not a prompt — don't wait for confirmation, continue to Step 1.
 
 ## Step 1 — Read current state (parallel)
 
@@ -51,13 +58,13 @@ Also pull from your conversation memory:
 
 ## Steps 2–3 — Harvest durable knowledge
 
-**If `/takenotes` is installed** — it ships alongside this skill in the session-continuity package —
-**invoke it and follow it to completion before continuing.** It harvests the session, reconciles what
+**Invoke `/takenotes`** — it ships with this skill as part of the session-continuity set —
+**and follow it to completion before continuing.** It harvests the session, reconciles what
 is already in memory and `CLAUDE.md` against what this session actually established (correcting
 anything that has since become false), and routes each finding to memory, `CLAUDE.md`, or a `docs/`
 spoke.
 
-**If it isn't installed**, do this inline instead — a reduced version with no reconcile pass:
+**If it's missing** (a partial install — Step 0 already told the user), do this inline instead — a reduced version with no reconcile pass:
 
 - Update auto-memory **only** for things matching the memory rules (user, feedback, project,
   reference). If a `project_*.md` memory exists, update it with current state (status, what's next,

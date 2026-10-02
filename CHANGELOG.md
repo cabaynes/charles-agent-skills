@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.9.2] — 2026-10-02
+
+### Changed
+
+- **`/putdown`, `/pickup` and `/takenotes` are now one required set**, not a pair plus an optional
+  third. README, INSTALL.md and the session-continuity README now say all three go together, and every
+  Claude install command copies all three. INSTALL.md's main command used to copy only the pair.
+- **`/putdown` treats `/takenotes` as expected, both versions (Claude and Codex).** It still falls
+  back to the reduced inline memory step if `/takenotes` is missing, but now says so up front
+  (`takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes`) instead of
+  silently skipping the announcement. The skill descriptions are unchanged, so no trigger re-eval.
+- Verified in Codex: putdown + pickup re-run 10/10. A partial install (no takenotes) shows Codex
+  printing the incomplete-set warning in its own message.
+
 ## [0.9.1] — 2026-09-29
 
 ### Changed

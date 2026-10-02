@@ -1,7 +1,7 @@
 # Session continuity — `/putdown` + `/pickup`, plus `/takenotes`
 
-> `/putdown` and `/pickup` are a **required pair** — install both, not one. `/takenotes` is an
-> **optional third** that works with them or entirely on its own.
+> `/putdown`, `/pickup` and `/takenotes` are **one set** — install all three. `/takenotes` can also
+> be run on its own mid-session, but it ships with the other two.
 
 ## What
 
@@ -14,7 +14,7 @@ Skills that preserve work across Claude Code context resets — but across two d
 
 `/pickup` reads files that `/putdown` writes. Without `/putdown`, `/pickup` has nothing to load. Without `/pickup`, `/putdown`'s handoff sits unused.
 
-**The optional third — keeping knowledge permanently:**
+**The third — keeping knowledge permanently:**
 
 - **`/takenotes`** — harvests what a session *learned* into permanent storage (typed memory, `CLAUDE.md`, or a `docs/` file), and — the part nothing else does — goes back over what's **already** stored and corrects whatever this session made false.
 
@@ -32,7 +32,7 @@ Claude Code's context window is finite. As a session grows, you hit limits. Thre
 
 `/pickup` then loads it in a fresh session and confirms with you before picking up the work.
 
-## `/takenotes` — the optional third
+## `/takenotes` — the third skill in the set
 
 ### What it does
 
@@ -91,9 +91,9 @@ You'd still type `/takenotes` directly **mid-session** — after solving somethi
 
 If you use Claude Code on the web, `/takenotes` also drains `.putdowns/MEMORY-INBOX.md` — a queue where a cloud session parks memory-bound findings it can't write itself, since `~/.claude/projects/` only exists on your machine.
 
-**If you install all three, `/putdown` chains to `/takenotes` for you.** Its Steps 2–3 invoke `/takenotes` when present, so a single `/putdown` gets the full harvest-and-reconcile before writing the handoff and pushing. It announces both skills up front so you can see the order, and reports what `/takenotes` wrote on its own labelled line at the end.
+**`/putdown` runs `/takenotes` for you.** Its Steps 2–3 invoke `/takenotes`, so a single `/putdown` gets the full harvest-and-reconcile before writing the handoff and pushing. It announces both skills up front so you can see the order, and reports what `/takenotes` wrote on its own labelled line at the end.
 
-If `/takenotes` **isn't** installed, `/putdown` falls back to its own inline memory step — reduced, with no reconcile pass, but it still works. Neither skill hard-depends on the other.
+If `/takenotes` is missing (a partial install), `/putdown` says the set is incomplete and falls back to its own inline memory step — reduced, with no reconcile pass, but it still works. Install all three to get the real thing.
 
 ## Benefits — how each saves context
 
@@ -109,7 +109,7 @@ The structured format means the next agent skips ~80% of the context that would 
 
 The workflow is four steps:
 
-1. **In the current session** (when you're at ~50% context usage or stepping away): type `/putdown`. If `/takenotes` is installed it runs first, automatically — you don't type it separately.
+1. **In the current session** (when you're at ~50% context usage or stepping away): type `/putdown`. `/takenotes` runs first, automatically — you don't type it separately.
 2. **Close the Claude Code window** with `Cmd+W`. (Do not use "Reload Window" — it doesn't actually free the context window.)
 3. **Open a fresh Claude Code window.**
 4. **Type `/pickup`.** It finds your most recent putdown, summarizes it, and asks you to confirm before continuing.
@@ -146,12 +146,9 @@ It was additionally validated **behaviourally**: subagents ran it against a sand
 See the root [INSTALL.md](../../INSTALL.md). Quick version:
 
 ```bash
-# The required pair:
+# The session-continuity set — all three go together:
 mkdir -p ~/.claude/skills
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
-
-# Plus the optional third:
-cp -r charles-agent-skills/claude/session-continuity/takenotes ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
 ```
 
 Then close your Claude Code window and open a fresh one.

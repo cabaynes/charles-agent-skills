@@ -37,7 +37,7 @@ workspace/         the multi-project workspace pattern these skills assume
 
 Names below use Claude Code's `/name`; in Codex, type `$name`.
 
-**Session continuity (one folder — `putdown` + `pickup` are a required pair; `takenotes` is an optional third):**
+**Session continuity (one folder, one set — `putdown`, `pickup` and `takenotes` go together):**
 
 | Skill | What it does |
 |---|---|
@@ -47,7 +47,7 @@ Names below use Claude Code's `/name`; in Codex, type `$name`.
 
 Docs: [claude/session-continuity/README.md](claude/session-continuity/README.md)
 
-The split is by lifetime: a putdown is a note to your next session and goes stale once you act on it; a takenote is a fact you keep forever. Install all three and `putdown` chains to `takenotes` automatically; install only the pair and `putdown` falls back to its own lighter memory step.
+The split is by lifetime: a putdown is a note to your next session and goes stale once you act on it; a takenote is a fact you keep forever. `putdown` runs `takenotes` as its harvest step, so one command saves both.
 
 **Standalone utilities:**
 
@@ -80,11 +80,9 @@ The guide opens with a runbook section written for a Claude agent acting on a pe
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
-# Session-continuity pair (one command, both halves):
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup} ~/.claude/skills/
-# Optional third — memory harvesting; /putdown will chain to it if present:
-cp -r charles-agent-skills/claude/session-continuity/takenotes ~/.claude/skills/
-# Standalone, opt-in:
+# Session-continuity set (putdown + pickup + takenotes go together):
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
+# Standalone, pick-and-choose:
 cp -r charles-agent-skills/claude/{newproject,skill-dict,grill-me} ~/.claude/skills/
 ```
 
@@ -95,7 +93,7 @@ Then **close your Claude Code window and open a fresh one** so the new skills re
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.agents/skills
-# All six (or drop the ones you don't want — putdown + pickup go together):
+# All six (or drop the standalone ones you don't want — putdown, pickup and takenotes go together):
 cp -r charles-agent-skills/codex/{grill-me,newproject,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
 ```
 

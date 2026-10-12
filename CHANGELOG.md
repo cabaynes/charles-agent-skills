@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.10.0] — 2026-10-12
+
+### Added
+
+- **`/openthreads`**, the fourth skill in the session-continuity set — a project's living to-do list,
+  `OPEN-THREADS.md`, for everything pending that no single session owns: parked ideas, decisions
+  waiting on the user, work no session has picked up yet, things waiting on outside parties. Four
+  fixed sections; one dated line per item; closed items are deleted, not checked off (git is the
+  archive). Modes: `add`, `done`, `list` (counted, with overdue and stale items flagged), and
+  `reconcile`. It lives in `claude/session-continuity/` beside the other three because it only earns
+  its keep when `/putdown` and `/pickup` know about it. Private repos keep the file at the repo root;
+  public and Pages-served repos keep it in `~/.claude/putdowns/<project>/`, the same rule putdowns use.
+- Codex version (`codex/openthreads/`, from `codex-overlays/openthreads.overlay`), an end-to-end
+  scenario in `tests/codex/run_tests.py` (add, add, list, done — nine checks), and a 20-query trigger
+  eval: 10/10 recall, 10/10 precision on the first pass ([eval-results.md](eval-results.md)).
+
+### Changed
+
+- **`/putdown` runs three skills, not two.** New Step 4.4 invokes `/openthreads reconcile` after the
+  handoff is written and before the commit: it closes what the session finished and moves anything
+  from "Immediate next steps" / "Blockers" / "Must address" that *won't* be picked up next session
+  into the project list, so a parked item outlives the putdown that first mentioned it. Step 5 gets
+  a labelled `openthreads:` delta line. Degrades the same way as with a missing `/takenotes`: if
+  `/openthreads` isn't installed, the step is skipped and the report says so.
+- **`/pickup` briefs an "Open threads" block** — counts per section, overdue items shown verbatim,
+  the oldest open date — after "Blockers", so parked work resurfaces every fresh session without
+  re-reading a fortnight of putdowns. Pickup only reads the file.
+- **`/takenotes` routes to-dos to `/openthreads`.** A "remember to do X later" is a task, not a
+  fact; the scope gate hands it to `/openthreads add` and stops (splitting a mixed request into its
+  fact and its task). Harvest excludes pending work, and a `project_*` memory that is secretly a
+  to-do list gets its tasks moved to `OPEN-THREADS.md` when reconciled.
+- Skill descriptions for `/putdown`, `/pickup` and `/takenotes` are **unchanged**, so no trigger
+  re-eval. Install commands, the set rule ("putdown, pickup, takenotes and openthreads go
+  together"), and every skill count in README, INSTALL, the bundle README, `workspace/`, and
+  MAINTAINING now say seven skills / four in the set.
+- The `OPEN-THREADS.md` "Work" section is headed `Work waiting on the agent` in both versions, so a
+  list kept in a repo shared between Claude Code and Codex has one shape.
+- Codex: all seven skills rebuilt and re-run end to end, **41/41** (see `tests/codex/RESULTS.md`);
+  spec check 62/63 (the known `skill-dict` miss). Two things the first run caught: the skill built
+  its out-of-repo path from the full-path slug the notes store uses, where `pickup` would never look
+  (the skill text now pins `<project-slug>` to the CWD basename, both versions); and Codex CLI
+  0.160's automatic review rejects `putdown`'s push to `main` unless the user's words authorize it,
+  so the test prompt now grants that approval the way a real user would.
+
 ## [0.9.2] — 2026-10-02
 
 ### Changed

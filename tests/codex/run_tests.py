@@ -10,8 +10,8 @@ written.
 Usage:  python3 tests/codex/run_tests.py [scenario ...] [--keep] [--api-key-from FILE]
         --api-key-from signs the throwaway home in with FILE's OPENAI_API_KEY (billed per token)
         instead of linking your ChatGPT sign-in — useful when the plan's Codex limit is used up.
-        Scenarios: grill-me takenotes putdown pickup newproject skill-dict (default: all, in order;
-        pickup needs putdown's handoff, so it runs putdown first if you name only pickup).
+        Scenarios: grill-me takenotes openthreads putdown pickup newproject skill-dict (default: all,
+        in order; pickup needs putdown's handoff, so it runs putdown first if you name only pickup).
 """
 
 import json
@@ -26,7 +26,7 @@ import time
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
 REAL_HOME = pathlib.Path(os.environ.get("CODEX_HOME") or pathlib.Path.home() / ".codex")
-ORDER = ["grill-me", "takenotes", "putdown", "pickup", "newproject", "skill-dict"]
+ORDER = ["grill-me", "takenotes", "openthreads", "putdown", "pickup", "newproject", "skill-dict"]
 
 
 def sh(cmd, cwd=None, check=True):
@@ -48,6 +48,7 @@ class Env:
     def __init__(self, keep, key_file=None):
         self.keep = keep
         self.root = pathlib.Path(tempfile.mkdtemp(prefix="codex-skilltest-")).resolve()
+        self.threads = None  # OPEN-THREADS.md written by the openthreads scenario, if it ran
         self.home = self.root / "codex-home"
         self.work = self.root / "work"
         self.logs = self.root / "logs"
@@ -162,13 +163,50 @@ def t_takenotes(e, R):
     check(R, "takenotes", rc2 == 0 and ptr2 == ptr, f"second run keeps one pointer (was {ptr}, now {ptr2}; {secs2}s)")
 
 
+def t_openthreads(e, R):
+    # The test repo's origin is a local bare repo, so `gh repo view` can't tell its visibility; the
+    # skill then keeps the file out of the repo. Both placements are accepted, but only one may exist.
+    places = [e.app / "OPEN-THREADS.md", e.home / "putdowns" / "app" / "OPEN-THREADS.md"]
+    rc, last, secs = e.codex("openthreads", "$openthreads add write pytest cases for the --seed flag in "
+                             "cli.py before the 1.0 release, due 2026-11-01", e.app)
+    check(R, "openthreads", rc == 0, f"codex exited 0 ({secs}s)")
+    found = [p for p in places if p.exists()]
+    check(R, "openthreads", len(found) == 1,
+          "one OPEN-THREADS.md, at the repo root or $CODEX_HOME/putdowns/app/ " + str([str(p.relative_to(e.root)) for p in found]))
+    f = found[0] if found else places[0]
+    text = f.read_text() if f.exists() else ""
+    check(R, "openthreads", len(re.findall(r"^## ", text, re.M)) == 4, "file has the four fixed ## sections")
+    check(R, "openthreads", re.search(r"^- \[ \] .*seed.*added 20\d\d-\d\d-\d\d.*due 2026-11-01", text, re.M | re.I),
+          "item is one dated line carrying its due date")
+    rc2, last2, secs2 = e.codex("openthreads-2", "$openthreads add park this idea for later: a --dry-run flag "
+                                "that prints what cli.py would do without writing anything", e.app)
+    text2 = f.read_text() if f.exists() else ""
+    check(R, "openthreads", rc2 == 0 and re.search(r"dry.?run", text2, re.I) and text2.count("- [ ]") == 2,
+          f"second add appends a second item, no duplicates ({secs2}s)")
+    rc3, last3, secs3 = e.codex("openthreads-list", "$openthreads list", e.app)
+    text3 = f.read_text() if f.exists() else ""
+    check(R, "openthreads", rc3 == 0 and re.search(r"seed", last3, re.I) and re.search(r"dry.?run", last3, re.I)
+          and re.search(r"\(\d+\)", last3), f"list prints both items with section counts ({secs3}s)")
+    check(R, "openthreads", text3 == text2, "list does not rewrite the file")
+    rc4, last4, secs4 = e.codex("openthreads-done", "$openthreads done the --seed flag tests", e.app)
+    text4 = f.read_text() if f.exists() else ""
+    check(R, "openthreads", rc4 == 0 and "seed" not in text4.lower() and re.search(r"dry.?run", text4, re.I)
+          and len(re.findall(r"^## ", text4, re.M)) == 4,
+          f"done deletes that line only and keeps the four sections ({secs4}s)")
+    check(R, "openthreads", int(sh("git rev-list --count HEAD", cwd=e.app)) == 1, "made no commit")
+    e.threads = f if f.exists() else None
+
+
 def t_putdown(e, R):
     before = int(sh("git rev-list --count HEAD", cwd=e.app))
     with open(e.app / "cli.py", "a") as f:
         f.write('p.add_argument("--seed", type=int, default=0)\n')
+    # The last sentence stands in for the user approving the commit: Codex's automatic review
+    # (--approve-for-me) otherwise rejects a push to main as not clearly authorized by "$putdown".
     rc, last, secs = e.codex("putdown", "This session: added a --seed flag to cli.py (still "
                              "uncommitted). Next step is writing tests for it. Make sure the next "
-                             "session verifies the seed flag against real data before anything else.\n"
+                             "session verifies the seed flag against real data before anything else. "
+                             "You have my approval to commit and push to main; that is what a putdown does.\n"
                              "$putdown", e.app, approve=True)
     check(R, "putdown", rc == 0, f"codex exited 0 ({secs}s)")
     files = sorted((e.home / "putdowns" / "app").glob("20*.md"))
@@ -178,6 +216,7 @@ def t_putdown(e, R):
     check(R, "putdown", must and re.search(r"seed", must.group(1), re.I),
           "'Must address next session' carries the seed-verification item")
     check(R, "putdown", "$pickup" in text and "/pickup" not in text, "paste line is $pickup")
+    check(R, "putdown", re.search(r"openthreads:", last), "final message carries a labelled openthreads line")
     check(R, "putdown", sh("git status --porcelain", cwd=e.app) == "", "working tree clean after commit")
     after = int(sh("git rev-list --count HEAD", cwd=e.app))
     check(R, "putdown", after - before == 1, f"exactly one new commit (got {after - before})")
@@ -192,6 +231,9 @@ def t_pickup(e, R):
     check(R, "pickup", rc == 0, f"codex exited 0 ({secs}s)")
     check(R, "pickup", re.search(r"must address", last, re.I) and re.search(r"seed", last, re.I),
           "briefing echoes the Must-address seed item")
+    if e.threads is not None:
+        check(R, "pickup", re.search(r"open threads", last, re.I) and re.search(r"dry.?run", last, re.I),
+              "briefing has an Open threads block naming the parked item")
     check(R, "pickup", sh("git status --porcelain", cwd=e.app) == status and sh("git rev-parse HEAD", cwd=e.app) == head,
           "stopped for confirmation (no edits, no commits)")
 
@@ -228,7 +270,7 @@ def t_skill_dict(e, R):
     check(R, "skill-dict", rc2 == 0 and re.search(r"pickup", last2, re.I), f"show pickup prints its entry ({secs2}s)")
 
 
-SCEN = {"grill-me": t_grill_me, "takenotes": t_takenotes, "putdown": t_putdown,
+SCEN = {"grill-me": t_grill_me, "takenotes": t_takenotes, "openthreads": t_openthreads, "putdown": t_putdown,
         "pickup": t_pickup, "newproject": t_newproject, "skill-dict": t_skill_dict}
 
 

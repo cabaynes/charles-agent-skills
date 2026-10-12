@@ -3,7 +3,7 @@
 Production-quality agent skills for **[Claude Code](https://claude.com/claude-code)** and **[OpenAI Codex](https://developers.openai.com/codex)**. Both tools use the same open [Agent Skills](https://agentskills.io/specification) format, so every skill here ships in two versions: one per tool, built from a single source so they never drift apart.
 
 - **Claude Code:** evaluated against Anthropic's `writing-skills` + `skill-creator` rubric, with **100% trigger accuracy** on a 20-query precision/recall benchmark per skill.
-- **Codex:** every skill tested end to end through the real Codex CLI (**30/30** checks), plus a spec check and a behavior rubric.
+- **Codex:** every skill tested end to end through the real Codex CLI (**41/41** checks), plus a spec check and a behavior rubric.
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Trigger accuracy](https://img.shields.io/badge/trigger%20accuracy-100%25-brightgreen)
@@ -37,17 +37,18 @@ workspace/         the multi-project workspace pattern these skills assume
 
 Names below use Claude Code's `/name`; in Codex, type `$name`.
 
-**Session continuity (one folder, one set — `putdown`, `pickup` and `takenotes` go together):**
+**Session continuity (one folder, one set — `putdown`, `pickup`, `takenotes` and `openthreads` go together):**
 
 | Skill | What it does |
 |---|---|
-| `/putdown` | Distills session state into a handoff file before you start fresh, then commits and pushes |
-| `/pickup` | Loads the most recent putdown in a fresh session |
+| `/putdown` | Distills session state into a handoff file before you start fresh, reconciles the project's open threads, then commits and pushes |
+| `/pickup` | Loads the most recent putdown in a fresh session, and briefs you on what's still open |
 | `/takenotes` | Harvests what a session *learned* into memory (Claude) or notes (Codex), the project instructions file, or `docs/` — and corrects what's already stored and has since gone stale |
+| `/openthreads` | Keeps the project's living to-do list, `OPEN-THREADS.md`: parked ideas, decisions waiting on you, work no session has picked up yet |
 
 Docs: [claude/session-continuity/README.md](claude/session-continuity/README.md)
 
-The split is by lifetime: a putdown is a note to your next session and goes stale once you act on it; a takenote is a fact you keep forever. `putdown` runs `takenotes` as its harvest step, so one command saves both.
+The split is by lifetime: a putdown is a note to your next session and goes stale once you act on it; a takenote is a fact you keep forever; an open thread is a task that outlives any one session and is deleted the day it's done. `putdown` runs `takenotes` as its harvest step and `openthreads` as its reconcile step, so one command saves all three.
 
 **Standalone utilities:**
 
@@ -61,7 +62,7 @@ The split is by lifetime: a putdown is a note to your next session and goes stal
 
 ## The workspace pattern these skills assume
 
-Each skill works on a single project folder. Together they work best on a **multi-project workspace**: one root folder with a short umbrella `CLAUDE.md`, one subfolder per project, and a shared memory hub that a small script symlinks into every project so a preference written once applies everywhere. `/newproject` builds the spokes, `/takenotes` routes memory to hub or project, `/putdown` + `/pickup` carry sessions across the gaps, and `/grill-me` (installed separately, see INSTALL.md) makes you defend a plan before any of that starts.
+Each skill works on a single project folder. Together they work best on a **multi-project workspace**: one root folder with a short umbrella `CLAUDE.md`, one subfolder per project, and a shared memory hub that a small script symlinks into every project so a preference written once applies everywhere. `/newproject` builds the spokes, `/takenotes` routes memory to hub or project, `/putdown` + `/pickup` carry sessions across the gaps, `/openthreads` keeps each project's backlog where the next session will see it, and `/grill-me` (installed separately, see INSTALL.md) makes you defend a plan before any of that starts.
 
 The [`workspace/`](workspace/) folder has the whole thing: a copy-and-paste setup guide, the `fanout-memory.sh` helper that `/newproject` and `/takenotes` look for, an umbrella `CLAUDE.md` template, a test script that proves the helper works on your machine, and [`STACK.md`](workspace/STACK.md), the rest of the tool stack in install order.
 
@@ -80,8 +81,8 @@ The guide opens with a runbook section written for a Claude agent acting on a pe
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
-# Session-continuity set (putdown + pickup + takenotes go together):
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
+# Session-continuity set (putdown + pickup + takenotes + openthreads go together):
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes,openthreads} ~/.claude/skills/
 # Standalone, pick-and-choose:
 cp -r charles-agent-skills/claude/{newproject,skill-dict,grill-me} ~/.claude/skills/
 ```
@@ -93,8 +94,8 @@ Then **close your Claude Code window and open a fresh one** so the new skills re
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.agents/skills
-# All six (or drop the standalone ones you don't want — putdown, pickup and takenotes go together):
-cp -r charles-agent-skills/codex/{grill-me,newproject,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
+# All seven (or drop the standalone ones you don't want — putdown, pickup, takenotes and openthreads go together):
+cp -r charles-agent-skills/codex/{grill-me,newproject,openthreads,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
 ```
 
 Then start a **new chat** (`/new` in the CLI, `Cmd+N` in the app) and run them as `$putdown`, `$pickup`, and so on.
@@ -121,6 +122,7 @@ These aren't just "skills I wrote" — each was scored against an 18-rule rubric
 | `/skill-dict` | 10/10 | 10/10 | 2026-05-13 |
 | `/takenotes` | 10/10 | 10/10 | 2026-08-03 |
 | `/grill-me` | 10/10 (post-revision) | 10/10 | 2026-09-08 |
+| `/openthreads` | 10/10 | 10/10 | 2026-10-12 |
 
 `/takenotes` also went through a second, different kind of validation: subagents **executed** it against a sandbox seeded with a deliberately poisoned memory, over two rounds that found and closed ten defects — and again on 2026-09-25 against a memory that claimed a fix nobody had ever run (0.8.0). Trigger accuracy measures whether a skill *fires at the right time*; that measures whether it *does the right thing once it fires*. Both are in [eval-results.md](eval-results.md).
 
@@ -130,8 +132,8 @@ Full methodology, per-query verdicts, and revision rationale in [eval-results.md
 
 Before porting, Codex itself reviewed every skill read-only. Its findings shaped the Codex versions and surfaced five real bugs in the Claude versions, fixed in 0.8.2. Each Codex version then ran through the real Codex CLI in a throwaway environment:
 
-- **30/30 end-to-end checks.** For example: `putdown` makes exactly one commit and pushes, `pickup` repeats the handoff's "Must address" items word for word and then waits, and `takenotes` stores a cross-project preference that a *later, separate* session follows.
-- **53/54 spec checks** against the Agent Skills specification. The one miss, `skill-dict`'s description lacking a when-not-to-use clause, applies to both versions and is recorded, not hidden.
+- **41/41 end-to-end checks.** For example: `putdown` makes exactly one commit and pushes, `pickup` repeats the handoff's "Must address" items word for word and briefs the open threads before it waits, `takenotes` stores a cross-project preference that a *later, separate* session follows, and `openthreads` adds, lists and closes items without ever rewriting the file or committing.
+- **62/63 spec checks** against the Agent Skills specification. The one miss, `skill-dict`'s description lacking a when-not-to-use clause, applies to both versions and is recorded, not hidden.
 - **A behavior rubric** grading each skill's output against the skill's own rules.
 
 Codex *trigger* accuracy (whether Codex picks a skill without being asked) is not measured yet; every Codex test invoked the skill by name. Details in [tests/codex/RESULTS.md](tests/codex/RESULTS.md).

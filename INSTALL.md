@@ -1,6 +1,6 @@
 # Install
 
-Install any combination of the six skills in this repo. They're all standalone except for the **session-continuity set** (`/putdown` + `/pickup` + `/takenotes`), which always goes in together.
+Install any combination of the seven skills in this repo. They're all standalone except for the **session-continuity set** (`/putdown` + `/pickup` + `/takenotes` + `/openthreads`), which always goes in together.
 
 **Using OpenAI Codex?** Skip to [Using OpenAI Codex instead (or as well)](#using-openai-codex-instead-or-as-well); the same install rule applies. Everything between here and that section is for Claude Code, installing from `claude/`.
 
@@ -8,23 +8,23 @@ Install any combination of the six skills in this repo. They're all standalone e
 
 You need Claude Code installed. User-scope skills live at `~/.claude/skills/<name>/SKILL.md` and are auto-discovered on session start.
 
-## 1. Session-continuity set: `/putdown` + `/pickup` + `/takenotes`
+## 1. Session-continuity set: `/putdown` + `/pickup` + `/takenotes` + `/openthreads`
 
-These three go together. `/pickup` reads the handoff files that `/putdown` writes, and `/putdown` runs `/takenotes` as its harvest step, so one `/putdown` saves both the session *state* (for the next session) and the session *knowledge* (for good).
+These four go together. `/pickup` reads the handoff files that `/putdown` writes, `/putdown` runs `/takenotes` as its harvest step and `/openthreads` as its reconcile step, and `/pickup` reads the `OPEN-THREADS.md` that `/openthreads` keeps. So one `/putdown` saves the session *state* (for the next session), the session *knowledge* (for good), and the project's *backlog* (until each item is done).
 
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes,openthreads} ~/.claude/skills/
 ```
 
-That copies all three skill folders into `~/.claude/skills/` in one command. Verify:
+That copies all four skill folders into `~/.claude/skills/` in one command. Verify:
 
 ```bash
-ls ~/.claude/skills/{putdown,pickup,takenotes}/SKILL.md
+ls ~/.claude/skills/{putdown,pickup,takenotes,openthreads}/SKILL.md
 ```
 
-**If one is missing, `/putdown` still works:** without `/takenotes` it says the set is incomplete and falls back to a reduced memory step, with no check of what's already stored. Install the full set to get the real thing. `/takenotes` can also be run on its own mid-session ("remember this", "save what we learned").
+**If one is missing, `/putdown` still works:** without `/takenotes` it says the set is incomplete and falls back to a reduced memory step, with no check of what's already stored; without `/openthreads` it skips the reconcile step and says so. Install the full set to get the real thing. `/takenotes` ("remember this", "save what we learned") and `/openthreads` ("add this to the open threads", "what's still open") can also be run on their own mid-session.
 
 No environment-variable setup required.
 
@@ -90,9 +90,10 @@ The instructions above use `cp -r` (copy). The alternative is `ln -s` (symlink) 
 
 **Symlink:**
 ```bash
-# Example for the session-continuity pair:
-ln -s "$(pwd)/charles-agent-skills/claude/session-continuity/putdown" ~/.claude/skills/putdown
-ln -s "$(pwd)/charles-agent-skills/claude/session-continuity/pickup" ~/.claude/skills/pickup
+# Example for the session-continuity set:
+for s in putdown pickup takenotes openthreads; do
+  ln -s "$(pwd)/charles-agent-skills/claude/session-continuity/$s" ~/.claude/skills/$s
+done
 ```
 - ✓ `git pull` updates your installed skills
 - ✗ Deleting the repo breaks your installed skills
@@ -126,7 +127,7 @@ Export it in your shell rc so it persists across sessions (see step 2 above).
 
 ## Using OpenAI Codex instead (or as well)
 
-All six skills also ship a **Codex version** in [`codex/`](codex/). Codex uses the same open
+All seven skills also ship a **Codex version** in [`codex/`](codex/). Codex uses the same open
 [Agent Skills](https://agentskills.io/specification) format, so these are the same skills with the
 Claude-only parts swapped for Codex equivalents. They're generated, not hand-copied, so the two
 versions can't drift. See [MAINTAINING.md](MAINTAINING.md#codex-versions).
@@ -134,10 +135,10 @@ versions can't drift. See [MAINTAINING.md](MAINTAINING.md#codex-versions).
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.agents/skills
-cp -r charles-agent-skills/codex/{grill-me,newproject,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
+cp -r charles-agent-skills/codex/{grill-me,newproject,openthreads,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
 ```
 
-The same install rule applies: `putdown`, `pickup` and `takenotes` go together. Start a new Codex
+The same install rule applies: `putdown`, `pickup`, `takenotes` and `openthreads` go together. Start a new Codex
 chat afterwards so the skills register.
 
 | | Claude Code | Codex |
@@ -145,6 +146,7 @@ chat afterwards so the skills register.
 | Run a skill | `/putdown` | `$putdown` (or pick it from `/skills`) |
 | Project instructions | `CLAUDE.md` | `AGENTS.md` |
 | Handoff files | `~/.claude/putdowns/<project>/` | `~/.codex/putdowns/<project>/` |
+| Open threads (`openthreads`) | `OPEN-THREADS.md` at the repo root (private repo), else `~/.claude/putdowns/<project>/` | same file; the out-of-repo copy lives in `~/.codex/putdowns/<project>/` |
 | Saved knowledge (`takenotes`) | Claude Code's memory folders | Markdown notes in `~/.codex/notes/global/` and `~/.codex/notes/projects/<slug>/` |
 | Fresh context | `/clear` (CLI) or a new window | `/new` (CLI) or **New chat** (app) |
 
@@ -155,14 +157,14 @@ chat afterwards so the skills register.
 - **Using both tools on one repo.** Handoffs committed to a private repo's `.putdowns/` folder use
   the same format, so a putdown written in one tool can be picked up in the other.
 - **Tested in Codex.** Each skill has an end-to-end scenario run through `codex exec` in a throwaway
-  environment (30/30), plus a spec check and a behavior rubric. Full results:
+  environment (41/41), plus a spec check and a behavior rubric. Full results:
   [`tests/codex/RESULTS.md`](tests/codex/RESULTS.md). The trigger-accuracy numbers in
   [eval-results.md](eval-results.md) were measured on Claude Code only.
 
 ## Uninstall
 
 ```bash
-rm -rf ~/.claude/skills/{putdown,pickup,takenotes,newproject,skill-dict,grill-me}
+rm -rf ~/.claude/skills/{putdown,pickup,takenotes,openthreads,newproject,skill-dict,grill-me}
 rm -f ~/CLAUDE/scripts/fanout-memory.sh   # only if you installed the workspace pattern; leaves your memory symlinks in place
 ```
 

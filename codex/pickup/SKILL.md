@@ -71,6 +71,10 @@ In parallel:
 - `git status` and `git log --oneline -5` to see if anything changed since the putdown was written
 - Read the project `AGENTS.md` if one exists
 - Read the project notes index `$CODEX_DIR/notes/projects/<slug>/INDEX.md` if it exists (written by `$takenotes`; `<slug>` is the CWD with every `/` turned into `-`). Nothing loads it automatically unless the global `AGENTS.md` says to, so read it here.
+- Read the project's **`OPEN-THREADS.md`** if one exists — at the repo root for a private repo, or at
+  `$CODEX_DIR/putdowns/<project-slug>/OPEN-THREADS.md` for a public one (the `$openthreads`
+  skill owns the file and its placement rule). Count the open `- [ ]` items per `##` section, note any
+  `due YYYY-MM-DD` already past, and the oldest `added` date.
 
 If git state has drifted significantly from what the putdown described (e.g. new commits, files modified outside what was listed), flag this to the user — the world may have moved since the putdown.
 
@@ -90,17 +94,25 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 
 **Blockers waiting on you:** <list, or "none">
 
+**Open threads:** <N open — Due now X · Decisions Y · Work Z · Outside W; "M overdue" if any; oldest from <date>>
+<the "Due now" items verbatim, then the top 2–3 others — omit the whole block if there is no OPEN-THREADS.md>
+
 <If git state has drifted: a "⚠️ Note:" line about what changed since the putdown.>
 ```
 
 Never summarize or drop "Must address" items — they exist because the user wanted proof the next
 session saw them. Older putdowns won't have the section; that's fine.
 
+The open-threads block is why that file exists: it is how parked work resurfaces every fresh session
+without the user re-reading a fortnight of putdowns. Overdue items are shown, never silently skipped;
+an old item is reported, not nagged about. Pickup only *reads* the file — adding, closing, and
+reconciling are `$openthreads`'s job.
+
 Then **stop and wait for the user to confirm or redirect.** Do NOT auto-execute the next steps. The user may want to adjust direction, skip a step, or hand off to another agent. Once they confirm, proceed.
 
 ## Step 4 — Once confirmed, execute
 
-Pick up the work. Track the "Must address" items (first) — with the plan tool (`update_plan`) if this session has it, otherwise as a Markdown checklist in chat — and the "Immediate next steps" list from the putdown; don't mark the session's work done while a "Must address" item is still open unless the user dropped it. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out.
+Pick up the work. Track the "Must address" items (first) — with the plan tool (`update_plan`) if this session has it, otherwise as a Markdown checklist in chat — and the "Immediate next steps" list from the putdown; don't mark the session's work done while a "Must address" item is still open unless the user dropped it. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out. If the user picks an open thread instead of the putdown's next step, that's a normal redirect — work it, and `$openthreads done` it when finished.
 
 ## Notes on judgment
 

@@ -39,7 +39,7 @@ PRs are welcome. These skills were authored for a specific personal workflow but
 ## Reporting bugs
 
 Open an issue with:
-- Which skill (`/putdown`, `/pickup`, `/takenotes`, `/newproject`, `/skill-dict`, `/grill-me`) or `workspace/fanout-memory.sh`
+- Which skill (`/putdown`, `/pickup`, `/takenotes`, `/openthreads`, `/newproject`, `/skill-dict`, `/grill-me`) or `workspace/fanout-memory.sh`
 - Claude Code version (`/version` in Claude Code)
 - macOS / Linux / WSL
 - A minimal reproduction (the exact query you typed, what you expected, what happened)

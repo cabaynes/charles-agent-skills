@@ -133,10 +133,21 @@ already covered, say so rather than writing a duplicate. No inbox is the normal 
 - **Gotchas** a fresh agent would step on. AGENTS.md if short, `docs/` if not.
 
 @@ replace
+| Not memory — a task has a done-state, a memory doesn't. Hand it to `/openthreads add` and stop.
+@@ with
+| Not a note — a task has a done-state, a note doesn't. Hand it to `$openthreads add` and stop.
+
+@@ replace
 - Ephemeral session state ("we're mid-refactor on line 142") — that's `/putdown`'s job, not memory's.
+- Pending work and parked ideas ("still needs a reply", "worth building later") — that's
+  `OPEN-THREADS.md`'s job, via `/openthreads`. A `project_*` memory that is secretly a to-do list
+  gets its tasks moved there when you reconcile it in Step 3; keep the facts, move the tasks.
 - Anything the code, git history, or an existing CLAUDE.md already records. Memory is for what
 @@ with
 - Ephemeral session state ("we're mid-refactor on line 142") — that's `$putdown`'s job, not the notes'.
+- Pending work and parked ideas ("still needs a reply", "worth building later") — that's
+  `OPEN-THREADS.md`'s job, via `$openthreads`. A `project_*` note that is secretly a to-do list
+  gets its tasks moved there when you reconcile it in Step 3; keep the facts, move the tasks.
 - Anything the code, git history, or an existing AGENTS.md already records. Notes are for what
 
 @@ replace

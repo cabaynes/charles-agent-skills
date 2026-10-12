@@ -16,20 +16,23 @@ The user is about to start a fresh chat. Your job: capture **everything a new ag
 
 ## Step 0 — Announce what's about to run
 
-The `takenotes` skill ships with this one as part of the session-continuity set (putdown + pickup + takenotes), so a putdown is two operations, not one. Check it is there (a `takenotes/SKILL.md` in `~/.agents/skills/`, `$CODEX_DIR/skills/`, or the repo's `.agents/skills/`). Print this first so the user knows what's running and in what order:
+The `takenotes` and `openthreads` skills ship with this one as part of the session-continuity set (putdown + pickup + takenotes + openthreads), so a putdown is three operations, not one. Check they are there (a `takenotes/SKILL.md` and an `openthreads/SKILL.md` in `~/.agents/skills/`, `$CODEX_DIR/skills/`, or the repo's `.agents/skills/`). Print this first so the user knows what's running and in what order:
 
 ```
-$putdown runs two skills, in this order:
-  1. $takenotes — harvest this session into notes, AGENTS.md, and docs/
-  2. $putdown   — write the handoff file, then commit and push everything
+$putdown runs three skills, in this order:
+  1. $takenotes   — harvest this session into notes, AGENTS.md, and docs/
+  2. $putdown     — write the handoff file
+  3. $openthreads — reconcile the project's OPEN-THREADS.md against it, then commit and push everything
 ```
 
-If it is missing (someone installed only part of the set), print this instead of the announcement:
+If `takenotes` is missing (someone installed only part of the set), print this instead of the announcement:
 
 ```
-$putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes.
+$putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes + openthreads.
           Using the reduced memory step instead; install takenotes for the full harvest.
 ```
+
+If `openthreads` is missing, drop line 3 from the announcement, skip Step 4.4, and say so on its line in Step 5.
 
 Either way this is an announcement, not a prompt — don't wait for confirmation, continue to Step 1.
 
@@ -143,6 +146,20 @@ briefing, so the user can see it landed. If the user asks for "a prompt to paste
 session", write its content into this section and tell them plain `$pickup` will surface it — don't
 produce a separate chat-only prompt (it isn't saved or committed, and it's lost if not copied).
 
+## Step 4.4 — Reconcile the project's open threads (run `$openthreads reconcile`)
+
+**Run the `openthreads` skill in `reconcile` mode — open its `SKILL.md`, read it, and follow it to
+completion before continuing.** (If it's missing — Step 0 already told the user — skip this step.)
+
+The handoff file above is this *session's* ledger; `OPEN-THREADS.md` is the *project's*. Reconcile
+closes what this session finished, and moves into the project list anything from "Immediate next
+steps", "Blockers", and "Must address" that **won't be picked up next session** — so a parked item
+survives longer than the putdown that first mentioned it. Items the next session *will* pick up stay
+in the putdown only; the two files never carry the same line. If the project has no `OPEN-THREADS.md`
+and nothing is left over, skip without creating one and say so in Step 5.
+
+Keep its one-line delta — you'll echo it in Step 5.
+
 ## Step 4.5 — Commit + push (a putdown means the session is ending)
 
 Skip this step entirely if the CWD is not a git repo.
@@ -158,8 +175,11 @@ After saving, print to chat — in this exact order:
 1. The full path to the saved putdown file (so they can re-open it later)
 2. **How to start fresh.** In the Codex CLI: type `/new` (or `/clear`, which also clears the screen), then `$pickup`. In the Codex desktop app: start a **New chat** in the same project (`Cmd+N` on macOS), then `$pickup`. If you can't tell which surface this is, give both. If MCP servers or config changed this session, a new chat may not load them — tell them to quit and relaunch Codex first.
 3. A code block containing exactly `$pickup` — what they type in the fresh chat
-4. **The result of Steps 2–3, labelled with its source** — which notes, `AGENTS.md`, and `docs/` files were written or corrected. If `takenotes` ran, label it as such so the user can see both skills fired, e.g. `takenotes: 2 notes updated, 1 created, AGENTS.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
-5. The commit + push result: `<branch> @ <short SHA> pushed to <repo>` — or a **prominent warning** if there was no remote or the push failed (that work is invisible to other machines and sessions until pushed)
+4. **The result of Steps 2–3, labelled with its source** — which notes, `AGENTS.md`, and `docs/` files were written or corrected. If `takenotes` ran, label it as such so the user can see each skill fired, e.g. `takenotes: 2 notes updated, 1 created, AGENTS.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
+5. **The `$openthreads reconcile` delta, labelled** — `openthreads: 2 closed, 3 added, 1 now due`, or
+   `openthreads: nothing to reconcile` / `openthreads: no OPEN-THREADS.md in this project` /
+   `openthreads: not installed`. Same rule as takenotes: a silent absence looks like a skipped step.
+6. The commit + push result: `<branch> @ <short SHA> pushed to <repo>` — or a **prominent warning** if there was no remote or the push failed (that work is invisible to other machines and sessions until pushed)
 
 Keep your final reply tight — the handoff document does the heavy lifting; don't summarize it again in chat.
 

@@ -1,6 +1,6 @@
 # Skill evaluation report
 
-**Skills evaluated:** `/putdown`, `/pickup`, `/newproject`, `/skill-dict`
+**Skills evaluated:** `/putdown`, `/pickup`, `/newproject`, `/skill-dict`, then `/takenotes` (2026-08-03), `/grill-me` (2026-09-08), `/openthreads` (2026-10-12)
 **Original eval:** 2026-05-13 · **Session-continuity pair re-evaluated:** 2026-06-13
 
 > The session-continuity pair was first evaluated on 2026-05-13 under the names `/checkpoint` and `/resume`, scoring 100%/100% each. Those names were later retired because they shadow Claude Code built-ins (`/checkpoint` aliases `/rewind`; `/resume` opens the conversation picker — see CHANGELOG 0.3.0/0.4.0). The pair is now `/putdown` + `/pickup`, the descriptions changed during the rename, and the handoff files moved to `.putdowns/`. The scores below for those two reflect a **fresh re-eval on 2026-06-13** against the current descriptions; `/newproject` and `/skill-dict` are unchanged from the 2026-05-13 run.
@@ -16,7 +16,9 @@
 | `/takenotes` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Added + evaluated 2026-08-03. Also validated behaviourally against a poisoned-memory sandbox (below) |
 | `/grill-me` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Added + evaluated 2026-09-08 (LLM-as-judge variant); one description revision added the resume-a-session trigger (9/10 → 10/10 recall); frontmatter brought to standard (`argument-hint`, `allowed-tools`) |
 
-**All six skills pass the ≥80% threshold on both precision and recall.**
+| `/openthreads` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Added + evaluated 2026-10-12 (LLM-as-judge variant); no revision needed |
+
+**All seven skills pass the ≥80% threshold on both precision and recall.**
 
 ---
 
@@ -220,6 +222,46 @@ passed and proved nothing.
 **Caveat:** the prior skill's failure rate was low (~12%), so 6/6 is weak evidence of a *rate*
 change. The strong evidence is structural: `**Verified by:**` lines, `RECURRED` markers, and the
 `Claims` report block appeared in 0/16 prior runs and 6/6 new ones.
+
+## `/openthreads` — trigger benchmark (2026-10-12) — 100% / 100%
+
+Run with the LLM-as-judge variant described under "How to re-run the eval" below. Judge saw only the
+skill description and 20 shuffled, unlabelled queries — 10 realistic should-trigger, 10 adversarial
+should-not-trigger.
+
+**Recall 10/10 · Precision 10/10.** First pass; no description revision.
+
+The should-trigger half covered the literal phrases ("openthreads", "add this to the open threads",
+"what's still open", "mark X done"), the no-keyword case the description names ("Not now, but
+someday I want to swap the hero image for a video loop — don't let me forget that"), a pending
+decision explicitly parked ("the domain switch is waiting on me deciding between Cloudflare and
+Netlify — I'll come back to it"), a backlog question ("what's on the backlog for this repo?
+anything parked?"), an overdue query, closing an item by name, and a session-end reconcile request.
+
+The adversarial half targeted the three lanes this skill borders — in-session tasks, durable facts,
+personal reminders — plus every other sense of "open" and "thread":
+
+| Adversarial query | Result | Why it's a trap |
+|---|---|---|
+| "let's make a todo list for this refactor and work through it now" | NO_TRIGGER ✓ | "Todo list" + pending items, but in-session; the exclusion clause catches it. |
+| "remember I prefer tabs over spaces in this repo" | NO_TRIGGER ✓ | Repo-scoped and durable, but a preference — `/takenotes` by name. |
+| "remind me to call the dentist tomorrow" | NO_TRIGGER ✓ | A pending item to come back to, but not repo work. |
+| "wrap up and write the handoff, I'm done for tonight" | NO_TRIGGER ✓ | Description mentions session end; a judge could read "invoked by /putdown" as "fires at session end." Closest call. |
+| "where were we? I just opened a fresh window" | NO_TRIGGER ✓ | Semantically adjacent to "what's still open"; `/pickup` is not named in the exclusions. |
+| "list the open pull requests on this repo" | NO_TRIGGER ✓ | "Open" + "repo" + list-shaped request. |
+| "why is this worker thread deadlocking on the mutex?" | NO_TRIGGER ✓ | Literal "thread," zero to-do content. |
+| "summarize this open Slack thread about the launch date" | NO_TRIGGER ✓ | Literal "open thread," wrong sense. |
+| "what's still uncommitted in the working tree?" | NO_TRIGGER ✓ | Mirrors the "what's still ___" cadence; subject is git, not threads. |
+| "build a todo-list feature on the landing page" | NO_TRIGGER ✓ | "Todo" as a deliverable, not a list to keep. |
+
+The two closest calls (wrap-up and where-were-we) were decided correctly on inference rather than
+explicit wording: the description names `/takenotes` and the built-in task list as exclusions but
+not `/putdown` or `/pickup`. The judge re-tested both against a hardened sentence ("Ending a session
+is /putdown and resuming one is /pickup; this skill only maintains the list they consult") and both
+stayed NO_TRIGGER. The sentence was **not** added — no miss to fix, and a longer description costs
+every session — but it is the first thing to try if a future judge flips either.
+
+Single-run caveat as for `/grill-me`: one judge pass, not a multi-sample average.
 
 ## How to re-run the eval
 

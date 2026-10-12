@@ -19,20 +19,23 @@ The user is about to clear the context window and start fresh. Your job: capture
 
 ## Step 0 — Announce what's about to run
 
-`/takenotes` ships with this skill as part of the session-continuity set (putdown + pickup + takenotes), so a putdown is two operations, not one. Print this first so the user knows what's running and in what order:
+`/takenotes` and `/openthreads` ship with this skill as part of the session-continuity set (putdown + pickup + takenotes + openthreads), so a putdown is three operations, not one. Print this first so the user knows what's running and in what order:
 
 ```
-/putdown runs two skills, in this order:
-  1. /takenotes — harvest this session into memory, CLAUDE.md, and docs/
-  2. /putdown   — write the handoff file, then commit and push everything
+/putdown runs three skills, in this order:
+  1. /takenotes   — harvest this session into memory, CLAUDE.md, and docs/
+  2. /putdown     — write the handoff file
+  3. /openthreads — reconcile the project's OPEN-THREADS.md against it, then commit and push everything
 ```
 
 If `/takenotes` is missing (someone installed only part of the set), print this instead of the announcement:
 
 ```
-/putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes.
+/putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes + openthreads.
           Using the reduced memory step instead; install takenotes for the full harvest.
 ```
+
+If `/openthreads` is missing, drop line 3 from the announcement, skip Step 4.4, and say so on its line in Step 5.
 
 Either way this is an announcement, not a prompt — don't wait for confirmation, continue to Step 1.
 
@@ -147,6 +150,20 @@ briefing, so the user can see it landed. If the user asks for "a prompt to paste
 session", write its content into this section and tell them plain `/pickup` will surface it — don't
 produce a separate chat-only prompt (it isn't saved or committed, and it's lost if not copied).
 
+## Step 4.4 — Reconcile the project's open threads (invoke `/openthreads reconcile`)
+
+**Invoke the `openthreads` skill in `reconcile` mode and follow it to completion before continuing.**
+(If it's missing — Step 0 already told the user — skip this step.)
+
+The handoff file above is this *session's* ledger; `OPEN-THREADS.md` is the *project's*. Reconcile
+closes what this session finished, and moves into the project list anything from "Immediate next
+steps", "Blockers", and "Must address" that **won't be picked up next session** — so a parked item
+survives longer than the putdown that first mentioned it. Items the next session *will* pick up stay
+in the putdown only; the two files never carry the same line. If the project has no `OPEN-THREADS.md`
+and nothing is left over, skip without creating one and say so in Step 5.
+
+Keep its one-line delta — you'll echo it in Step 5.
+
 ## Step 4.5 — Commit + push (a putdown means the session is ending)
 
 Skip this step entirely if the CWD is not a git repo.
@@ -165,8 +182,11 @@ After saving, print to chat — in this exact order:
      - **Exception:** if MCP servers or config were added/changed *this session*, `/clear` won't load them — the process must be restarted. Tell them to fully quit (`Ctrl+C` twice, or `/exit`) and relaunch `claude`, then `/pickup`.
    - **VSCode visual-editor panel, or any other/unknown surface** (`CLAUDE_CODE_ENTRYPOINT` is anything other than `cli`, or empty) — `/clear` does **not** reliably free context here. Tell the user to **`Cmd+W` to close this Claude Code window, then open a new Claude Code window** in VSCode. (Closing affects only this window — other VSCode windows stay untouched. Note: `Cmd+Shift+P → "Developer: Reload Window"` does NOT actually free the context window — you confirmed this.)
 3. A code block containing exactly `/pickup` — what they type once the context is cleared (in the CLI, right after `/clear`; in a new/reopened window otherwise)
-4. **The result of Steps 2–3, labelled with its source** — what memory, `CLAUDE.md`, and `docs/` files were written or corrected. If `/takenotes` ran, label it as such so the user can see both skills fired, e.g. `takenotes: 2 memories updated, 1 created, CLAUDE.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
-5. The commit + push result: `<branch> @ <short SHA> pushed to <repo>` — or a **prominent warning** if there was no remote or the push failed (that work is invisible to Claude Code on the web until pushed)
+4. **The result of Steps 2–3, labelled with its source** — what memory, `CLAUDE.md`, and `docs/` files were written or corrected. If `/takenotes` ran, label it as such so the user can see each skill fired, e.g. `takenotes: 2 memories updated, 1 created, CLAUDE.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
+5. **The `/openthreads reconcile` delta, labelled** — `openthreads: 2 closed, 3 added, 1 now due`, or
+   `openthreads: nothing to reconcile` / `openthreads: no OPEN-THREADS.md in this project` /
+   `openthreads: not installed`. Same rule as takenotes: a silent absence looks like a skipped step.
+6. The commit + push result: `<branch> @ <short SHA> pushed to <repo>` — or a **prominent warning** if there was no remote or the push failed (that work is invisible to Claude Code on the web until pushed)
 
 Keep your final reply tight — the handoff document does the heavy lifting; don't summarize it again in chat.
 

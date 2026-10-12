@@ -1,0 +1,81 @@
+@@ frontmatter
+name: openthreads
+description: Keeps a project's living to-do list — OPEN-THREADS.md — of everything pending that no single session owns. Use when the user says "openthreads", "add this to the open threads", "what's still open", "mark X done", or parks an idea to come back to later; also invoked by $putdown to reconcile the list at session end. Do NOT use for in-session task tracking (that is the plan tool), for durable facts or preferences (that is $takenotes), or for personal reminders that don't need this repo open (those belong in a personal task manager, not the repo).
+
+@@ prepend
+> **Codex version.** Invoke with `$openthreads`, optionally followed by a mode (`$openthreads add <text>`,
+> `$openthreads done <text>`, `$openthreads list`, `$openthreads reconcile`). Paths below use `$CODEX_DIR`,
+> meaning `${CODEX_HOME:-$HOME/.codex}`. The file format is shared with the Claude Code version of this
+> skill, so a list kept in a repo is read and edited by either tool.
+
+@@ replace
+# /openthreads — The project's living to-do list
+
+A putdown records one session's next steps. Memory records facts.
+@@ with
+# $openthreads — The project's living to-do list
+
+A putdown records one session's next steps. Notes record facts.
+
+@@ replace
+live in one file per project, `OPEN-THREADS.md`, which `/pickup` reads every fresh session so the
+@@ with
+live in one file per project, `OPEN-THREADS.md`, which `$pickup` reads every fresh session so the
+
+@@ replace
+one, the file would be published — keep it at `~/.claude/putdowns/<project-slug>/OPEN-THREADS.md`
+instead, the same rule and the same folder `/putdown` already uses for that case. `<project-slug>`
+is exactly what `/putdown` names its folder: the **basename** of the CWD (`my-app`), or the slug the
+user passed — never a full-path slug, or `/pickup` won't find the file. Non-git folders: the folder
+root. Check visibility the way `/putdown` does (`gh repo view --json visibility`, or the project
+CLAUDE.md); if you still can't tell, use the `~/.claude/putdowns/` location and say so — a to-do
+@@ with
+one, the file would be published — keep it at `$CODEX_DIR/putdowns/<project-slug>/OPEN-THREADS.md`
+instead, the same rule and the same folder `$putdown` already uses for that case. `<project-slug>`
+is exactly what `$putdown` names its folder: the **basename** of the CWD (`my-app`), or the slug the
+user passed — **not** the full-path slug the `$takenotes` notes store uses, or `$pickup` won't find
+the file. Non-git folders: the folder root. Check visibility the way `$putdown` does
+(`gh repo view --json visibility`, or the project `AGENTS.md`); if you still can't tell, use the
+`$CODEX_DIR/putdowns/` location and say so — a to-do
+
+@@ replace
+`session`, `putdown`, or a memory filename.
+@@ with
+`session`, `putdown`, or a note filename.
+
+@@ replace
+| What to do *right now*, within this session | the built-in task list, never this file |
+| A fact, a preference, a dead end, how a tool behaves | `/takenotes` → memory or CLAUDE.md |
+@@ with
+| What to do *right now*, within this session | the plan tool (`update_plan`) or a checklist in chat, never this file |
+| A fact, a preference, a dead end, how a tool behaves | `$takenotes` → a note or AGENTS.md |
+
+@@ replace
+2. If the item was a *Decision* and the user just made it, the decision itself may be worth a memory
+   or a CLAUDE.md line — mention that, don't do it unasked.
+@@ with
+2. If the item was a *Decision* and the user just made it, the decision itself may be worth a note
+   or an AGENTS.md line — mention that, don't do it unasked.
+
+@@ replace
+### `reconcile` — called by `/putdown`, or when the user asks
+@@ with
+### `reconcile` — called by `$putdown`, or when the user asks
+
+@@ replace
+`reconcile` never commits — `/putdown` commits right after it and sweeps the file up. Mid-session,
+`add` and `done` also leave the file for `/putdown` (or the user) to commit, unless asked.
+@@ with
+`reconcile` never commits — `$putdown` commits right after it and sweeps the file up. Mid-session,
+`add` and `done` also leave the file for `$putdown` (or the user) to commit, unless asked.
+
+@@ replace
+- **One copy.** If an item exists as a memory, a putdown "Must address" line, *and* here, the next
+  agent can't tell which is current. A to-do belongs here; a memory that is secretly a to-do
+  (`project_x` with "still needs a reply") should move here when `/takenotes` next touches it.
+@@ with
+- **One copy.** If an item exists as a note, a putdown "Must address" line, *and* here, the next
+  agent can't tell which is current. A to-do belongs here; a note that is secretly a to-do
+  (`project_x` with "still needs a reply") should move here when `$takenotes` next touches it.
+
+@@ allow shared with the Claude Code version of this

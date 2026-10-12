@@ -10,7 +10,7 @@ Claude Code, git, and optionally the GitHub CLI. Covered by Step 0 of [README.md
 
 ## Layer 1: the workspace pattern and this repo's skills
 
-Covered end to end by [README.md](README.md): the umbrella `CLAUDE.md`, the memory hub and `fanout-memory.sh`, and the four day-to-day skills, `/newproject`, `/putdown`, `/pickup`, and `/takenotes`. The two other skills in this repo are optional and install with one `cp` each per the root [INSTALL.md](../INSTALL.md): `/skill-dict` (a catalog of the skills you have installed) and `/grill-me` (interrogates a plan before you commit to it). Do this first; everything below assumes it.
+Covered end to end by [README.md](README.md): the umbrella `CLAUDE.md`, the memory hub and `fanout-memory.sh`, and the five day-to-day skills, `/newproject`, `/putdown`, `/pickup`, `/takenotes`, and `/openthreads`. The two other skills in this repo are optional and install with one `cp` each per the root [INSTALL.md](../INSTALL.md): `/skill-dict` (a catalog of the skills you have installed) and `/grill-me` (interrogates a plan before you commit to it). Do this first; everything below assumes it.
 
 ## Layer 2: recommended for everyone (official plugins, no accounts needed)
 

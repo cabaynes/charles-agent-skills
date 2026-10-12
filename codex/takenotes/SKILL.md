@@ -28,6 +28,7 @@ Decide which of these you're doing. Getting this wrong makes the skill annoying 
 | Situation | Do this |
 |---|---|
 | One discrete fact ("remember I prefer tabs", "the API key rotates monthly") | Take the **single-fact path** below. Do not run Steps 2–5. |
+| A **to-do**, not a fact ("remember to do X later", "we still need to…", "add this idea for the future") | Not a note — a task has a done-state, a note doesn't. Hand it to `$openthreads add` and stop. If it arrives *with* a fact ("the vendor has no bulk endpoint, so we still need to…"), the fact is memory and the task is an open thread — split it. |
 | Session checkpoint — solved a problem, made a decision, finished a feature, asked to "save what we learned" | Full harvest. Continue to Step 1. |
 | A topic argument was passed (`$takenotes auth flow`) | Full harvest, but scope Steps 2–4 to that topic only. |
 | Called from `$putdown` | Full harvest. Continue to Step 1. |
@@ -195,6 +196,9 @@ Look for:
 Deliberately exclude:
 
 - Ephemeral session state ("we're mid-refactor on line 142") — that's `$putdown`'s job, not the notes'.
+- Pending work and parked ideas ("still needs a reply", "worth building later") — that's
+  `OPEN-THREADS.md`'s job, via `$openthreads`. A `project_*` note that is secretly a to-do list
+  gets its tasks moved there when you reconcile it in Step 3; keep the facts, move the tasks.
 - Anything the code, git history, or an existing AGENTS.md already records. Notes are for what
   *isn't* recoverable from the repo.
 - Secrets, credentials, tokens, keys — **never**, in any file, in any form. If a value came from a

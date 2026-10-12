@@ -28,13 +28,13 @@ The workspace fixes both:
 
 - One root folder, `~/CLAUDE`, with a short **umbrella** `CLAUDE.md` that lists your projects and the house rules. Every project is a subfolder with its own `CLAUDE.md`. Open a project and Claude sees the umbrella rules plus that project's rules, and nothing from the other projects.
 - The root folder's memory directory is the **hub**. Anything universal (who you are, how you like Claude to work) lives there once, and `fanout-memory.sh` symlinks it into each project's memory. Edit it once, every project sees it. Project-specific memory stays in the project.
-- The four skills run the day-to-day: `/newproject` builds a subfolder with all of this wired up, `/putdown` saves a handoff at the end of a session and pushes to GitHub, `/pickup` reloads it in the next session, and `/takenotes` files anything you say "remember this" about into the right memory, hub or project. `/takenotes` detects the symlinks on its own; nothing else needs configuring.
+- The five skills run the day-to-day: `/newproject` builds a subfolder with all of this wired up, `/putdown` saves a handoff at the end of a session and pushes to GitHub, `/pickup` reloads it in the next session, `/takenotes` files anything you say "remember this" about into the right memory, hub or project, and `/openthreads` keeps each project's to-do list (`OPEN-THREADS.md`) that `/putdown` reconciles and `/pickup` reads. `/takenotes` detects the symlinks on its own; nothing else needs configuring.
 
 ## What you end up with
 
 ```
 ~/.claude/CLAUDE.md                                   global rules for every folder on the machine (optional)
-~/.claude/skills/{newproject,putdown,pickup,takenotes}/
+~/.claude/skills/{newproject,putdown,pickup,takenotes,openthreads}/
 ~/.claude/projects/-Users-<you>-CLAUDE/memory/         the HUB: user_profile.md, feedback_*.md, MEMORY.md
 ~/.claude/projects/-Users-<you>-CLAUDE-recipes/memory/ one project's memory, with symlinks back to the hub
 ~/CLAUDE/CLAUDE.md                                    umbrella: project list + house rules
@@ -74,7 +74,7 @@ Skills have to exist **before** Claude Code starts, so this step is Terminal, no
 ```
 mkdir -p ~/CLAUDE/scripts ~/CLAUDE/docs ~/.claude/skills
 cd /tmp && rm -rf charles-agent-skills && git clone https://github.com/cabaynes/charles-agent-skills.git
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes} ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes,openthreads} ~/.claude/skills/
 cp -r charles-agent-skills/claude/newproject ~/.claude/skills/
 cp charles-agent-skills/workspace/fanout-memory.sh ~/CLAUDE/scripts/ && chmod +x ~/CLAUDE/scripts/fanout-memory.sh
 if [ ! -f ~/CLAUDE/CLAUDE.md ]; then cp charles-agent-skills/workspace/CLAUDE.md.template ~/CLAUDE/CLAUDE.md; fi
@@ -83,7 +83,7 @@ export WORKSPACE_DIR=~/CLAUDE
 ls ~/.claude/skills ~/CLAUDE ~/CLAUDE/scripts
 ```
 
-You should see four skill folders (`newproject`, `pickup`, `putdown`, `takenotes`), a `CLAUDE.md` in `~/CLAUDE`, and `fanout-memory.sh` in `~/CLAUDE/scripts`. The `WORKSPACE_DIR` line tells `/newproject` where the workspace lives so it never asks. If your shell is bash, use `~/.bashrc` instead of `~/.zshrc`.
+You should see five skill folders (`newproject`, `openthreads`, `pickup`, `putdown`, `takenotes`), a `CLAUDE.md` in `~/CLAUDE`, and `fanout-memory.sh` in `~/CLAUDE/scripts`. The `WORKSPACE_DIR` line tells `/newproject` where the workspace lives so it never asks. If your shell is bash, use `~/.bashrc` instead of `~/.zshrc`.
 
 Open `~/CLAUDE` in your editor and start Claude Code. Every prompt below is pasted into that Claude Code window.
 
@@ -153,20 +153,21 @@ Create ~/.claude/CLAUDE.md, my global Claude Code instructions that apply in eve
 Private repos can carry copies of the session skills at `.claude/skills/` so a web session can `/putdown` and `/pickup` too. `/newproject` seeds those copies automatically **if** a source folder exists. One Terminal line sets that up (this is a Terminal command, not a prompt):
 
 ```
-mkdir -p ~/CLAUDE/scripts/web-skills && cp -r ~/.claude/skills/{putdown,pickup,takenotes} ~/CLAUDE/scripts/web-skills/ && ls ~/CLAUDE/scripts/web-skills
+mkdir -p ~/CLAUDE/scripts/web-skills && cp -r ~/.claude/skills/{putdown,pickup,takenotes,openthreads} ~/CLAUDE/scripts/web-skills/ && ls ~/CLAUDE/scripts/web-skills
 ```
 
 Do this before running `/newproject` for the first time if you want it from day one; projects created earlier can get the copies by hand later.
 
 ## The daily rhythm
 
-Once set up, the whole system runs on four habits:
+Once set up, the whole system runs on five habits:
 
 | When | You type | What happens |
 |---|---|---|
-| Opening a project | `/pickup` | Loads the last handoff and asks you to confirm before continuing |
+| Opening a project | `/pickup` | Loads the last handoff, briefs you on what's still open, and asks you to confirm before continuing |
 | Mid-session, something worth keeping | `remember that ...` or `/takenotes` | Files it into project memory, or the hub if it applies everywhere, and fixes anything stored that has gone stale |
-| Wrapping up, or context feels full | `/putdown` | Runs takenotes, writes the handoff, commits and pushes |
+| Mid-session, something for later | `add this to the open threads ...` or `/openthreads` | Parks it in the project's `OPEN-THREADS.md`; `what's still open` lists it, `mark X done` deletes it |
+| Wrapping up, or context feels full | `/putdown` | Runs takenotes, writes the handoff, reconciles the open threads, commits and pushes |
 | Starting something new | `/newproject <name>` | Folder, CLAUDE.md, memory dir with hub symlinks, git, GitHub, umbrella entry |
 
 A prompt for a universal rule at any time:

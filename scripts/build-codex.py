@@ -36,6 +36,7 @@ SKILLS = {
     "putdown": "claude/session-continuity/putdown",
     "pickup": "claude/session-continuity/pickup",
     "takenotes": "claude/session-continuity/takenotes",
+    "openthreads": "claude/session-continuity/openthreads",
 }
 # Files copied from each Claude skill folder into its Codex folder (README.md is Claude install
 # docs, so it is not carried over; the repo INSTALL.md covers Codex).

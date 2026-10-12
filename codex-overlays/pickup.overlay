@@ -82,8 +82,23 @@ or hand off to a subagent.
 or hand off to another agent.
 
 @@ replace
-Use TodoWrite to track the "Must address" items (first)
+Use the in-session task list to track the "Must address" items (first)
 @@ with
 Track the "Must address" items (first) — with the plan tool (`update_plan`) if this session has it, otherwise as a Markdown checklist in chat —
+
+@@ replace
+  `~/.claude/putdowns/<project-slug>/OPEN-THREADS.md` for a public one (the `/openthreads`
+@@ with
+  `$CODEX_DIR/putdowns/<project-slug>/OPEN-THREADS.md` for a public one (the `$openthreads`
+
+@@ replace
+reconciling are `/openthreads`'s job.
+@@ with
+reconciling are `$openthreads`'s job.
+
+@@ replace
+work it, and `/openthreads done` it when finished.
+@@ with
+work it, and `$openthreads done` it when finished.
 
 @@ allow shared with the Claude Code version of this skill

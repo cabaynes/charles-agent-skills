@@ -76,6 +76,10 @@ In parallel:
 - `git status` and `git log --oneline -5` to see if anything changed since the putdown was written
 - Read the project `CLAUDE.md` if one exists
 - Read the user's auto-memory `MEMORY.md` index (already loaded by the harness, but re-confirm)
+- Read the project's **`OPEN-THREADS.md`** if one exists — at the repo root for a private repo, or at
+  `~/.claude/putdowns/<project-slug>/OPEN-THREADS.md` for a public one (the `/openthreads`
+  skill owns the file and its placement rule). Count the open `- [ ]` items per `##` section, note any
+  `due YYYY-MM-DD` already past, and the oldest `added` date.
 
 If git state has drifted significantly from what the putdown described (e.g. new commits, files modified outside what was listed), flag this to the user — the world may have moved since the putdown.
 
@@ -95,17 +99,25 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 
 **Blockers waiting on you:** <list, or "none">
 
+**Open threads:** <N open — Due now X · Decisions Y · Work Z · Outside W; "M overdue" if any; oldest from <date>>
+<the "Due now" items verbatim, then the top 2–3 others — omit the whole block if there is no OPEN-THREADS.md>
+
 <If git state has drifted: a "⚠️ Note:" line about what changed since the putdown.>
 ```
 
 Never summarize or drop "Must address" items — they exist because the user wanted proof the next
 session saw them. Older putdowns won't have the section; that's fine.
 
+The open-threads block is why that file exists: it is how parked work resurfaces every fresh session
+without the user re-reading a fortnight of putdowns. Overdue items are shown, never silently skipped;
+an old item is reported, not nagged about. Pickup only *reads* the file — adding, closing, and
+reconciling are `/openthreads`'s job.
+
 Then **stop and wait for the user to confirm or redirect.** Do NOT auto-execute the next steps. The user may want to adjust direction, skip a step, or hand off to a subagent. Once they confirm, proceed.
 
 ## Step 4 — Once confirmed, execute
 
-Pick up the work. Use TodoWrite to track the "Must address" items (first) and the "Immediate next steps" list from the putdown; don't mark the session's work done while a "Must address" item is still open unless the user dropped it. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out.
+Pick up the work. Use the in-session task list to track the "Must address" items (first) and the "Immediate next steps" list from the putdown; don't mark the session's work done while a "Must address" item is still open unless the user dropped it. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out. If the user picks an open thread instead of the putdown's next step, that's a normal redirect — work it, and `/openthreads done` it when finished.
 
 ## Notes on judgment
 

@@ -48,7 +48,7 @@ Names below use Claude Code's `/name`; in Codex, type `$name`.
 
 Docs: [claude/session-continuity/README.md](claude/session-continuity/README.md)
 
-The split is by lifetime: a putdown is a note to your next session and goes stale once you act on it; a takenote is a fact you keep forever; an open thread is a task that outlives any one session and is deleted the day it's done. `putdown` runs `takenotes` as its harvest step and `openthreads` as its reconcile step, so one command saves all three.
+The split is by lifetime: a putdown is a note to your next session and goes stale once you act on it; a takenote is a fact you keep forever; an open thread is a task that outlives any one session and becomes a one-line outcome, kept 60 days, the day it's done. `putdown` runs `takenotes` as its harvest step and `openthreads` as its reconcile step, so one command saves all three.
 
 **Standalone utilities:**
 

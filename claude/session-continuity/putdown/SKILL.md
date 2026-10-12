@@ -156,9 +156,11 @@ produce a separate chat-only prompt (it isn't saved or committed, and it's lost 
 (If it's missing — Step 0 already told the user — skip this step.)
 
 The handoff file above is this *session's* ledger; `OPEN-THREADS.md` is the *project's*. Reconcile
-closes what this session finished, and moves into the project list anything from "Immediate next
-steps", "Blockers", and "Must address" that **won't be picked up next session** — so a parked item
-survives longer than the putdown that first mentioned it. Items the next session *will* pick up stay
+moves what this session finished into the file's Closed section (rewritten as the outcome — what
+shipped and where it's logged), moves into the open list anything from "Immediate next steps",
+"Blockers", and "Must address" that **won't be picked up next session** — so a parked item survives
+longer than the putdown that first mentioned it — and prunes Closed lines older than 60 days.
+Items the next session *will* pick up stay
 in the putdown only; the two files never carry the same line. If the project has no `OPEN-THREADS.md`
 and nothing is left over, skip without creating one and say so in Step 5.
 
@@ -183,8 +185,8 @@ After saving, print to chat — in this exact order:
    - **VSCode visual-editor panel, or any other/unknown surface** (`CLAUDE_CODE_ENTRYPOINT` is anything other than `cli`, or empty) — `/clear` does **not** reliably free context here. Tell the user to **`Cmd+W` to close this Claude Code window, then open a new Claude Code window** in VSCode. (Closing affects only this window — other VSCode windows stay untouched. Note: `Cmd+Shift+P → "Developer: Reload Window"` does NOT actually free the context window — you confirmed this.)
 3. A code block containing exactly `/pickup` — what they type once the context is cleared (in the CLI, right after `/clear`; in a new/reopened window otherwise)
 4. **The result of Steps 2–3, labelled with its source** — what memory, `CLAUDE.md`, and `docs/` files were written or corrected. If `/takenotes` ran, label it as such so the user can see each skill fired, e.g. `takenotes: 2 memories updated, 1 created, CLAUDE.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
-5. **The `/openthreads reconcile` delta, labelled** — `openthreads: 2 closed, 3 added, 1 now due`, or
-   `openthreads: nothing to reconcile` / `openthreads: no OPEN-THREADS.md in this project` /
+5. **The `/openthreads reconcile` delta, labelled** — `openthreads: 2 closed, 3 added, 1 now due, 0 pruned`,
+   or `openthreads: nothing to reconcile` / `openthreads: no OPEN-THREADS.md in this project` /
    `openthreads: not installed`. Same rule as takenotes: a silent absence looks like a skipped step.
 6. The commit + push result: `<branch> @ <short SHA> pushed to <repo>` — or a **prominent warning** if there was no remote or the push failed (that work is invisible to Claude Code on the web until pushed)
 

@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.0] — 2026-10-12
+
+### Changed
+
+- **`/openthreads` keeps outcomes instead of deleting closed items.** `OPEN-THREADS.md` gains a
+  fifth section, `## Closed`, at the bottom, with the same four groups as the open sections as
+  `###` subheaders (empty ones stay). `done` / `close` now rewrites the line as the **outcome** —
+  for a Decision, the decision made; for Work, what shipped and where it's logged (changelog,
+  commit, file) — keeps the original `added` date and source, appends `, closed YYYY-MM-DD`, and
+  moves it to the top of the matching Closed group. `reconcile` closes the same way, then **prunes**
+  Closed lines older than 60 days (git history is the archive beyond that), and its delta line is
+  now `openthreads: N closed, N added, N now due, N pruned`. `list` counts exclude Closed and end
+  with one line, `Closed in the last 60 days: N`. `add` never touches Closed. Why: a deleted line
+  left the next reader with no way to tell "done" from "dropped", and the outcome is the one thing
+  worth keeping for a while.
+- **`/pickup`** counts exclude Closed, and if anything was closed *after* the putdown being
+  resumed (another surface, or by hand) it adds one line — `Closed since that putdown: N — <first
+  outcome>` — and otherwise never mentions the section.
+- **`/putdown`** reports the new delta format. `/takenotes` is unchanged. No description changed,
+  so no trigger re-eval.
+- Codex: the openthreads scenario now checks the five-section shape, the closed count in `list`,
+  and that `done` produces an outcome line under Closed rather than a deletion — **10/10 on the new
+  design**. The rest of the suite then hit the ChatGPT plan's Codex usage limit before `putdown`
+  ran, so the full 42-check run is still pending; the last complete run is 0.10.0's 41/41 (see
+  `tests/codex/RESULTS.md`).
+- Review pass (medium) before shipping caught four wording defects, fixed in both versions:
+  `pickup`'s "closed since that putdown" now compares dates (same-day closes can't be told from
+  the putdown's own reconcile and are not reported); `reconcile` no longer inherits `done`'s
+  "ask in one line" branch, which would stall a non-interactive putdown (it uses the putdown's own
+  done line, marked `(outcome unconfirmed)`); `list` counts Closed by `closed` date, not raw lines,
+  since pruning only happens in `reconcile`; and `add`'s duplicate check searches Closed by subject,
+  because outcome lines don't repeat the task wording.
+
 ## [0.10.0] — 2026-10-12
 
 ### Added

@@ -23,7 +23,7 @@ Skills that preserve work across Claude Code context resets — but across three
 
 - **`/openthreads`** — keeps one file per project, `OPEN-THREADS.md`, of everything pending that no single session owns: ideas parked mid-session, decisions waiting on you, work no session has picked up yet, things waiting on outside parties. `/putdown` reconciles it at session end; `/pickup` reads it at session start.
 
-The distinction that matters: a putdown is a **note to your next session** and goes stale the moment you act on it. A takenote is a **fact you want to keep forever**. An open thread is a **task that outlives any one session** and is deleted the day it's done. Three lifetimes, three destinations, which is why they're separate skills.
+The distinction that matters: a putdown is a **note to your next session** and goes stale the moment you act on it. A takenote is a **fact you want to keep forever**. An open thread is a **task that outlives any one session**; the day it's done it becomes a one-line outcome in the file's Closed section, kept 60 days. Three lifetimes, three destinations, which is why they're separate skills.
 
 ## Why the pair exists
 
@@ -105,15 +105,21 @@ If `/takenotes` is missing (a partial install), `/putdown` says the set is incom
 
 ### What it does
 
-Keeps `OPEN-THREADS.md`, the project's living to-do list. Four fixed sections — **Due now**, **Decisions waiting on you**, **Work waiting on the agent**, **Waiting on outside parties** — and one dated line per item:
+Keeps `OPEN-THREADS.md`, the project's living to-do list. Four fixed open sections — **Due now**, **Decisions waiting on you**, **Work waiting on the agent**, **Waiting on outside parties** — with one dated line per item, then a **Closed** section with the same four groups where finished items live for 60 days as outcomes:
 
 ```markdown
 ## Work waiting on the agent
 ### checkout
 - [ ] Apply the coupon-stacking rule in `cart/totals.ts` once pricing signs off — added 2026-10-12 (session)
+
+## Closed
+Outcomes, newest first, kept 60 days. Same four groups as above.
+
+### Work waiting on the agent
+- [x] Coupon stacking now capped at one code per order in `cart/totals.ts`, commit `a1b2c3d` — added 2026-09-30 (putdown), closed 2026-10-12
 ```
 
-Four modes: `add` (park something, in the right section, merged with any existing line about it), `done` (delete the line — closed items are deleted, not checked off; git is the archive), `list` (counted per section, overdue items flagged, items older than 60 days marked with their age), and `reconcile` (what `/putdown` runs).
+Four modes: `add` (park something, in the right section, merged with any existing line about it), `done` (rewrite the line as its outcome — the decision made, or what shipped and where it's logged — and move it under Closed, keeping the original date and source), `list` (counted per open section, overdue items flagged, items older than 60 days marked with their age, then one line with the count closed in the last 60 days), and `reconcile` (what `/putdown` runs: closes what the session finished, adds what it left over, moves expired dates up, and prunes Closed past 60 days — git history is the archive beyond that).
 
 ### Why it exists
 
@@ -126,8 +132,8 @@ At the repo root for a **private** repo (git-tracked, so web sessions see it and
 ### How it fits the other three
 
 - **`/takenotes`** hands it to-dos: "remember to do X later" is a task, not a fact, so the scope gate routes it to `/openthreads add` and stops. A memory that's secretly a to-do list gets its tasks moved over when reconciled.
-- **`/putdown`** reconciles it: closes what the session finished, moves in anything from "Immediate next steps" / "Blockers" / "Must address" that *won't* be picked up next session, and reports `openthreads: 2 closed, 3 added, 1 now due`. The two files never carry the same line.
-- **`/pickup`** reads it and never writes it.
+- **`/putdown`** reconciles it: moves what the session finished into Closed as outcomes, moves in anything from "Immediate next steps" / "Blockers" / "Must address" that *won't* be picked up next session, prunes Closed past 60 days, and reports `openthreads: 2 closed, 3 added, 1 now due, 0 pruned`. The two files never carry the same line.
+- **`/pickup`** reads it and never writes it: the open counts, overdue items, the oldest date — and, only when something was closed after the putdown it's resuming, one line saying so.
 - **The built-in task list** still handles what you're doing *right now*. Open threads are for what no session owns yet.
 
 ## Benefits — how each saves context
@@ -137,7 +143,7 @@ At the repo root for a **private** repo (git-tracked, so web sessions see it and
 | `/putdown` | Distills ~10k tokens of session state into a ~1k-token structured handoff |
 | `/pickup` | Restores full context in ~30s vs. 5–10 minutes of manual scroll-back-and-paste |
 | `/takenotes` | Keeps `CLAUDE.md` an index rather than a document — content over ~15 lines becomes a `docs/` file that loads only when relevant, instead of costing tokens on every session start forever |
-| `/openthreads` | One counted list instead of re-reading old putdowns to find what's still pending; items are one line each and leave the file when done, so it never grows into a document |
+| `/openthreads` | One counted list instead of re-reading old putdowns to find what's still pending; items are one line each, closed ones become one-line outcomes that age out after 60 days, so it never grows into a document |
 
 The structured format means the next agent skips ~80% of the context that would otherwise need re-explaining, and goes straight to "Immediate next steps."
 

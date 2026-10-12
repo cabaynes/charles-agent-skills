@@ -73,8 +73,12 @@ In parallel:
 - Read the project notes index `$CODEX_DIR/notes/projects/<slug>/INDEX.md` if it exists (written by `$takenotes`; `<slug>` is the CWD with every `/` turned into `-`). Nothing loads it automatically unless the global `AGENTS.md` says to, so read it here.
 - Read the project's **`OPEN-THREADS.md`** if one exists — at the repo root for a private repo, or at
   `$CODEX_DIR/putdowns/<project-slug>/OPEN-THREADS.md` for a public one (the `$openthreads`
-  skill owns the file and its placement rule). Count the open `- [ ]` items per `##` section, note any
-  `due YYYY-MM-DD` already past, and the oldest `added` date.
+  skill owns the file and its placement rule). Count the open `- [ ]` items per `##` section — the
+  `## Closed` section at the bottom is not counted — note any `due YYYY-MM-DD` already past, and the
+  oldest `added` date. Also check Closed for any `- [x]` line whose `closed YYYY-MM-DD` is **later
+  than the putdown's date** (the `YYYY-MM-DD` in its filename): those were closed after the handoff,
+  on another surface or by hand. Same-day closes can't be told apart from the putdown's own
+  reconcile, so they don't count.
 
 If git state has drifted significantly from what the putdown described (e.g. new commits, files modified outside what was listed), flag this to the user — the world may have moved since the putdown.
 
@@ -96,6 +100,7 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 
 **Open threads:** <N open — Due now X · Decisions Y · Work Z · Outside W; "M overdue" if any; oldest from <date>>
 <the "Due now" items verbatim, then the top 2–3 others — omit the whole block if there is no OPEN-THREADS.md>
+<Only if a Closed line is dated after this putdown's day: "Closed since that putdown: <N> — <first outcome, truncated>". Otherwise say nothing about Closed.>
 
 <If git state has drifted: a "⚠️ Note:" line about what changed since the putdown.>
 ```

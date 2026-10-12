@@ -175,7 +175,8 @@ def t_openthreads(e, R):
           "one OPEN-THREADS.md, at the repo root or $CODEX_HOME/putdowns/app/ " + str([str(p.relative_to(e.root)) for p in found]))
     f = found[0] if found else places[0]
     text = f.read_text() if f.exists() else ""
-    check(R, "openthreads", len(re.findall(r"^## ", text, re.M)) == 4, "file has the four fixed ## sections")
+    check(R, "openthreads", len(re.findall(r"^## ", text, re.M)) == 5 and len(re.findall(r"^### ", text.split("## Closed")[-1], re.M)) == 4,
+          "file has the five fixed ## sections, Closed with its four ### groups")
     check(R, "openthreads", re.search(r"^- \[ \] .*seed.*added 20\d\d-\d\d-\d\d.*due 2026-11-01", text, re.M | re.I),
           "item is one dated line carrying its due date")
     rc2, last2, secs2 = e.codex("openthreads-2", "$openthreads add park this idea for later: a --dry-run flag "
@@ -186,13 +187,19 @@ def t_openthreads(e, R):
     rc3, last3, secs3 = e.codex("openthreads-list", "$openthreads list", e.app)
     text3 = f.read_text() if f.exists() else ""
     check(R, "openthreads", rc3 == 0 and re.search(r"seed", last3, re.I) and re.search(r"dry.?run", last3, re.I)
-          and re.search(r"\(\d+\)", last3), f"list prints both items with section counts ({secs3}s)")
+          and re.search(r"\(\d+\)", last3) and re.search(r"Closed in the last 60 days: 0", last3),
+          f"list prints both items with section counts and the closed count ({secs3}s)")
     check(R, "openthreads", text3 == text2, "list does not rewrite the file")
-    rc4, last4, secs4 = e.codex("openthreads-done", "$openthreads done the --seed flag tests", e.app)
+    rc4, last4, secs4 = e.codex("openthreads-done", "$openthreads done the --seed flag tests: they shipped "
+                                "in tests/test_seed.py, 4 cases, all passing", e.app)
     text4 = f.read_text() if f.exists() else ""
-    check(R, "openthreads", rc4 == 0 and "seed" not in text4.lower() and re.search(r"dry.?run", text4, re.I)
-          and len(re.findall(r"^## ", text4, re.M)) == 4,
-          f"done deletes that line only and keeps the four sections ({secs4}s)")
+    open_part, _, closed_part = text4.partition("## Closed")
+    check(R, "openthreads", rc4 == 0 and "seed" not in open_part.lower() and re.search(r"dry.?run", open_part, re.I)
+          and len(re.findall(r"^## ", text4, re.M)) == 5,
+          f"done removes that line from the open sections only ({secs4}s)")
+    check(R, "openthreads", re.search(r"^- \[x\] .*test_seed\.py.*added 20\d\d-\d\d-\d\d \((user|session)\), closed 20\d\d-\d\d-\d\d\s*$", closed_part, re.M)
+          and "- [ ]" not in closed_part,
+          "closed line is the outcome under Closed, keeping added date + source, with a closed date")
     check(R, "openthreads", int(sh("git rev-list --count HEAD", cwd=e.app)) == 1, "made no commit")
     e.threads = f if f.exists() else None
 

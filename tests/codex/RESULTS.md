@@ -1,9 +1,29 @@
-# Codex test results — 2026-10-12 (0.10.0)
+# Codex test results — 2026-10-12 (0.10.0, with the 0.11.0 partial re-run)
 
 Codex CLI `0.160.0`, model `gpt-6-astra`, reasoning effort `medium`. Every scenario ran through the
 real `codex exec` in a throwaway `CODEX_HOME`, with git pushes going to a local bare repo. The
 previous headline run (2026-09-29, Codex CLI `0.158.0-alpha.2.1`, six skills, 30/30) is summarised
 under **Earlier runs**.
+
+## 0. 0.11.0 re-run — partial, 21/22 then BLOCKED (2026-10-12, later the same day)
+
+0.11.0 changed `openthreads` (closed items move to a `## Closed` section as outcomes instead of
+being deleted; `list` reports the closed count; `reconcile` prunes at 60 days) and reworded one
+line each in `putdown` and `pickup`. The openthreads scenario grew to 10 checks (suite: 42) and
+was re-run against the rebuilt skill:
+
+| Skill | Checks | Result |
+|---|---|---|
+| grill-me | 4/4 | unchanged skill, passed |
+| takenotes | 7/7 | unchanged skill, passed |
+| openthreads | **10/10** | five `##` sections with Closed's four `###` groups on creation; dated line with due date; second add, no duplicate; `list` with per-section counts **and** `Closed in the last 60 days: 0`, file untouched; `done` removed the item from the open sections only and wrote `- [x] <outcome> … added … (user), closed 2026-10-12` under Closed; no commit |
+| putdown → skill-dict | — | **BLOCKED**: the ChatGPT plan's Codex usage limit was reached as `putdown` started. The harness stops and reports rather than scoring failures. |
+
+So the behaviour that changed is verified; the four unchanged scenarios (`putdown`, `pickup`,
+`newproject`, `skill-dict`) have not been re-run on 0.11.0. [last-run.json](last-run.json) is kept
+at the last **complete** run (0.10.0, 41/41, below) rather than overwritten by the partial one.
+Re-run `python3 tests/codex/run_tests.py` when the limit resets (or with `--api-key-from`) and
+replace this section with the full table.
 
 ## 1. End-to-end scenarios — 41/41
 

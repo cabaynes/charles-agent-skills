@@ -51,10 +51,10 @@ the file. Non-git folders: the folder root. Check visibility the way `$putdown` 
 | A fact, a preference, a dead end, how a tool behaves | `$takenotes` → a note or AGENTS.md |
 
 @@ replace
-2. If the item was a *Decision* and the user just made it, the decision itself may be worth a memory
+4. If the item was a *Decision* and the user just made it, the decision itself may be worth a memory
    or a CLAUDE.md line — mention that, don't do it unasked.
 @@ with
-2. If the item was a *Decision* and the user just made it, the decision itself may be worth a note
+4. If the item was a *Decision* and the user just made it, the decision itself may be worth a note
    or an AGENTS.md line — mention that, don't do it unasked.
 
 @@ replace

@@ -4,6 +4,8 @@
 > The first two you use as you work; `/putdown` runs both of them on the way out, and `/pickup`
 > reads what they kept on the way back in. That's the loop.
 
+Without this four-skill set, an agent's working memory resets with every fresh session. These four fill the memory gap between sessions and keep that memory healthy and complete, preventing duplicated mistakes and stale knowledge. Use openthreads and takenotes during a work session as you see fit, then end every session with a putdown. Start your next session with a pickup, and never repeat yourself again.
+
 ## What
 
 Four skills that preserve work across Claude Code context resets, in the order you meet them in a session. The last one leads straight back to the first, which is why it's a loop:

@@ -1,6 +1,6 @@
 # charles-agent-skills
 
-Production-quality agent skills for **[Claude Code](https://claude.com/claude-code)** and **[OpenAI Codex](https://developers.openai.com/codex)**. Both tools use the same open [Agent Skills](https://agentskills.io/specification) format, so every skill here ships in two versions: one per tool, built from a single source so they never drift apart.
+Seven skills that I've built that are fundamental to my agentic workflow. Built for both **[Claude Code](https://claude.com/claude-code)** and **[OpenAI Codex](https://developers.openai.com/codex)**. Both tools use the same open [Agent Skills](https://agentskills.io/specification) format, so every skill here ships in two versions: one per tool, built from a single source so they never drift apart.
 
 - **Claude Code:** evaluated against Anthropic's `writing-skills` + `skill-creator` rubric, with **100% trigger accuracy** on a 20-query precision/recall benchmark per skill.
 - **Codex:** every skill tested end to end through the real Codex CLI (**42/42** checks), plus a spec check and a behavior rubric.
@@ -37,26 +37,48 @@ workspace/         the multi-project workspace pattern these skills assume
 
 Names below use Claude Code's `/name`; in Codex, type `$name`.
 
-**The Session Continuity Loop (one folder, one set — `openthreads`, `takenotes`, `putdown` and `pickup` go together, in the order you meet them in a session):**
+**The Session Continuity Loop** — one folder, one set: `openthreads`, `takenotes`, `putdown` and `pickup` go together, in the order you meet them in a session. Docs: [claude/session-continuity/README.md](claude/session-continuity/README.md)
 
-| Skill | What it does |
-|---|---|
-| `/openthreads` | As you work: keeps the project's living to-do list, `OPEN-THREADS.md` — parked ideas, decisions waiting on you, work no session has picked up yet |
-| `/takenotes` | As you work: harvests what a session *learned* into memory (Claude) or notes (Codex), the project instructions file, or `docs/` — and corrects what's already stored and has since gone stale |
-| `/putdown` | To end the session: distills its state into a handoff file, runs the two above to sweep up what you didn't park or note, then commits and pushes |
-| `/pickup` | To start the next one: loads the most recent putdown in a fresh session and briefs you on what's still open — and you're back at the top |
+Without this four-skill set, an agent's working memory resets with every fresh session. These four fill the memory gap between sessions and keep that memory healthy and complete, preventing duplicated mistakes and stale knowledge. Use openthreads and takenotes during a work session as you see fit, then end every session with a putdown. Start your next session with a pickup, and never repeat yourself again.
 
-Docs: [claude/session-continuity/README.md](claude/session-continuity/README.md)
+**`/openthreads`**
+- **What it does:** Keeps the project's living to-do list in one file: parked ideas, decisions waiting on you, work nobody has picked up yet. Finished items become a 60-day log of outcomes.
+- **Why I built it:** A handoff holds one session's next steps and memory holds facts. Neither held the backlog, so parked ideas lived in people's heads until someone re-read two weeks of notes.
+- **When to use it:** As you work, whenever something gets parked: an idea for later, a question for someone else, a task no session owns yet. Putdown sweeps up anything you forgot.
+
+**`/takenotes`**
+- **What it does:** Saves what a session learned (decisions, dead ends, how the tools really behave) to permanent memory, then goes back over what's already stored and fixes anything that has become false.
+- **Why I built it:** Every assistant can save new facts; almost none check whether old ones are still true. Stale memory is worse than none: it argues the agent out of work that's already done.
+- **When to use it:** Any time you learn something that should outlive the session, not only at the end. A Putdown is a sticky note for tomorrow; a Takenote is a fact for forever.
+
+**`/putdown`**
+- **What it does:** Ends a session with a handoff note: where things stand, what's half-done, what must not slip, what was tried and failed. Then it saves everything to GitHub.
+- **Why I built it:** A fresh session wipes the agent's working memory. Without a handoff, every session starts from zero and repeats the same dead ends.
+- **When to use it:** At the end of every working session, or when the context window is filling up. It runs Takenotes first and Openthreads last, so one command saves all three.
+
+**`/pickup`**
+- **What it does:** Starts a fresh session by finding the latest handoff and the open threads, briefing you on both, and waiting for your go-ahead before doing anything.
+- **Why I built it:** The other half of Putdown. A note nobody reads is useless; this makes reading it automatic. A handoff written in Claude Code can even be picked up in Codex, and vice versa.
+- **When to use it:** First thing in a new session, before any other work, so you start with the backlog and last session's state in view.
 
 The split is by lifetime: a putdown is a note to your next session and goes stale once you act on it; a takenote is a fact you keep forever; an open thread is a task that outlives any one session and becomes a one-line outcome, kept 60 days, the day it's done. `putdown` runs `takenotes` as its harvest step and `openthreads` as its reconcile step, so one command saves all three.
 
-**Standalone utilities:**
+**Stand-alone skills.** Three skills that work on their own, with no set to join. Pick whichever you like; each installs with one line (see Install below).
 
-| Skill | What it does | Docs |
-|---|---|---|
-| `/newproject` | Bootstrap a configurable workspace project (idempotent) | [claude/newproject/README.md](claude/newproject/README.md) |
-| `/skill-dict` | Manage a personal catalog of your installed skills (Claude, Codex, or both) | [claude/skill-dict/README.md](claude/skill-dict/README.md) |
-| `/grill-me` | Interrogate a plan, design, or idea before you commit; it asks, it never builds | [claude/grill-me/README.md](claude/grill-me/README.md) |
+**`/newproject`** — docs: [claude/newproject/README.md](claude/newproject/README.md)
+- **What it does:** One command builds a new project folder with everything it needs: agent instructions, a memory folder, git, an optional GitHub repo, and an entry in the workspace index.
+- **Why I built it:** Setting a project up by hand takes a dozen steps and it's easy to forget one.
+- **When to use it:** Whenever you start a project. It's safe to re-run on a folder you already have: it only adds what's missing and never overwrites anything.
+
+**`/skill-dict`** — docs: [claude/skill-dict/README.md](claude/skill-dict/README.md)
+- **What it does:** Keeps a tidy catalog of every skill and plugin you've installed, with one entry per skill and a one-table index. It can sync the catalog and check for updates.
+- **Why I built it:** Asking an agent "what skills do I have?" normally dumps thousands of words into the conversation. The catalog answers in one small table, about 8× cheaper every time.
+- **When to use it:** When you want to know what's installed or what a skill does, and after you add or update a plugin so the catalog stays current.
+
+**`/grill-me`** — docs: [claude/grill-me/README.md](claude/grill-me/README.md)
+- **What it does:** Turns the agent into a sharp, friendly interrogator for any plan, design, or idea: it asks the questions you're avoiding, one thread at a time, and keeps a written record of what was decided.
+- **Why I built it:** It's the only skill here that pushes back. Everything else makes it easier to build; this one makes it harder to build the wrong thing.
+- **When to use it:** Before you build. Bring a plan, a design, or a business idea you want stress-tested. Its one hard rule: it never does the task itself, only interrogates it.
 
 **What changes in the Codex versions:** the workflow is the same; only tool-specific parts differ. `AGENTS.md` replaces `CLAUDE.md`; questions come as numbered lists in chat; `/new` or a New chat replaces `/clear`; `takenotes` saves Markdown notes that a short block in your global `AGENTS.md` loads each session (Codex has no memory a skill can write to). Full table: [INSTALL.md](INSTALL.md#using-openai-codex-instead-or-as-well).
 

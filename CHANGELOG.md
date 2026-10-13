@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.3] — 2026-10-13
+
+### Changed
+
+- README copy: the opening line and the Session Continuity Loop description are now the same words
+  as the cccccccharles.com/skills page ("Seven skills that I've built…", "Without this four-skill
+  set…"), and every skill is described in three parts, **What it does / Why I built it / When to
+  use it**, replacing the one-line tables. The loop paragraph also opens the bundle README. Docs only.
+
 ## [0.11.2] — 2026-10-13
 
 ### Changed

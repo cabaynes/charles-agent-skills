@@ -19,7 +19,7 @@ The user is about to clear the context window and start fresh. Your job: capture
 
 ## Step 0 — Announce what's about to run
 
-`/takenotes` and `/openthreads` ship with this skill as part of the session-continuity set (putdown + pickup + takenotes + openthreads), so a putdown is three operations, not one. Print this first so the user knows what's running and in what order:
+`/takenotes` and `/openthreads` ship with this skill as part of the Session Continuity Loop (openthreads + takenotes + putdown + pickup), so a putdown is three operations, not one. Print this first so the user knows what's running and in what order:
 
 ```
 /putdown runs three skills, in this order:
@@ -31,7 +31,7 @@ The user is about to clear the context window and start fresh. Your job: capture
 If `/takenotes` is missing (someone installed only part of the set), print this instead of the announcement:
 
 ```
-/putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes + openthreads.
+/putdown: takenotes isn't installed — the Session Continuity Loop is openthreads + takenotes + putdown + pickup.
           Using the reduced memory step instead; install takenotes for the full harvest.
 ```
 
@@ -61,7 +61,7 @@ Also pull from your conversation memory:
 
 ## Steps 2–3 — Harvest durable knowledge
 
-**Invoke `/takenotes`** — it ships with this skill as part of the session-continuity set —
+**Invoke `/takenotes`** — it ships with this skill as part of the Session Continuity Loop —
 **and follow it to completion before continuing.** It harvests the session, reconciles what
 is already in memory and `CLAUDE.md` against what this session actually established (correcting
 anything that has since become false), and routes each finding to memory, `CLAUDE.md`, or a `docs/`

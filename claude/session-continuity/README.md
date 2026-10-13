@@ -1,31 +1,23 @@
-# Session continuity — `/putdown` + `/pickup` + `/takenotes` + `/openthreads`
+# Session Continuity Loop — `/openthreads` + `/takenotes` + `/putdown` + `/pickup`
 
-> `/putdown`, `/pickup`, `/takenotes` and `/openthreads` are **one set** — install all four.
-> `/takenotes` and `/openthreads` can also be run on their own mid-session, but they ship with the
-> other two, which run them and read what they keep.
+> `/openthreads`, `/takenotes`, `/putdown` and `/pickup` are **one set** — install all four.
+> The first two you use as you work; `/putdown` runs both of them on the way out, and `/pickup`
+> reads what they kept on the way back in. That's the loop.
 
 ## What
 
-Skills that preserve work across Claude Code context resets — but across three different timescales:
+Four skills that preserve work across Claude Code context resets, in the order you meet them in a session. The last one leads straight back to the first, which is why it's a loop:
 
-**The pair — carrying a session forward (temporary state):**
+1. **`/openthreads`** — *as you work.* Keeps one file per project, `OPEN-THREADS.md`, of everything pending that no single session owns: ideas parked mid-session, decisions waiting on you, work no session has picked up yet, things waiting on outside parties. "Add this to the open threads" and it's parked, concretely, where the next session will see it.
+2. **`/takenotes`** — *as you work.* Harvests what a session *learned* into permanent storage (typed memory, `CLAUDE.md`, or a `docs/` file), and — the part nothing else does — goes back over what's **already** stored and corrects whatever this session made false. "Remember this" writes one memory and stops.
+3. **`/putdown`** — *to end the session* (or whenever your context window is filling up). Writes a structured handoff file: what you accomplished, what's still in flight, file paths you were mid-edit on, decisions you made and why, blockers waiting on you, and (critically) approaches you ruled out so the next session doesn't redo them. It runs `/takenotes` and `/openthreads reconcile` on the way, so anything you didn't park or note during the session is swept up before the commit and push.
+4. **`/pickup`** — *to start the next one.* Finds the most recent handoff for the current project, reads it together with the open threads, and primes the new agent with full context. Asks you to confirm before continuing — and then you're back at step 1.
 
-- **`/putdown`** — at the end of a session (or whenever your context window is filling up), writes a structured handoff file that captures what you accomplished, what's still in flight, file paths you were mid-edit on, decisions you made and why, blockers waiting on you, and (critically) approaches you ruled out so the next session doesn't redo them.
-- **`/pickup`** — at the start of a fresh session, finds the most recent handoff for the current project, reads it, and primes the new agent with full context. Asks you to confirm before continuing.
-
-`/pickup` reads files that `/putdown` writes. Without `/putdown`, `/pickup` has nothing to load. Without `/pickup`, `/putdown`'s handoff sits unused.
-
-**The third — keeping knowledge permanently:**
-
-- **`/takenotes`** — harvests what a session *learned* into permanent storage (typed memory, `CLAUDE.md`, or a `docs/` file), and — the part nothing else does — goes back over what's **already** stored and corrects whatever this session made false.
-
-**The fourth — the project's backlog (task lifetime):**
-
-- **`/openthreads`** — keeps one file per project, `OPEN-THREADS.md`, of everything pending that no single session owns: ideas parked mid-session, decisions waiting on you, work no session has picked up yet, things waiting on outside parties. `/putdown` reconciles it at session end; `/pickup` reads it at session start.
+`/pickup` reads what `/putdown` writes. Without `/putdown`, `/pickup` has nothing to load. Without `/pickup`, `/putdown`'s handoff sits unused. Without the other two, `/putdown` saves the session's state but not what it learned or what it left pending.
 
 The distinction that matters: a putdown is a **note to your next session** and goes stale the moment you act on it. A takenote is a **fact you want to keep forever**. An open thread is a **task that outlives any one session**; the day it's done it becomes a one-line outcome in the file's Closed section, kept 60 days. Three lifetimes, three destinations, which is why they're separate skills.
 
-## Why the pair exists
+## Why `/putdown` and `/pickup` exist
 
 Claude Code's context window is finite. As a session grows, you hit limits. Three things people try:
 
@@ -37,7 +29,42 @@ Claude Code's context window is finite. As a session grows, you hit limits. Thre
 
 `/pickup` then loads it in a fresh session and confirms with you before picking up the work.
 
-## `/takenotes` — the third skill in the set
+## `/openthreads` — step 1 of the loop: park work as you go
+
+### What it does
+
+Keeps `OPEN-THREADS.md`, the project's living to-do list. Four fixed open sections — **Due now**, **Decisions waiting on you**, **Work waiting on the agent**, **Waiting on outside parties** — with one dated line per item, then a **Closed** section with the same four groups where finished items live for 60 days as outcomes:
+
+```markdown
+## Work waiting on the agent
+### checkout
+- [ ] Apply the coupon-stacking rule in `cart/totals.ts` once pricing signs off — added 2026-10-12 (session)
+
+## Closed
+Outcomes, newest first, kept 60 days. Same four groups as above.
+
+### Work waiting on the agent
+- [x] Coupon stacking now capped at one code per order in `cart/totals.ts`, commit `a1b2c3d` — added 2026-09-30 (putdown), closed 2026-10-12
+```
+
+Four modes: `add` (park something, in the right section, merged with any existing line about it), `done` (rewrite the line as its outcome — the decision made, or what shipped and where it's logged — and move it under Closed, keeping the original date and source), `list` (counted per open section, overdue items flagged, items older than 60 days marked with their age, then one line with the count closed in the last 60 days), and `reconcile` (what `/putdown` runs: closes what the session finished, adds what it left over, moves expired dates up, and prunes Closed past 60 days — git history is the archive beyond that).
+
+### Why it exists
+
+A putdown holds one session's next steps. Memory holds facts. Neither holds the **backlog**: the idea you parked at 11pm, the decision you said you'd make next week, the vendor you're waiting on. Those lived in people's heads and in open terminal windows, and surfaced only when someone re-read a fortnight of putdowns. Now `/pickup` briefs them every fresh session — counts, overdue items verbatim, the oldest open date — so you get the "oh right, that" moment without the re-reading.
+
+### Where the file lives
+
+At the repo root for a **private** repo (git-tracked, so web sessions see it and `git log` is its history). For a **public** or GitHub-Pages-served repo it would be published, so it goes in `~/.claude/putdowns/<project>/` instead — the same rule `/putdown` uses for handoffs. If the skill can't tell, it picks the out-of-repo location and says so.
+
+### How it fits the other three
+
+- **`/takenotes`** hands it to-dos: "remember to do X later" is a task, not a fact, so the scope gate routes it to `/openthreads add` and stops. A memory that's secretly a to-do list gets its tasks moved over when reconciled.
+- **`/putdown`** reconciles it: moves what the session finished into Closed as outcomes, moves in anything from "Immediate next steps" / "Blockers" / "Must address" that *won't* be picked up next session, prunes Closed past 60 days, and reports `openthreads: 2 closed, 3 added, 1 now due, 0 pruned`. The two files never carry the same line.
+- **`/pickup`** reads it and never writes it: the open counts, overdue items, the oldest date — and, only when something was closed after the putdown it's resuming, one line saying so.
+- **The built-in task list** still handles what you're doing *right now*. Open threads are for what no session owns yet.
+
+## `/takenotes` — step 2 of the loop: keep what you learned
 
 ### What it does
 
@@ -84,7 +111,7 @@ It also handles a single fact without ceremony: "remember I prefer tabs" takes a
 
 ### Using it with `/putdown`
 
-**With all three installed, you don't type `/takenotes` at session end — `/putdown` runs it for you.** Its Steps 2–3 invoke `/takenotes` before the handoff is written, which means everything the harvest wrote gets swept into the same commit and push at the end. That ordering is the reason it's chained rather than left to you: run them the other way round and the memory work sits uncommitted.
+**With all four installed, you don't type `/takenotes` at session end — `/putdown` runs it for you.** Its Steps 2–3 invoke `/takenotes` before the handoff is written, which means everything the harvest wrote gets swept into the same commit and push at the end. That ordering is the reason it's chained rather than left to you: run them the other way round and the memory work sits uncommitted.
 
 ```
 /putdown
@@ -101,41 +128,6 @@ If you use Claude Code on the web, `/takenotes` also drains `.putdowns/MEMORY-IN
 
 If `/takenotes` is missing (a partial install), `/putdown` says the set is incomplete and falls back to its own inline memory step — reduced, with no reconcile pass, but it still works. If `/openthreads` is missing it skips the reconcile and says so. Install all four to get the real thing.
 
-## `/openthreads` — the fourth skill in the set
-
-### What it does
-
-Keeps `OPEN-THREADS.md`, the project's living to-do list. Four fixed open sections — **Due now**, **Decisions waiting on you**, **Work waiting on the agent**, **Waiting on outside parties** — with one dated line per item, then a **Closed** section with the same four groups where finished items live for 60 days as outcomes:
-
-```markdown
-## Work waiting on the agent
-### checkout
-- [ ] Apply the coupon-stacking rule in `cart/totals.ts` once pricing signs off — added 2026-10-12 (session)
-
-## Closed
-Outcomes, newest first, kept 60 days. Same four groups as above.
-
-### Work waiting on the agent
-- [x] Coupon stacking now capped at one code per order in `cart/totals.ts`, commit `a1b2c3d` — added 2026-09-30 (putdown), closed 2026-10-12
-```
-
-Four modes: `add` (park something, in the right section, merged with any existing line about it), `done` (rewrite the line as its outcome — the decision made, or what shipped and where it's logged — and move it under Closed, keeping the original date and source), `list` (counted per open section, overdue items flagged, items older than 60 days marked with their age, then one line with the count closed in the last 60 days), and `reconcile` (what `/putdown` runs: closes what the session finished, adds what it left over, moves expired dates up, and prunes Closed past 60 days — git history is the archive beyond that).
-
-### Why it exists
-
-A putdown holds one session's next steps. Memory holds facts. Neither holds the **backlog**: the idea you parked at 11pm, the decision you said you'd make next week, the vendor you're waiting on. Those lived in people's heads and in open terminal windows, and surfaced only when someone re-read a fortnight of putdowns. Now `/pickup` briefs them every fresh session — counts, overdue items verbatim, the oldest open date — so you get the "oh right, that" moment without the re-reading.
-
-### Where the file lives
-
-At the repo root for a **private** repo (git-tracked, so web sessions see it and `git log` is its history). For a **public** or GitHub-Pages-served repo it would be published, so it goes in `~/.claude/putdowns/<project>/` instead — the same rule `/putdown` uses for handoffs. If the skill can't tell, it picks the out-of-repo location and says so.
-
-### How it fits the other three
-
-- **`/takenotes`** hands it to-dos: "remember to do X later" is a task, not a fact, so the scope gate routes it to `/openthreads add` and stops. A memory that's secretly a to-do list gets its tasks moved over when reconciled.
-- **`/putdown`** reconciles it: moves what the session finished into Closed as outcomes, moves in anything from "Immediate next steps" / "Blockers" / "Must address" that *won't* be picked up next session, prunes Closed past 60 days, and reports `openthreads: 2 closed, 3 added, 1 now due, 0 pruned`. The two files never carry the same line.
-- **`/pickup`** reads it and never writes it: the open counts, overdue items, the oldest date — and, only when something was closed after the putdown it's resuming, one line saying so.
-- **The built-in task list** still handles what you're doing *right now*. Open threads are for what no session owns yet.
-
 ## Benefits — how each saves context
 
 | Skill | Token cost saved |
@@ -149,12 +141,12 @@ The structured format means the next agent skips ~80% of the context that would 
 
 ## How to use them
 
-The workflow is four steps:
+The loop, one session around:
 
-1. **In the current session** (when you're at ~50% context usage or stepping away): type `/putdown`. `/takenotes` runs first and `/openthreads reconcile` runs after the handoff, automatically — you don't type either separately.
-2. **Close the Claude Code window** with `Cmd+W`. (Do not use "Reload Window" — it doesn't actually free the context window.)
-3. **Open a fresh Claude Code window.**
-4. **Type `/pickup`.** It finds your most recent putdown, summarizes it, and asks you to confirm before continuing.
+1. **As you work, park what you won't do now:** "add this to the open threads" (or `/openthreads add …`). Decisions you're not ready to make, ideas for later, things waiting on someone else.
+2. **As you work, keep what you learned:** `/takenotes` after solving something hard or deciding something non-obvious, or "remember this" for a single fact. You don't have to; `/putdown` will harvest the session anyway, but mid-session is when a dead end is freshest.
+3. **At ~50% context, or when stepping away:** type `/putdown`. `/takenotes` runs first and `/openthreads reconcile` runs after the handoff, automatically — you don't type either separately. Then **close the Claude Code window** with `Cmd+W`. (Do not use "Reload Window" — it doesn't actually free the context window.)
+4. **In a fresh Claude Code window, type `/pickup`.** It finds your most recent putdown, briefs you on it and on what's still open, and asks you to confirm before continuing. Back to step 1.
 
 If you have multiple parallel sessions in the same project (e.g. two VSCode windows in the same folder), `/pickup` shows a picker with the 4 most recent putdowns so you can grab the right one.
 
@@ -170,7 +162,7 @@ If you have multiple parallel sessions in the same project (e.g. two VSCode wind
 
 ## Why this is better than alternatives
 
-| Alternative | Problem | How the pair solves it |
+| Alternative | Problem | How the loop solves it |
 |---|---|---|
 | `/clear` and hope | Loses judgment, file paths, blockers, ruled-out approaches | `/putdown` captures all of that in a structured file |
 | Auto-compaction at the model layer | Lossy; misses "what NOT to redo"; not human-reviewable | `/putdown` has explicit "What NOT to redo" section; the file is markdown you can read and edit |
@@ -192,9 +184,9 @@ It was additionally validated **behaviourally**: subagents ran it against a sand
 See the root [INSTALL.md](../../INSTALL.md). Quick version:
 
 ```bash
-# The session-continuity set — all four go together:
+# The Session Continuity Loop — all four go together:
 mkdir -p ~/.claude/skills
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes,openthreads} ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{openthreads,takenotes,putdown,pickup} ~/.claude/skills/
 ```
 
 Then close your Claude Code window and open a fresh one.

@@ -16,7 +16,7 @@ The user is about to start a fresh chat. Your job: capture **everything a new ag
 
 ## Step 0 — Announce what's about to run
 
-The `takenotes` and `openthreads` skills ship with this one as part of the session-continuity set (putdown + pickup + takenotes + openthreads), so a putdown is three operations, not one. Check they are there (a `takenotes/SKILL.md` and an `openthreads/SKILL.md` in `~/.agents/skills/`, `$CODEX_DIR/skills/`, or the repo's `.agents/skills/`). Print this first so the user knows what's running and in what order:
+The `takenotes` and `openthreads` skills ship with this one as part of the Session Continuity Loop (openthreads + takenotes + putdown + pickup), so a putdown is three operations, not one. Check they are there (a `takenotes/SKILL.md` and an `openthreads/SKILL.md` in `~/.agents/skills/`, `$CODEX_DIR/skills/`, or the repo's `.agents/skills/`). Print this first so the user knows what's running and in what order:
 
 ```
 $putdown runs three skills, in this order:
@@ -28,7 +28,7 @@ $putdown runs three skills, in this order:
 If `takenotes` is missing (someone installed only part of the set), print this instead of the announcement:
 
 ```
-$putdown: takenotes isn't installed — the session-continuity set is putdown + pickup + takenotes + openthreads.
+$putdown: takenotes isn't installed — the Session Continuity Loop is openthreads + takenotes + putdown + pickup.
           Using the reduced memory step instead; install takenotes for the full harvest.
 ```
 
@@ -57,7 +57,7 @@ Also pull from your conversation memory:
 
 ## Steps 2–3 — Harvest durable knowledge
 
-**Run the `takenotes` skill** — it ships with this skill as part of the session-continuity set —
+**Run the `takenotes` skill** — it ships with this skill as part of the Session Continuity Loop —
 **open its `SKILL.md`, read it, and follow it to completion before continuing.** (There is no
 tool that runs another skill for you; reading and following its instructions is how it runs.) It
 harvests the session, reconciles what is already in the notes and `AGENTS.md` against what this session

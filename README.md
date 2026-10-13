@@ -37,14 +37,14 @@ workspace/         the multi-project workspace pattern these skills assume
 
 Names below use Claude Code's `/name`; in Codex, type `$name`.
 
-**Session continuity (one folder, one set — `putdown`, `pickup`, `takenotes` and `openthreads` go together):**
+**The Session Continuity Loop (one folder, one set — `openthreads`, `takenotes`, `putdown` and `pickup` go together, in the order you meet them in a session):**
 
 | Skill | What it does |
 |---|---|
-| `/putdown` | Distills session state into a handoff file before you start fresh, reconciles the project's open threads, then commits and pushes |
-| `/pickup` | Loads the most recent putdown in a fresh session, and briefs you on what's still open |
-| `/takenotes` | Harvests what a session *learned* into memory (Claude) or notes (Codex), the project instructions file, or `docs/` — and corrects what's already stored and has since gone stale |
-| `/openthreads` | Keeps the project's living to-do list, `OPEN-THREADS.md`: parked ideas, decisions waiting on you, work no session has picked up yet |
+| `/openthreads` | As you work: keeps the project's living to-do list, `OPEN-THREADS.md` — parked ideas, decisions waiting on you, work no session has picked up yet |
+| `/takenotes` | As you work: harvests what a session *learned* into memory (Claude) or notes (Codex), the project instructions file, or `docs/` — and corrects what's already stored and has since gone stale |
+| `/putdown` | To end the session: distills its state into a handoff file, runs the two above to sweep up what you didn't park or note, then commits and pushes |
+| `/pickup` | To start the next one: loads the most recent putdown in a fresh session and briefs you on what's still open — and you're back at the top |
 
 Docs: [claude/session-continuity/README.md](claude/session-continuity/README.md)
 
@@ -81,8 +81,8 @@ The guide opens with a runbook section written for a Claude agent acting on a pe
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
-# Session-continuity set (putdown + pickup + takenotes + openthreads go together):
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes,openthreads} ~/.claude/skills/
+# The Session Continuity Loop (openthreads + takenotes + putdown + pickup go together):
+cp -r charles-agent-skills/claude/session-continuity/{openthreads,takenotes,putdown,pickup} ~/.claude/skills/
 # Standalone, pick-and-choose:
 cp -r charles-agent-skills/claude/{newproject,skill-dict,grill-me} ~/.claude/skills/
 ```

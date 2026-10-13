@@ -91,10 +91,13 @@ something the skill itself requires.
 The cross-session row is still the most important result: Codex doesn't load a notes folder by
 itself, and the Codex takenotes relies on a loader block in the global `AGENTS.md` to make notes
 load. The cross-skill row is new in 0.10.0 and is the reason openthreads ships inside the
-session-continuity set rather than on its own.
+Session Continuity Loop rather than on its own.
 
 ## Earlier runs
 
+- **2026-10-13 (0.11.1), after naming the set the Session Continuity Loop:** `putdown`'s Step 0
+  announcement and incomplete-set message changed wording, so `openthreads`, `putdown` and `pickup`
+  re-ran on the ChatGPT plan: **22/22**. [last-run.json](last-run.json) stays at the 42/42 full run.
 - **2026-10-12 (0.10.0), Codex CLI `0.160.0`:** seven skills, **41/41** after the two fixes described
   in section 1. Later the same day a first attempt at the 0.11.0 suite passed grill-me, takenotes
   and openthreads (21 checks, including 10/10 on the Closed-section design) and then hit the ChatGPT

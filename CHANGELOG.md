@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.1] — 2026-10-13
+
+### Changed
+
+- **The four-skill set has a name, the Session Continuity Loop, and one order everywhere:**
+  `openthreads` → `takenotes` → `putdown` → `pickup`. That is the order you meet them in a session
+  — park work and notes as you go, put the session down, pick it back up — and the last step leads
+  back to the first. Before this the README, INSTALL, the bundle README and the install commands
+  listed the four in the order they were added, and the bundle README explained `putdown` and
+  `pickup` first. Docs, install commands, `putdown`'s Step 0 announcement and its incomplete-set
+  message now all use the name and the order. No description changed, so no trigger re-eval.
+- Codex: rebuilt; the full 0.11.0 suite had passed 42/42 earlier the same day (see
+  `tests/codex/RESULTS.md`); `openthreads`, `putdown` and `pickup` re-ran **22/22** after this wording
+  change.
+
 ## [0.11.0] — 2026-10-12
 
 ### Changed

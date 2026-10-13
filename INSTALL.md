@@ -1,6 +1,6 @@
 # Install
 
-Install any combination of the seven skills in this repo. They're all standalone except for the **session-continuity set** (`/putdown` + `/pickup` + `/takenotes` + `/openthreads`), which always goes in together.
+Install any combination of the seven skills in this repo. They're all standalone except for the **Session Continuity Loop** (`/openthreads` + `/takenotes` + `/putdown` + `/pickup`), which always goes in together.
 
 **Using OpenAI Codex?** Skip to [Using OpenAI Codex instead (or as well)](#using-openai-codex-instead-or-as-well); the same install rule applies. Everything between here and that section is for Claude Code, installing from `claude/`.
 
@@ -8,20 +8,20 @@ Install any combination of the seven skills in this repo. They're all standalone
 
 You need Claude Code installed. User-scope skills live at `~/.claude/skills/<name>/SKILL.md` and are auto-discovered on session start.
 
-## 1. Session-continuity set: `/putdown` + `/pickup` + `/takenotes` + `/openthreads`
+## 1. The Session Continuity Loop: `/openthreads` + `/takenotes` + `/putdown` + `/pickup`
 
-These four go together. `/pickup` reads the handoff files that `/putdown` writes, `/putdown` runs `/takenotes` as its harvest step and `/openthreads` as its reconcile step, and `/pickup` reads the `OPEN-THREADS.md` that `/openthreads` keeps. So one `/putdown` saves the session *state* (for the next session), the session *knowledge* (for good), and the project's *backlog* (until each item is done).
+These four go together, in the order you meet them in a session: park work and notes as you go, put the session down, pick it back up. `/pickup` reads the handoff files that `/putdown` writes, `/putdown` runs `/takenotes` as its harvest step and `/openthreads` as its reconcile step, and `/pickup` reads the `OPEN-THREADS.md` that `/openthreads` keeps. So one `/putdown` saves the session *state* (for the next session), the session *knowledge* (for good), and the project's *backlog* (until each item is done).
 
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes,openthreads} ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{openthreads,takenotes,putdown,pickup} ~/.claude/skills/
 ```
 
 That copies all four skill folders into `~/.claude/skills/` in one command. Verify:
 
 ```bash
-ls ~/.claude/skills/{putdown,pickup,takenotes,openthreads}/SKILL.md
+ls ~/.claude/skills/{openthreads,takenotes,putdown,pickup}/SKILL.md
 ```
 
 **If one is missing, `/putdown` still works:** without `/takenotes` it says the set is incomplete and falls back to a reduced memory step, with no check of what's already stored; without `/openthreads` it skips the reconcile step and says so. Install the full set to get the real thing. `/takenotes` ("remember this", "save what we learned") and `/openthreads` ("add this to the open threads", "what's still open") can also be run on their own mid-session.
@@ -90,8 +90,8 @@ The instructions above use `cp -r` (copy). The alternative is `ln -s` (symlink) 
 
 **Symlink:**
 ```bash
-# Example for the session-continuity set:
-for s in putdown pickup takenotes openthreads; do
+# Example for the Session Continuity Loop:
+for s in openthreads takenotes putdown pickup; do
   ln -s "$(pwd)/charles-agent-skills/claude/session-continuity/$s" ~/.claude/skills/$s
 done
 ```
@@ -164,7 +164,7 @@ chat afterwards so the skills register.
 ## Uninstall
 
 ```bash
-rm -rf ~/.claude/skills/{putdown,pickup,takenotes,openthreads,newproject,skill-dict,grill-me}
+rm -rf ~/.claude/skills/{openthreads,takenotes,putdown,pickup,newproject,skill-dict,grill-me}
 rm -f ~/CLAUDE/scripts/fanout-memory.sh   # only if you installed the workspace pattern; leaves your memory symlinks in place
 ```
 

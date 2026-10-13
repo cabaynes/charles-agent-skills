@@ -120,7 +120,7 @@ If you want to update the **local** (Charles-specific) version, edit `~/.claude/
 
 You authored a new skill at `~/.claude/skills/<new-name>/SKILL.md` and want it shipped.
 
-1. **Decide bundling**: standalone (like `/skill-dict`) or part of a set (like the four session-continuity skills)? If part of a set, the skills live in a shared parent folder under `claude/`, and every install command that names the set has to name the new member too (README, INSTALL, the bundle README, `workspace/README.md`, and the Codex install line).
+1. **Decide bundling**: standalone (like `/skill-dict`) or part of a set (like the four skills of the Session Continuity Loop)? If part of a set, the skills live in a shared parent folder under `claude/`, and every install command that names the set has to name the new member too (README, INSTALL, the bundle README, `workspace/README.md`, and the Codex install line).
 2. **Edit `scripts/snapshot.sh`**:
    - Add the new skill to the copy block at the top.
    - Add its `SKILL.md` (and any `references/*.md`) to the `SANITIZE_TARGETS` array.
@@ -177,7 +177,7 @@ You can spawn 4 parallel sub-agents (one per skill, one query batch each) to mak
 - **Snapshot pattern** = local-as-source, repo-as-snapshot. Lets you edit one place (your daily-use copies) and ship without manual copy-pasting. Sanitization runs as part of the snapshot so you can't accidentally publish `/Users/charles/...` paths.
 - **`/newproject` divergence** = the local version assumes Charles's `~/CLAUDE/` workspace + fan-out memory script; the public version reads `$WORKSPACE_DIR` and works without the helper. Maintaining both isn't free, but the alternatives are worse: either ship a Charles-specific skill nobody else can use, or make Charles's local workflow more complex.
 - **`workspace/fanout-memory.sh` divergence** = same reason as `/newproject`. The local helper hard-codes the maintainer's hub path; the public one derives the hub from `$WORKSPACE_DIR`. Behavior is otherwise identical, and `workspace/test-fanout.sh` pins that behavior (seed, fan-out, idempotent re-run, non-universal files left alone, tilde expansion). Any change to the local helper's behavior gets mirrored here by hand, then the test is re-run.
-- **Bundling `/putdown` + `/pickup` + `/takenotes` + `/openthreads` in `session-continuity/`** = they only work as a set: `/pickup` reads what `/putdown` writes, `/putdown` runs the other two, and `/openthreads` only earns its keep when `/putdown` reconciles its file and `/pickup` reads it. Structural enforcement prevents anyone (including future-you) from installing part of the feature.
+- **Bundling `/openthreads` + `/takenotes` + `/putdown` + `/pickup` (the Session Continuity Loop) in `session-continuity/`** = they only work as a set: `/pickup` reads what `/putdown` writes, `/putdown` runs the other two, and `/openthreads` only earns its keep when `/putdown` reconciles its file and `/pickup` reads it. Structural enforcement prevents anyone (including future-you) from installing part of the feature.
 - **Eval gate on description changes** = trigger accuracy is the one quality metric that's easy to regress and hard to notice. Running the eval before pushing catches that automatically.
 
 ## Quick reference: the most common commands

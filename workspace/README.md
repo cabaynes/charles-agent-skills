@@ -34,7 +34,7 @@ The workspace fixes both:
 
 ```
 ~/.claude/CLAUDE.md                                   global rules for every folder on the machine (optional)
-~/.claude/skills/{newproject,putdown,pickup,takenotes,openthreads}/
+~/.claude/skills/{newproject,openthreads,takenotes,putdown,pickup}/
 ~/.claude/projects/-Users-<you>-CLAUDE/memory/         the HUB: user_profile.md, feedback_*.md, MEMORY.md
 ~/.claude/projects/-Users-<you>-CLAUDE-recipes/memory/ one project's memory, with symlinks back to the hub
 ~/CLAUDE/CLAUDE.md                                    umbrella: project list + house rules
@@ -74,7 +74,7 @@ Skills have to exist **before** Claude Code starts, so this step is Terminal, no
 ```
 mkdir -p ~/CLAUDE/scripts ~/CLAUDE/docs ~/.claude/skills
 cd /tmp && rm -rf charles-agent-skills && git clone https://github.com/cabaynes/charles-agent-skills.git
-cp -r charles-agent-skills/claude/session-continuity/{putdown,pickup,takenotes,openthreads} ~/.claude/skills/
+cp -r charles-agent-skills/claude/session-continuity/{openthreads,takenotes,putdown,pickup} ~/.claude/skills/
 cp -r charles-agent-skills/claude/newproject ~/.claude/skills/
 cp charles-agent-skills/workspace/fanout-memory.sh ~/CLAUDE/scripts/ && chmod +x ~/CLAUDE/scripts/fanout-memory.sh
 if [ ! -f ~/CLAUDE/CLAUDE.md ]; then cp charles-agent-skills/workspace/CLAUDE.md.template ~/CLAUDE/CLAUDE.md; fi
@@ -153,7 +153,7 @@ Create ~/.claude/CLAUDE.md, my global Claude Code instructions that apply in eve
 Private repos can carry copies of the session skills at `.claude/skills/` so a web session can `/putdown` and `/pickup` too. `/newproject` seeds those copies automatically **if** a source folder exists. One Terminal line sets that up (this is a Terminal command, not a prompt):
 
 ```
-mkdir -p ~/CLAUDE/scripts/web-skills && cp -r ~/.claude/skills/{putdown,pickup,takenotes,openthreads} ~/CLAUDE/scripts/web-skills/ && ls ~/CLAUDE/scripts/web-skills
+mkdir -p ~/CLAUDE/scripts/web-skills && cp -r ~/.claude/skills/{openthreads,takenotes,putdown,pickup} ~/CLAUDE/scripts/web-skills/ && ls ~/CLAUDE/scripts/web-skills
 ```
 
 Do this before running `/newproject` for the first time if you want it from day one; projects created earlier can get the copies by hand later.

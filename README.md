@@ -3,7 +3,7 @@
 Production-quality agent skills for **[Claude Code](https://claude.com/claude-code)** and **[OpenAI Codex](https://developers.openai.com/codex)**. Both tools use the same open [Agent Skills](https://agentskills.io/specification) format, so every skill here ships in two versions: one per tool, built from a single source so they never drift apart.
 
 - **Claude Code:** evaluated against Anthropic's `writing-skills` + `skill-creator` rubric, with **100% trigger accuracy** on a 20-query precision/recall benchmark per skill.
-- **Codex:** every skill tested end to end through the real Codex CLI (**41/41** checks), plus a spec check and a behavior rubric.
+- **Codex:** every skill tested end to end through the real Codex CLI (**42/42** checks), plus a spec check and a behavior rubric.
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Trigger accuracy](https://img.shields.io/badge/trigger%20accuracy-100%25-brightgreen)
@@ -132,7 +132,7 @@ Full methodology, per-query verdicts, and revision rationale in [eval-results.md
 
 Before porting, Codex itself reviewed every skill read-only. Its findings shaped the Codex versions and surfaced five real bugs in the Claude versions, fixed in 0.8.2. Each Codex version then ran through the real Codex CLI in a throwaway environment:
 
-- **41/41 end-to-end checks.** For example: `putdown` makes exactly one commit and pushes, `pickup` repeats the handoff's "Must address" items word for word and briefs the open threads before it waits, `takenotes` stores a cross-project preference that a *later, separate* session follows, and `openthreads` adds, lists and closes items without ever rewriting the file or committing.
+- **42/42 end-to-end checks.** For example: `putdown` makes exactly one commit and pushes, `pickup` repeats the handoff's "Must address" items word for word and briefs the open threads before it waits, `takenotes` stores a cross-project preference that a *later, separate* session follows, and `openthreads` adds, lists and closes items without ever rewriting the file or committing.
 - **62/63 spec checks** against the Agent Skills specification. The one miss, `skill-dict`'s description lacking a when-not-to-use clause, applies to both versions and is recorded, not hidden.
 - **A behavior rubric** grading each skill's output against the skill's own rules.
 

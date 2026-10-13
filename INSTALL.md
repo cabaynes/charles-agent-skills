@@ -157,7 +157,7 @@ chat afterwards so the skills register.
 - **Using both tools on one repo.** Handoffs committed to a private repo's `.putdowns/` folder use
   the same format, so a putdown written in one tool can be picked up in the other.
 - **Tested in Codex.** Each skill has an end-to-end scenario run through `codex exec` in a throwaway
-  environment (41/41), plus a spec check and a behavior rubric. Full results:
+  environment (42/42), plus a spec check and a behavior rubric. Full results:
   [`tests/codex/RESULTS.md`](tests/codex/RESULTS.md). The trigger-accuracy numbers in
   [eval-results.md](eval-results.md) were measured on Claude Code only.
 

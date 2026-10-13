@@ -23,9 +23,9 @@ All notable changes to this project will be documented here. Format roughly foll
 - **`/putdown`** reports the new delta format. `/takenotes` is unchanged. No description changed,
   so no trigger re-eval.
 - Codex: the openthreads scenario now checks the five-section shape, the closed count in `list`,
-  and that `done` produces an outcome line under Closed rather than a deletion — **10/10 on the new
-  design**. The rest of the suite then hit the ChatGPT plan's Codex usage limit before `putdown`
-  ran, so the full 42-check run is still pending; the last complete run is 0.10.0's 41/41 (see
+  and that `done` produces an outcome line under Closed rather than a deletion. The first attempt
+  passed that scenario 10/10 and then hit the ChatGPT plan's Codex usage limit before `putdown`
+  ran; the full suite re-ran clean the next morning, 2026-10-13, **42/42** (see
   `tests/codex/RESULTS.md`).
 - Review pass (medium) before shipping caught four wording defects, fixed in both versions:
   `pickup`'s "closed since that putdown" now compares dates (same-day closes can't be told from

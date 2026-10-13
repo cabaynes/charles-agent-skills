@@ -1,31 +1,11 @@
-# Codex test results — 2026-10-12 (0.10.0, with the 0.11.0 partial re-run)
+# Codex test results — 2026-10-13 (0.11.0)
 
 Codex CLI `0.160.0`, model `gpt-6-astra`, reasoning effort `medium`. Every scenario ran through the
-real `codex exec` in a throwaway `CODEX_HOME`, with git pushes going to a local bare repo. The
-previous headline run (2026-09-29, Codex CLI `0.158.0-alpha.2.1`, six skills, 30/30) is summarised
-under **Earlier runs**.
+real `codex exec` in a throwaway `CODEX_HOME`, with git pushes going to a local bare repo, on the
+ChatGPT plan's Codex allowance (no API key). Earlier headline runs (0.10.0, 41/41, 2026-10-12;
+0.9.0, 30/30, 2026-09-29) are summarised under **Earlier runs**.
 
-## 0. 0.11.0 re-run — partial, 21/22 then BLOCKED (2026-10-12, later the same day)
-
-0.11.0 changed `openthreads` (closed items move to a `## Closed` section as outcomes instead of
-being deleted; `list` reports the closed count; `reconcile` prunes at 60 days) and reworded one
-line each in `putdown` and `pickup`. The openthreads scenario grew to 10 checks (suite: 42) and
-was re-run against the rebuilt skill:
-
-| Skill | Checks | Result |
-|---|---|---|
-| grill-me | 4/4 | unchanged skill, passed |
-| takenotes | 7/7 | unchanged skill, passed |
-| openthreads | **10/10** | five `##` sections with Closed's four `###` groups on creation; dated line with due date; second add, no duplicate; `list` with per-section counts **and** `Closed in the last 60 days: 0`, file untouched; `done` removed the item from the open sections only and wrote `- [x] <outcome> … added … (user), closed 2026-10-12` under Closed; no commit |
-| putdown → skill-dict | — | **BLOCKED**: the ChatGPT plan's Codex usage limit was reached as `putdown` started. The harness stops and reports rather than scoring failures. |
-
-So the behaviour that changed is verified; the four unchanged scenarios (`putdown`, `pickup`,
-`newproject`, `skill-dict`) have not been re-run on 0.11.0. [last-run.json](last-run.json) is kept
-at the last **complete** run (0.10.0, 41/41, below) rather than overwritten by the partial one.
-Re-run `python3 tests/codex/run_tests.py` when the limit resets (or with `--api-key-from`) and
-replace this section with the full table.
-
-## 1. End-to-end scenarios — 41/41
+## 1. End-to-end scenarios — 42/42
 
 `python3 tests/codex/run_tests.py` · raw results in [last-run.json](last-run.json)
 
@@ -33,7 +13,7 @@ replace this section with the full table.
 |---|---|---|
 | grill-me | 4/4 | Session file at the skill's path; ends on a question; writes nothing else |
 | takenotes | 7/7 | Vendor fact → project note; "in every project" preference → global note; loader block added to global `AGENTS.md`; Operational block in the report; a second run adds no duplicate loader block |
-| openthreads | 9/9 | `add` creates `OPEN-THREADS.md` in exactly one of its two allowed places, with the four fixed `##` sections and the item as one dated line carrying its due date; a second `add` appends without duplicating; `list` prints both items with per-section counts and leaves the file byte-identical; `done` deletes only the named line and keeps the sections; no commit |
+| openthreads | 10/10 | `add` creates `OPEN-THREADS.md` in exactly one of its two allowed places, with the five fixed `##` sections and Closed's four `###` groups, and the item as one dated line carrying its due date; a second `add` appends without duplicating; `list` prints both items with per-section counts **and** `Closed in the last 60 days: 0`, leaving the file byte-identical; `done` removes the named line from the open sections only and writes `- [x] <outcome> — added … (user), closed 2026-10-13` under the matching Closed group; no commit |
 | putdown | 8/8 | Handoff in `$CODEX_HOME/putdowns/`; "Must address" holds the requested item; paste line is `$pickup`; final message carries a labelled `openthreads:` line; clean tree; **exactly one** commit; pushed |
 | pickup | 4/4 | Briefing repeats the "Must address" item; briefs an **Open threads** block naming the item openthreads parked; stops for confirmation (no edits, no commits) |
 | newproject | 5/5 | `AGENTS.md` stub, no `CLAUDE.md`, notes folder + index, git initialized |
@@ -42,7 +22,7 @@ replace this section with the full table.
 The scenarios chain on purpose: openthreads parks two items in the test repo, putdown reconciles
 the list on the way out, and pickup must surface what is still open on the way back in.
 
-**What the first run of the day caught, reported rather than hidden.** The first full run scored
+**What 0.10.0's first run (2026-10-12) caught, reported rather than hidden.** That run scored
 33/40:
 
 - **openthreads wrote its file where pickup would never look.** The test repo's origin is a local
@@ -61,7 +41,8 @@ the list on the way out, and pickup must surface what is still open on the way b
   the user who would approve it interactively. This is the confirmed cause of the unexplained
   "wrote its handoff but did not commit" run noted on 2026-09-29.
 
-The 41/41 run above followed those two fixes, on the ChatGPT plan's Codex limit (no API key).
+0.10.0's 41/41 run followed those two fixes. The 0.11.0 run above re-ran the same prompts against
+the rebuilt skills, with the openthreads scenario grown by one check for the Closed section.
 
 ## 2. Spec check — 62/63
 
@@ -77,19 +58,22 @@ shows the `$name` invocation. Nine checks per skill, seven skills.
 
 ## 3. Behavior rubric — graded against each skill's own output rules
 
-Graded from the final messages and files of the 41/41 run. Each item is something the skill itself
-requires.
+Graded from the final messages and files of the 0.10.0 41/41 run (2026-10-12). The 0.11.0 run was
+not kept (`--keep` was not passed), so its messages could not be re-read; rows marked **(0.11.0)**
+are the ones the harness asserts directly on the files, and were re-checked that way. Each item is
+something the skill itself requires.
 
 | Skill | Rubric item | Result |
 |---|---|---|
 | openthreads | `add` puts a dated item in the section its date implies (Due now) and a dateless idea under a named subgroup of Work | ✓ (`Due now`; `Work waiting on the agent — CLI`) |
 | openthreads | Item line ends `— added YYYY-MM-DD (user)`, with `, due …` when given | ✓ |
 | openthreads | `list` leads each section with the count line and says what is *not* there ("Nothing overdue") rather than omitting it | ✓ |
-| openthreads | `done` confirms with the deleted text, so a wrong match would be visible | ✓ |
+| openthreads | `done` moves the item to Closed as an **outcome** — not the task text — keeping the `added` date and source and adding a `closed` date | ✓ **(0.11.0)** file checked by regex; whether the confirmation message quoted the closed line was not re-read |
+| openthreads | `list` ends with `Closed in the last 60 days: N` | ✓ **(0.11.0)** |
 | openthreads | Says which placement it chose and why when visibility is unknown | ✓ ("repository visibility could not be verified") |
 | putdown | Announces the **three**-skill run before starting | ✓ (in log) |
 | putdown | Step 5 order: path → fresh-start steps for CLI **and** app → `$pickup` block → takenotes line → openthreads line → push result | ✓ |
-| putdown | The openthreads line is labelled and non-silent even when nothing changed | ✓ ("openthreads: unchanged; existing `--dry-run` item preserved") |
+| putdown | The openthreads line is labelled and non-silent even when nothing changed | ✓ ("openthreads: unchanged; existing `--dry-run` item preserved") — the 0.11.0 harness checks only that a labelled `openthreads:` line exists, not the new `N closed, N added, N now due, N pruned` wording |
 | putdown | Skips the in-repo copy when repo visibility can't be confirmed, and says so | ✓ |
 | pickup | Briefing format: Resumed from / Where we left off / Must address / Next up / Blockers / Open threads | ✓ |
 | pickup | "Must address" items quoted **verbatim** from the handoff | ✓ (checked by exact string match) |
@@ -111,6 +95,12 @@ session-continuity set rather than on its own.
 
 ## Earlier runs
 
+- **2026-10-12 (0.10.0), Codex CLI `0.160.0`:** seven skills, **41/41** after the two fixes described
+  in section 1. Later the same day a first attempt at the 0.11.0 suite passed grill-me, takenotes
+  and openthreads (21 checks, including 10/10 on the Closed-section design) and then hit the ChatGPT
+  plan's Codex usage limit as `putdown` started; the harness stopped and reported `BLOCKED` rather
+  than scoring failures, and [last-run.json](last-run.json) was left at the 41/41 record until the
+  full run the next morning.
 - **2026-09-29 (0.9.0), Codex CLI `0.158.0-alpha.2.1`:** six skills, **30/30** end to end, 53/54
   spec. The first full run found a harness gap: Codex's sandbox write-protects `.git`, so putdown
   couldn't commit; the harness now routes that approval through `--approve-for-me`. A later run had

@@ -2,7 +2,7 @@
  {
   "scenario": "grill-me",
   "pass": true,
-  "check": "codex exited 0 (25s)"
+  "check": "codex exited 0 (109s)"
  },
  {
   "scenario": "grill-me",
@@ -22,7 +22,7 @@
  {
   "scenario": "takenotes",
   "pass": true,
-  "check": "codex exited 0 (51s)"
+  "check": "codex exited 0 (58s)"
  },
  {
   "scenario": "takenotes",
@@ -52,12 +52,12 @@
  {
   "scenario": "takenotes",
   "pass": true,
-  "check": "second run keeps one pointer (was 1, now 1; 22s)"
+  "check": "second run keeps one pointer (was 1, now 1; 18s)"
  },
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "codex exited 0 (26s)"
+  "check": "codex exited 0 (35s)"
  },
  {
   "scenario": "openthreads",
@@ -67,7 +67,7 @@
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "file has the four fixed ## sections"
+  "check": "file has the five fixed ## sections, Closed with its four ### groups"
  },
  {
   "scenario": "openthreads",
@@ -77,12 +77,12 @@
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "second add appends a second item, no duplicates (22s)"
+  "check": "second add appends a second item, no duplicates (37s)"
  },
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "list prints both items with section counts (19s)"
+  "check": "list prints both items with section counts and the closed count (30s)"
  },
  {
   "scenario": "openthreads",
@@ -92,7 +92,12 @@
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "done deletes that line only and keeps the four sections (28s)"
+  "check": "done removes that line from the open sections only (34s)"
+ },
+ {
+  "scenario": "openthreads",
+  "pass": true,
+  "check": "closed line is the outcome under Closed, keeping added date + source, with a closed date"
  },
  {
   "scenario": "openthreads",
@@ -102,7 +107,7 @@
  {
   "scenario": "putdown",
   "pass": true,
-  "check": "codex exited 0 (69s)"
+  "check": "codex exited 0 (114s)"
  },
  {
   "scenario": "putdown",
@@ -142,7 +147,7 @@
  {
   "scenario": "pickup",
   "pass": true,
-  "check": "codex exited 0 (28s)"
+  "check": "codex exited 0 (43s)"
  },
  {
   "scenario": "pickup",
@@ -162,7 +167,7 @@
  {
   "scenario": "newproject",
   "pass": true,
-  "check": "codex exited 0 (40s)"
+  "check": "codex exited 0 (43s)"
  },
  {
   "scenario": "newproject",
@@ -187,7 +192,7 @@
  {
   "scenario": "skill-dict",
   "pass": true,
-  "check": "codex exited 0 (91s)"
+  "check": "codex exited 0 (105s)"
  },
  {
   "scenario": "skill-dict",
@@ -202,6 +207,6 @@
  {
   "scenario": "skill-dict",
   "pass": true,
-  "check": "show pickup prints its entry (16s)"
+  "check": "show pickup prints its entry (18s)"
  }
 ]

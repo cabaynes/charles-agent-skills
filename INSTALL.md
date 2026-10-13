@@ -12,6 +12,14 @@ You need Claude Code installed. User-scope skills live at `~/.claude/skills/<nam
 
 These four go together, in the order you meet them in a session: park work and notes as you go, put the session down, pick it back up. `/pickup` reads the handoff files that `/putdown` writes, `/putdown` runs `/takenotes` as its harvest step and `/openthreads` as its reconcile step, and `/pickup` reads the `OPEN-THREADS.md` that `/openthreads` keeps. So one `/putdown` saves the session *state* (for the next session), the session *knowledge* (for good), and the project's *backlog* (until each item is done).
 
+One line, works on a fresh machine (clones to a temp folder, copies the four, cleans up):
+
+```bash
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/session-continuity/{openthreads,takenotes,putdown,pickup} ~/.claude/skills/ && rm -rf "$d"
+```
+
+Or, if you'd rather keep a clone around (for several units, or to symlink later):
+
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
@@ -32,6 +40,12 @@ No environment-variable setup required.
 
 Bootstraps a new project directory with a starter `CLAUDE.md`, memory directory, optional git init, and optional umbrella-file entry.
 
+One line, or with a clone you already have:
+
+```bash
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/newproject ~/.claude/skills/ && rm -rf "$d"
+```
+
 ```bash
 cp -r charles-agent-skills/claude/newproject ~/.claude/skills/
 ```
@@ -48,6 +62,12 @@ Optional: if `$WORKSPACE_DIR/scripts/fanout-memory.sh` exists, the skill uses it
 ## 3. Optional: `/skill-dict`
 
 Maintain a hand-curated catalog of every Claude Code skill you've installed or authored.
+
+One line, or with a clone you already have:
+
+```bash
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/skill-dict ~/.claude/skills/ && rm -rf "$d"
+```
 
 ```bash
 cp -r charles-agent-skills/claude/skill-dict ~/.claude/skills/
@@ -76,9 +96,25 @@ bash charles-agent-skills/workspace/test-fanout.sh
 
 Interrogates a plan or idea instead of building it. Sessions are written to `grill-me-sessions/` in the current directory; add that folder to your project's `.gitignore` if you do not want planning notes committed.
 
+One line, or with a clone you already have:
+
+```bash
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/grill-me ~/.claude/skills/ && rm -rf "$d"
+```
+
 ```bash
 cp -r charles-agent-skills/claude/grill-me ~/.claude/skills/
 ```
+
+## Updating a copied install
+
+Run the unit's install line again: `cp -r` into a folder that already exists overwrites the files in it. Files a release removed linger, so for a clean copy remove the old folder first:
+
+```bash
+rm -rf ~/.claude/skills/grill-me && d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/grill-me ~/.claude/skills/ && rm -rf "$d"
+```
+
+For the loop, remove all four: `rm -rf ~/.claude/skills/{openthreads,takenotes,putdown,pickup}`. Symlinked installs (next section) update with `git pull` instead.
 
 ## Symlink vs. copy
 
@@ -131,6 +167,19 @@ All seven skills also ship a **Codex version** in [`codex/`](codex/). Codex uses
 [Agent Skills](https://agentskills.io/specification) format, so these are the same skills with the
 Claude-only parts swapped for Codex equivalents. They're generated, not hand-copied, so the two
 versions can't drift. See [MAINTAINING.md](MAINTAINING.md#codex-versions).
+
+Per unit, each line self-contained:
+
+```bash
+# The Session Continuity Loop (always together):
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/{openthreads,takenotes,putdown,pickup} ~/.agents/skills/ && rm -rf "$d"
+# Stand-alone, pick any:
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/newproject ~/.agents/skills/ && rm -rf "$d"
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/skill-dict ~/.agents/skills/ && rm -rf "$d"
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/grill-me ~/.agents/skills/ && rm -rf "$d"
+```
+
+Or all seven from one clone:
 
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git

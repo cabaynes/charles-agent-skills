@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.2] — 2026-10-13
+
+### Changed
+
+- **Install is per unit now.** INSTALL.md and the README show one self-contained line per unit
+  (the Session Continuity Loop as one unit; newproject, skill-dict and grill-me each alone) for
+  both tools: clone to a temp folder, copy, clean up. The clone-once flow stays as the alternative.
+  New "Updating a copied install" note: re-running a line overwrites in place; remove the old
+  folder first for a clean copy. `tests/install-oneliners.sh` runs all eight lines against a
+  throwaway HOME in bash and zsh. Docs only; no skill content changed.
+
 ## [0.11.1] — 2026-10-13
 
 ### Changed

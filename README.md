@@ -78,12 +78,23 @@ The guide opens with a runbook section written for a Claude agent acting on a pe
 
 ### Claude Code
 
+Per unit, each line self-contained (clones to a temp folder, copies, cleans up):
+
+```bash
+# The Session Continuity Loop (openthreads + takenotes + putdown + pickup go together):
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/session-continuity/{openthreads,takenotes,putdown,pickup} ~/.claude/skills/ && rm -rf "$d"
+# Stand-alone, pick-and-choose:
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/newproject ~/.claude/skills/ && rm -rf "$d"
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/skill-dict ~/.claude/skills/ && rm -rf "$d"
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/grill-me ~/.claude/skills/ && rm -rf "$d"
+```
+
+Everything at once:
+
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.claude/skills
-# The Session Continuity Loop (openthreads + takenotes + putdown + pickup go together):
 cp -r charles-agent-skills/claude/session-continuity/{openthreads,takenotes,putdown,pickup} ~/.claude/skills/
-# Standalone, pick-and-choose:
 cp -r charles-agent-skills/claude/{newproject,skill-dict,grill-me} ~/.claude/skills/
 ```
 
@@ -91,10 +102,22 @@ Then **close your Claude Code window and open a fresh one** so the new skills re
 
 ### OpenAI Codex
 
+Per unit, each line self-contained:
+
+```bash
+# The Session Continuity Loop (openthreads + takenotes + putdown + pickup go together):
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/{openthreads,takenotes,putdown,pickup} ~/.agents/skills/ && rm -rf "$d"
+# Stand-alone, pick-and-choose:
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/newproject ~/.agents/skills/ && rm -rf "$d"
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/skill-dict ~/.agents/skills/ && rm -rf "$d"
+d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.agents/skills && cp -r "$d"/codex/grill-me ~/.agents/skills/ && rm -rf "$d"
+```
+
+Everything at once:
+
 ```bash
 git clone https://github.com/cabaynes/charles-agent-skills.git
 mkdir -p ~/.agents/skills
-# All seven (or drop the standalone ones you don't want — putdown, pickup, takenotes and openthreads go together):
 cp -r charles-agent-skills/codex/{grill-me,newproject,openthreads,pickup,putdown,skill-dict,takenotes} ~/.agents/skills/
 ```
 

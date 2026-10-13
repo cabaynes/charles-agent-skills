@@ -114,7 +114,7 @@ Run the unit's install line again: `cp -r` into a folder that already exists ove
 rm -rf ~/.claude/skills/grill-me && d=$(mktemp -d) && git clone --depth 1 https://github.com/cabaynes/charles-agent-skills.git "$d" && mkdir -p ~/.claude/skills && cp -r "$d"/claude/grill-me ~/.claude/skills/ && rm -rf "$d"
 ```
 
-For the loop, remove all four: `rm -rf ~/.claude/skills/{openthreads,takenotes,putdown,pickup}`. Symlinked installs (next section) update with `git pull` instead.
+For the loop, remove all four: `rm -rf ~/.claude/skills/{openthreads,takenotes,putdown,pickup}`. Codex installs live in `~/.agents/skills/` instead; same idea. Symlinked installs (next section) update with `git pull` instead.
 
 ## Symlink vs. copy
 

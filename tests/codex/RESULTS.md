@@ -44,7 +44,7 @@ the list on the way out, and pickup must surface what is still open on the way b
 0.10.0's 41/41 run followed those two fixes. The 0.11.0 run above re-ran the same prompts against
 the rebuilt skills, with the openthreads scenario grown by one check for the Closed section.
 
-## 2. Spec check — 62/63
+## 2. Spec check — 63/63
 
 `python3 tests/codex/spec_check.py` checks each generated `SKILL.md` against the
 [Agent Skills specification](https://agentskills.io/specification): name format and folder match,
@@ -52,9 +52,9 @@ description length, only spec frontmatter fields, and that relative links resolv
 this repo's conventions: the description says when to use the skill and when not to, and the body
 shows the `$name` invocation. Nine checks per skill, seven skills.
 
-- **The one miss:** `skill-dict`'s description never says when *not* to use it. The Claude version
-  has the same gap. Fixing it changes a trigger description, which needs the Claude trigger eval
-  re-run (see [MAINTAINING.md](../../MAINTAINING.md)), so it is recorded here rather than patched.
+- **All pass since 0.11.6.** Until then `skill-dict`'s description never said when *not* to use it
+  (62/63). The fix changed a trigger description, so the Claude trigger eval was re-run first (three
+  judges, old and new description, 20/20 each; see [eval-results.md](../../eval-results.md)).
 
 ## 3. Behavior rubric — graded against each skill's own output rules
 
@@ -95,6 +95,10 @@ Session Continuity Loop rather than on its own.
 
 ## Earlier runs
 
+- **2026-11-01 (0.11.6), after skill-dict's description gained its "Do NOT use" clause:** only
+  `skill-dict`'s Codex text changed, so its scenario re-ran on the ChatGPT plan: **4/4**. A
+  truncated full run in the same session also passed every check it reached (grill-me, takenotes,
+  openthreads: 19/19). [last-run.json](last-run.json) stays at the 42/42 full run.
 - **2026-11-01 (0.11.5), after the putdown restart test and pickup's environment check + "Resume
   here" line:** the Codex text of `putdown` and `pickup` changed, so the full suite re-ran on the
   ChatGPT plan: **42/42**. [last-run.json](last-run.json) is this run.

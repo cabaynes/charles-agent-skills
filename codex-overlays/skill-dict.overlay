@@ -1,6 +1,6 @@
 @@ frontmatter
 name: skill-dict
-description: Use when the user types `$skill-dict`, asks about their personal skill library at ~/skills-library/, asks "what does <skill> do" about a library entry, asks to sync the library after installing a Codex plugin or skill, or asks to add a skill to the library.
+description: Use when the user types `$skill-dict`, asks about their personal skill library at ~/skills-library/, asks "what does <skill> do" about a library entry, asks to sync the library after installing a Codex plugin or skill, asks to add a skill to the library, or asks which installed plugins have newer versions upstream. Do NOT use for writing, editing or testing a skill itself, or for installing or updating plugins or skills.
 
 @@ prepend
 > **Codex version.** Invoke with `$skill-dict` followed by a subcommand:

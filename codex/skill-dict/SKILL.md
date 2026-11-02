@@ -1,6 +1,6 @@
 ---
 name: skill-dict
-description: Use when the user types `$skill-dict`, asks about their personal skill library at ~/skills-library/, asks "what does <skill> do" about a library entry, asks to sync the library after installing a Codex plugin or skill, or asks to add a skill to the library.
+description: Use when the user types `$skill-dict`, asks about their personal skill library at ~/skills-library/, asks "what does <skill> do" about a library entry, asks to sync the library after installing a Codex plugin or skill, asks to add a skill to the library, or asks which installed plugins have newer versions upstream. Do NOT use for writing, editing or testing a skill itself, or for installing or updating plugins or skills.
 ---
 
 > **Codex version.** Invoke with `$skill-dict` followed by a subcommand:
@@ -58,4 +58,4 @@ Interactive guided add for self-authored skills. **See [references/add.md](refer
 - **Never delete or move existing library files** without explicit user confirmation. `sync` only adds.
 - **Never auto-fill the user's "Where I use it" / "Why I kept it" sections** from external assumption — those are your own notes. Stubs leave them empty.
 - **No git commits.** Leave committing the library to the user, even if it lives in a git repo.
-- **Preserve hand-edits.** When `sync` finds an existing file, do not modify it — even if the manifest disagrees on `installed:` or `version:`. your edits win.
+- **Preserve hand-edits.** When `sync` finds an existing file, do not modify it — even if the manifest disagrees on `installed:` or `version:`. The user's edits win.

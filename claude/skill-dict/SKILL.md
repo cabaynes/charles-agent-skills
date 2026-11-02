@@ -1,6 +1,6 @@
 ---
 name: skill-dict
-description: Use when the user types `/skill-dict`, asks about their personal skill library at ~/skills-library/, asks "what does <skill> do" about a library entry, asks to sync the library after installing a plugin, or asks to add a skill to the library.
+description: Use when the user types `/skill-dict`, asks about their personal skill library at ~/skills-library/, asks "what does <skill> do" about a library entry, asks to sync the library after installing a plugin, asks to add a skill to the library, or asks which installed plugins have newer versions upstream. Do NOT use for writing, editing or testing a skill itself, or for installing or updating plugins.
 argument-hint: "[list | show <name> | sync | add <name> | check-updates]"
 allowed-tools:
   - Read
@@ -56,4 +56,4 @@ Interactive guided add for self-authored skills. **See [references/add.md](refer
 - **Never delete or move existing library files** without explicit user confirmation. `sync` only adds.
 - **Never auto-fill the user's "Where I use it" / "Why I kept it" sections** from external assumption — those are your own notes. Stubs leave them empty.
 - **Commit the library, never the workspace root.** If the library folder is its own git repo, commit (and push) library changes there whenever the user's instructions ask for that, for example a rule to end every session with commit + push. The workspace folder above it is not a git repo, so never try to commit from there. If the library isn't a git repo, leave committing to the user.
-- **Preserve hand-edits.** When `sync` finds an existing file, do not modify it — even if the manifest disagrees on `installed:` or `version:`. your edits win.
+- **Preserve hand-edits.** When `sync` finds an existing file, do not modify it — even if the manifest disagrees on `installed:` or `version:`. The user's edits win.

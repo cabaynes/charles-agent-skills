@@ -68,7 +68,7 @@ To bootstrap an empty library, just `mkdir -p ~/skills-library/{plugins,authored
 
 ## Eval result
 
-Trigger-accuracy benchmark: 100% precision and 100% recall on a 20-query test set. The description's enumerated trigger phrases (`/skill-dict`, "skills library", "what does <skill> do") cleanly distinguish from unrelated dictionary/library queries. See [eval-results.md](../../eval-results.md) for full methodology.
+Trigger-accuracy benchmark: 100% precision and 100% recall on a 20-query test set. The description's enumerated trigger phrases (`/skill-dict`, "skills library", "what does <skill> do") cleanly distinguish from unrelated dictionary/library queries. Re-run 2026-11-01 with three judges after adding a "Do NOT use" clause (writing, editing or testing a skill; installing or updating plugins): still 100% / 100%. See [eval-results.md](../../eval-results.md) for full methodology.
 
 ## Install
 

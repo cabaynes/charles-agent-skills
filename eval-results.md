@@ -12,7 +12,7 @@
 | `/putdown` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Re-evaluated 2026-06-13 under current name + description |
 | `/pickup` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Re-evaluated 2026-06-13; one revision to recover a fresh-window phrasing (below) |
 | `/newproject` | 9/10 (90%) → 10/10 expected | 10/10 (100%) | ✅ PASS (revised) | Description rewritten with explicit "do NOT" guards; added `argument-hint` + `allowed-tools` |
-| `/skill-dict` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Description tightened; subcommand bodies extracted to `references/`; body reduced from ~1500 → 440 words |
+| `/skill-dict` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Description tightened; subcommand bodies extracted to `references/`; body reduced from ~1500 → 440 words. Re-evaluated 2026-11-01 after adding a "Do NOT use" clause and the update-check trigger: 10/10 both, three judges (below) |
 | `/takenotes` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Added + evaluated 2026-08-03. Also validated behaviourally against a poisoned-memory sandbox (below) |
 | `/grill-me` | 10/10 (100%) | 10/10 (100%) | ✅ PASS | Added + evaluated 2026-09-08 (LLM-as-judge variant); one description revision added the resume-a-session trigger (9/10 → 10/10 recall); frontmatter brought to standard (`argument-hint`, `allowed-tools`) |
 
@@ -84,6 +84,37 @@ One initial miss on query #8 ("New project: recipe-app") — the strict judge re
 All 10 should-trigger fired (`/skill-dict`, "skills library", "skill catalog", "what does <skill> do", "sync after plugin install", etc.). All 10 should-not-trigger correctly abstained (English dictionary, code function, git fork sync, dotfiles sync, etc.).
 
 **Judge summary**: "Description cleanly discriminates skill-library queries from unrelated dictionary/library/sync requests."
+
+### `/skill-dict` — re-eval after adding "when not to use" (2026-11-01) — 100% / 100%
+
+The description never said when *not* to use the skill, the one miss in the Codex spec check
+(62/63). Run with the LLM-as-judge variant described under "How to re-run the eval" below, on a new
+20-query suite (10 should-trigger, 10 adversarial should-not-trigger) and **three independent judges
+per description**, old and new.
+
+| Description | Judge 1 | Judge 2 | Judge 3 |
+|---|---|---|---|
+| Before (no exclusion clause) | 20/20 | 20/20 | 20/20 |
+| After | 20/20 | 20/20 | 20/20 |
+
+The old description already abstained on every near-miss, so the clause fixes no observed
+false trigger. It is there to state the lane, and the test was that it costs no recall. What changed:
+
+- **Added** "Do NOT use for writing, editing or testing a skill itself, or for installing or
+  updating plugins." The adversarial half aimed at exactly these: "write a new skill that formats my
+  commit messages", "edit the description of my putdown skill so it triggers more reliably", "run the
+  trigger evals for my takenotes skill", "install the superpowers plugin", "update all my plugins".
+  Before, judges kept them out by inference ("that is skill-creator work"); after, they cite the clause.
+- **Added** "or asks which installed plugins have newer versions upstream", the `check-updates`
+  subcommand, which the description never named. All three before-judges triggered on "check my skill
+  library for plugins that have newer versions upstream" but called it **borderline** — it fired
+  only because it named the library. After, all three matched it to the named trigger, and still kept
+  "update all my plugins to their latest versions" out (checking is in scope, doing the update is not).
+
+Other traps that stayed out both times: an English-dictionary lookup, "sync my fork with upstream",
+"add a --dry-run flag to the sync command in my CLI", "what does this Python function do?", and a
+general skills-vs-slash-commands question. Should-trigger phrasings that rely on synonyms ("skill
+catalog", "skills dictionary") fired in all six runs.
 
 ---
 

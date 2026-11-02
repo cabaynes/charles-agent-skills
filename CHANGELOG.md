@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.6] — 2026-11-01
+
+### Changed
+
+- **skill-dict:** the description now says when *not* to use it — "Do NOT use for writing, editing
+  or testing a skill itself, or for installing or updating plugins" — and names the `check-updates`
+  case ("asks which installed plugins have newer versions upstream"), which it never mentioned. This
+  was the one miss in the Codex spec check; it now passes **63/63**. The trigger eval was re-run with
+  three judges on the old and new descriptions: 20/20 in all six runs, and the update-check query that
+  was borderline before is now an exact match. Details in [eval-results.md](eval-results.md).
+- **skill-dict:** the "Preserve hand-edits" rule ended in a lowercase "your edits win." after
+  sanitizing; it now reads "The user's edits win."
+- **Codex:** the same description change, worded for Codex ("plugins or skills").
+
 ## [0.11.5] — 2026-11-01
 
 ### Changed

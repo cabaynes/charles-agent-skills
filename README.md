@@ -178,7 +178,7 @@ Full methodology, per-query verdicts, and revision rationale in [eval-results.md
 Before porting, Codex itself reviewed every skill read-only. Its findings shaped the Codex versions and surfaced five real bugs in the Claude versions, fixed in 0.8.2. Each Codex version then ran through the real Codex CLI in a throwaway environment:
 
 - **42/42 end-to-end checks.** For example: `putdown` makes exactly one commit and pushes, `pickup` repeats the handoff's "Must address" items word for word and briefs the open threads before it waits, `takenotes` stores a cross-project preference that a *later, separate* session follows, and `openthreads` adds, lists and closes items without ever rewriting the file or committing.
-- **62/63 spec checks** against the Agent Skills specification. The one miss, `skill-dict`'s description lacking a when-not-to-use clause, applies to both versions and is recorded, not hidden.
+- **63/63 spec checks** against the Agent Skills specification. The last miss, `skill-dict`'s description lacking a when-not-to-use clause, was fixed in 0.11.6 after the trigger eval was re-run on the new wording.
 - **A behavior rubric** grading each skill's output against the skill's own rules.
 
 Codex *trigger* accuracy (whether Codex picks a skill without being asked) is not measured yet; every Codex test invoked the skill by name. Details in [tests/codex/RESULTS.md](tests/codex/RESULTS.md).

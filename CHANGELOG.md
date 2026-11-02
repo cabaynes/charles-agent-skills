@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.4] — 2026-11-01
+
+### Changed
+
+- **skill-dict (Claude):** the "No git commits" rule assumed the library never lives in a git repo.
+  It now says: if the library folder is its own git repo, commit (and push) library changes there
+  whenever the user's instructions ask for it; never commit from the workspace folder above it; if
+  the library isn't a repo, leave committing to the user. The Codex version keeps its own rule
+  (always leave committing to the user); only its overlay's match text changed, and its built output
+  is byte-identical.
+- **skill-dict `check-updates` (Claude):** the official Claude plugin marketplace
+  (`~/.claude/plugins/marketplaces/claude-plugins-official/`) is not a git checkout, so the old
+  `git fetch` step failed there. It now compares each plugin's `installPath` (from
+  `installed_plugins.json`) with the marketplace's copy, and checks externally sourced plugins by
+  their pinned commit. Also: a long list of new upstream commits is not an update by itself (one
+  marketplace's were all install-count bumps); compare the version fields.
+
 ## [0.11.3] — 2026-10-13
 
 ### Changed

@@ -55,5 +55,5 @@ Interactive guided add for self-authored skills. **See [references/add.md](refer
 - **Never read more than one library entry file in a single invocation** unless the user explicitly asks for "all entries" — the whole point is to keep context cost low.
 - **Never delete or move existing library files** without explicit user confirmation. `sync` only adds.
 - **Never auto-fill the user's "Where I use it" / "Why I kept it" sections** from external assumption — those are your own notes. Stubs leave them empty.
-- **No git commits.** The CLAUDE workspace root is not a git repo. Don't try.
+- **Commit the library, never the workspace root.** If the library folder is its own git repo, commit (and push) library changes there whenever the user's instructions ask for that, for example a rule to end every session with commit + push. The workspace folder above it is not a git repo, so never try to commit from there. If the library isn't a git repo, leave committing to the user.
 - **Preserve hand-edits.** When `sync` finds an existing file, do not modify it — even if the manifest disagrees on `installed:` or `version:`. your edits win.

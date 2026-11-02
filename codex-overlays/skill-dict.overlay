@@ -61,7 +61,7 @@ Read-only audit comparing installed plugin versions to upstream sources.
 Audit comparing installed Codex plugin versions to what their marketplaces offer; changes nothing installed.
 
 @@ replace
-- **No git commits.** The CLAUDE workspace root is not a git repo. Don't try.
+- **Commit the library, never the workspace root.** If the library folder is its own git repo, commit (and push) library changes there whenever the user's instructions ask for that, for example a rule to end every session with commit + push. The workspace folder above it is not a git repo, so never try to commit from there. If the library isn't a git repo, leave committing to the user.
 @@ with
 - **No git commits.** Leave committing the library to the user, even if it lives in a git repo.
 

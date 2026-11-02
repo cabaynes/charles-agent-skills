@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.7] — 2026-11-01
+
+### Changed
+
+- **grill-me:** shortened from 2,327 to 1,449 words with every rule kept: repeated examples, three
+  near-identical per-domain paragraphs, and a list of nine command-line tools (most not installed on
+  a typical machine) are gone; it now says to use whatever search tools are available and check a
+  tool exists before relying on it. The description is unchanged. Behaviour re-tested on six
+  scenarios — doesn't start the task, waits for a plan name, states contradictions directly, defers
+  with a risk note, reads decisions back, stays in the user's domain, resumes from the file — old
+  text 3/3 runs, new text 4/4. Details in [eval-results.md](eval-results.md).
+- **Codex:** grill-me rebuilt; its overlay no longer patches the removed tool list. Codex `grill-me`
+  scenario 4/4.
+
 ## [0.11.6] — 2026-11-01
 
 ### Changed

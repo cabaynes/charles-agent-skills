@@ -12,11 +12,3 @@ description: >
 > **Codex version.** Invoke with `$grill-me`, optionally followed by a topic or plan name
 > (`$grill-me db migration`). This skill only interviews and keeps a session file: nothing in the
 > environment enforces that, so hold to the "Not allowed" list below yourself.
-
-@@ replace
-  and related files. Beyond the built-in Grep, Glob, and Read tools, you have access to these
-  CLI tools via Bash:
-@@ with
-  and related files. Beyond your built-in file and shell tools (`rg`, `rg --files`, reading files),
-  these CLI tools may be installed — check with `command -v <tool>` before relying on one, and fall
-  back to `rg`/`find`/`python3` when it is missing:

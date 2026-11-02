@@ -95,6 +95,9 @@ Session Continuity Loop rather than on its own.
 
 ## Earlier runs
 
+- **2026-11-01 (0.11.7), after shortening `grill-me`:** only its Codex text changed, so its
+  scenario re-ran on the ChatGPT plan: **4/4**. [last-run.json](last-run.json) stays at the 42/42
+  full run.
 - **2026-11-01 (0.11.6), after skill-dict's description gained its "Do NOT use" clause:** only
   `skill-dict`'s Codex text changed, so its scenario re-ran on the ChatGPT plan: **4/4**. A
   truncated full run in the same session also passed every check it reached (grill-me, takenotes,

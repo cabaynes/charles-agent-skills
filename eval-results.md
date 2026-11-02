@@ -231,6 +231,33 @@ this"), synonyms the description does not name ("interrogate that decision", "pl
 "pressure-test", "challenge every assumption"), three non-software domains (a lease, a thesis, a
 novel), and resuming a named session.
 
+## `/grill-me` — behaviour check after shortening (2026-11-01)
+
+The skill was cut from 2,327 to 1,449 words: repeated examples, three near-identical
+per-domain paragraphs, and a list of nine command-line tools (seven of which were not installed on
+the author's machine) were removed; every rule stayed. The description did not change, so the
+trigger benchmark above still applies.
+
+Because the body changed, behaviour was re-tested instead: six scenarios, each a fresh single-shot
+agent writing the next reply with the skill loaded, three runs of the old text and three of the
+new (plus one run of the final wording).
+
+| Scenario | What it checks | Old (3 runs) | New (3 + 1 runs) |
+|---|---|---|---|
+| New session, concrete task ("audit 19 repos this weekend") | Asks for a plan name and waits; doesn't start the task | 3/3 | 4/4 |
+| User claims rollback is easy; code has up-only migrations | States the contradiction directly, no quizzing, writes no code | 3/3 | 4/4 |
+| "Good enough, move on" with a material gap open | DEFERRED with open questions and risk, says what is still open | 3/3 | 4/4 |
+| User makes a decision | Reads it back ("So the decision is X because Y. Correct?") and logs DECIDED | 3/3 | 4/4 |
+| Product grill, technical temptation (Apple Health) | Stays in the product lane, flags the boundary | 3/3 | 4/4 |
+| Resuming a session | Reads the file, summarizes, asks which thread | 3/3 | 4/4 |
+
+One wording was caught and reverted during the check: "read it back **before recording it**" made
+all three draft runs hold the DECIDED entry until the user confirmed, where every old-text run
+logged it and read it back together. That is a behaviour change, not a cut, so the old wording
+("read it back to confirm") was restored and the final run matched the old behaviour. The Codex
+`grill-me` scenario passed 4/4 on the rebuilt Codex version.
+
+
 ## `/takenotes` — behavioural validation, round 2 (2026-09-25)
 
 The 2026-08-03 pass tested whether the reconcile step catches a memory that is *wrong*. This pass

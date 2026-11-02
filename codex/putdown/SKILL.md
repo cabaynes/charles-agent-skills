@@ -133,6 +133,7 @@ Use this structure exactly — the next agent will be reading it cold:
 - Modified-but-uncommitted files: <list — should be "none" after Step 4.5 commits>
 - Pushed to origin: <branch @ short SHA — filled in by Step 4.5; or "no remote" / "PUSH FAILED: <why>">
 - Anything the user needs to manually do before resuming: <list or "none">
+- Restart needed: <"yes — <what changed>" or "no"> (see the restart test below)
 
 ## First message to paste in the new session
 > $pickup
@@ -143,8 +144,20 @@ to carry forward ("make sure next time we…"), plus anything whose slipping wou
 (an unverified fix, a promised check, a deadline). Keep it to the few items that truly must happen —
 routine next steps belong in "Immediate next steps". `$pickup` echoes this section verbatim in its
 briefing, so the user can see it landed. If the user asks for "a prompt to paste into the next
-session", write its content into this section and tell them plain `$pickup` will surface it — don't
-produce a separate chat-only prompt (it isn't saved or committed, and it's lost if not copied).
+session", or to "leave a note for the next agent" / "tell them exactly where we left off", write its
+content into this section and tell them plain `$pickup` will surface it — don't produce a separate
+chat-only prompt (it isn't saved or committed, and it's lost if not copied).
+
+**"What's in progress (resume here)" is the mid-task pointer.** Users often put down in the middle of
+a task just to free context and keep going. When work is unfinished, each line names the exact spot:
+file and line (or commit, doc, or command), the state it's in, and the very next action. `$pickup`
+shows this section in its briefing and resumes it first.
+
+**Restart test — fill the "Restart needed" line from this, not from memory.** Did this session
+install, enable, disable, or update a skill, plugin, or MCP server, or edit Codex's config
+(`$CODEX_DIR/config.toml` or the project's `.codex/`)? If yes, a new chat in the same running Codex
+may keep the old ones — only a relaunch is sure to load them. Write `yes — <what changed>`, put "quit
+and relaunch Codex" (not just a new chat) on the manual-steps line, and use the restart wording in Step 5.
 
 ## Step 4.4 — Reconcile the project's open threads (run `$openthreads reconcile`)
 
@@ -175,7 +188,7 @@ Skip this step entirely if the CWD is not a git repo.
 
 After saving, print to chat — in this exact order:
 1. The full path to the saved putdown file (so they can re-open it later)
-2. **How to start fresh.** In the Codex CLI: type `/new` (or `/clear`, which also clears the screen), then `$pickup`. In the Codex desktop app: start a **New chat** in the same project (`Cmd+N` on macOS), then `$pickup`. If you can't tell which surface this is, give both. If MCP servers or config changed this session, a new chat may not load them — tell them to quit and relaunch Codex first.
+2. **How to start fresh.** In the Codex CLI: type `/new` (or `/clear`, which also clears the screen), then `$pickup`. In the Codex desktop app: start a **New chat** in the same project (`Cmd+N` on macOS), then `$pickup`. If you can't tell which surface this is, give both. If the handoff says "Restart needed: yes", a new chat may not load what changed — tell them to quit and relaunch Codex first, then `$pickup`.
 3. A code block containing exactly `$pickup` — what they type in the fresh chat
 4. **The result of Steps 2–3, labelled with its source** — which notes, `AGENTS.md`, and `docs/` files were written or corrected. If `takenotes` ran, label it as such so the user can see each skill fired, e.g. `takenotes: 2 notes updated, 1 created, AGENTS.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
 5. **The `$openthreads reconcile` delta, labelled** — `openthreads: 2 closed, 3 added, 1 now due, 0 pruned`,

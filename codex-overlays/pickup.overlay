@@ -77,6 +77,17 @@ print one line above the list like: `"Showing the 4 most recent of N putdowns �
 - Read the project notes index `$CODEX_DIR/notes/projects/<slug>/INDEX.md` if it exists (written by `$takenotes`; `<slug>` is the CWD with every `/` turned into `-`). Nothing loads it automatically unless the global `AGENTS.md` says to, so read it here.
 
 @@ replace
+- **"Restart needed: yes"**, or a manual-steps line saying restart / relaunch / fresh session — run
+  `ps -o lstart= -p $PPID` (`$PPID` is the running `claude` process). If it started **before** the
+  putdown's timestamp, the user ran `/clear` but never relaunched, so the plugins, hooks, skills, or
+  settings that changed are still the old ones. Flag it and say how: `/exit`, relaunch `claude`, `/pickup`.
+@@ with
+- **"Restart needed: yes"**, or a manual-steps line saying restart / relaunch / fresh session — the
+  skills, MCP servers, or config that changed load reliably only in a freshly launched Codex. If you
+  can't confirm Codex was relaunched after the putdown's timestamp, flag it: quit and relaunch Codex,
+  then `$pickup`.
+
+@@ replace
 or hand off to a subagent.
 @@ with
 or hand off to another agent.

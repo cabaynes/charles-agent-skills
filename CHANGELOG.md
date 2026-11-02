@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.5] — 2026-11-01
+
+### Changed
+
+- **putdown:** the handoff gets a `Restart needed:` line, filled from a restart test. If the session
+  installed, enabled, disabled, or updated a plugin, MCP server, hook, or skill, or edited a
+  `settings.json`, it says `yes — <what changed>`, the manual step is "quit and relaunch `claude`",
+  and Step 5 doesn't mention `/clear` at all — the running process keeps the old ones through
+  `/clear`. The old exception covered only "MCP servers or config" and was missed in practice: a
+  putdown written right after disabling a plugin said `/clear`, and the next session still had it loaded.
+- **putdown:** "What's in progress (resume here)" is described as the mid-task pointer (exact spot,
+  state, next action), and a request to "leave a note for the next agent" goes into "Must address".
+- **pickup:** checks the putdown's `## Environment state`, not only git. "Restart needed: yes" →
+  compares the running `claude` process's start time (`ps -o lstart= -p $PPID`) with the putdown's;
+  listed servers/processes are checked; manual steps it can't confirm are reported "not checked".
+- **pickup:** the briefing gets a **Resume here** line (the putdown's in-progress items, kept
+  specific), and Step 4 resumes them right after "Must address". Most putdowns are written mid-task
+  to free context; that pointer used to be left out of the briefing.
+- **Codex:** the same changes, in Codex terms (relaunch Codex rather than a new chat; pickup flags a
+  restart it can't confirm instead of checking the process).
+- Also checked, nothing changed: whether putdown has takenotes' old blind spot (no place for a
+  clean success). A 5-run baseline on a mid-task putdown already kept the session's working check and
+  flagged a change that was never run, 5/5 each.
+
 ## [0.11.4] — 2026-11-01
 
 ### Changed

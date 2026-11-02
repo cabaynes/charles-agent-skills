@@ -137,6 +137,7 @@ Use this structure exactly — the next agent will be reading it cold:
 - Modified-but-uncommitted files: <list — should be "none" after Step 4.5 commits>
 - Pushed to origin: <branch @ short SHA — filled in by Step 4.5; or "no remote" / "PUSH FAILED: <why>">
 - Anything the user needs to manually do before resuming: <list or "none">
+- Restart needed: <"yes — <what changed>" or "no"> (see the restart test below)
 
 ## First message to paste in the new session
 > /pickup
@@ -147,8 +148,20 @@ to carry forward ("make sure next time we…"), plus anything whose slipping wou
 (an unverified fix, a promised check, a deadline). Keep it to the few items that truly must happen —
 routine next steps belong in "Immediate next steps". `/pickup` echoes this section verbatim in its
 briefing, so the user can see it landed. If the user asks for "a prompt to paste into the next
-session", write its content into this section and tell them plain `/pickup` will surface it — don't
-produce a separate chat-only prompt (it isn't saved or committed, and it's lost if not copied).
+session", or to "leave a note for the next agent" / "tell them exactly where we left off", write its
+content into this section and tell them plain `/pickup` will surface it — don't produce a separate
+chat-only prompt (it isn't saved or committed, and it's lost if not copied).
+
+**"What's in progress (resume here)" is the mid-task pointer.** Users often put down in the middle of
+a task just to free context and keep going. When work is unfinished, each line names the exact spot:
+file and line (or commit, doc, or command), the state it's in, and the very next action. `/pickup`
+shows this section in its briefing and resumes it first.
+
+**Restart test — fill the "Restart needed" line from this, not from memory.** Did this session
+install, enable, disable, or update a plugin, MCP server, hook, or skill, or edit a `settings.json`
+(`~/.claude/` or the project's `.claude/`)? If yes, the running `claude` process keeps the old ones
+loaded through `/clear` — it reads them only at launch. Write `yes — <what changed>`, put "quit and
+relaunch `claude`" (never "`/clear`") on the manual-steps line, and use the restart wording in Step 5.
 
 ## Step 4.4 — Reconcile the project's open threads (invoke `/openthreads reconcile`)
 
@@ -181,7 +194,7 @@ After saving, print to chat — in this exact order:
 1. The full path to the saved putdown file (so they can re-open it later)
 2. **A clear-the-context reminder, matched to the current surface.** Use the `CLAUDE_CODE_ENTRYPOINT` value you read in Step 1 — the right way to free context differs by surface, so don't give the wrong one:
    - **Terminal CLI** (`CLAUDE_CODE_ENTRYPOINT` is `cli`) — this covers both a standalone terminal and VSCode's *integrated terminal*. Here `/clear` genuinely frees the context window. Tell the user to type `/clear`, then `/pickup`. No window juggling needed.
-     - **Exception:** if MCP servers or config were added/changed *this session*, `/clear` won't load them — the process must be restarted. Tell them to fully quit (`Ctrl+C` twice, or `/exit`) and relaunch `claude`, then `/pickup`.
+     - **Exception — the handoff says "Restart needed: yes":** `/clear` won't unload the old plugins, MCP servers, hooks, skills, or settings — the process must be restarted. Tell them to fully quit (`/exit`, or `Ctrl+C` twice) and relaunch `claude`, then `/pickup`. Don't mention `/clear` at all in this case.
    - **VSCode visual-editor panel, or any other/unknown surface** (`CLAUDE_CODE_ENTRYPOINT` is anything other than `cli`, or empty) — `/clear` does **not** reliably free context here. Tell the user to **`Cmd+W` to close this Claude Code window, then open a new Claude Code window** in VSCode. (Closing affects only this window — other VSCode windows stay untouched. Note: `Cmd+Shift+P → "Developer: Reload Window"` does NOT actually free the context window — you confirmed this.)
 3. A code block containing exactly `/pickup` — what they type once the context is cleared (in the CLI, right after `/clear`; in a new/reopened window otherwise)
 4. **The result of Steps 2–3, labelled with its source** — what memory, `CLAUDE.md`, and `docs/` files were written or corrected. If `/takenotes` ran, label it as such so the user can see each skill fired, e.g. `takenotes: 2 memories updated, 1 created, CLAUDE.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.

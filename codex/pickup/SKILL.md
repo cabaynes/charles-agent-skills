@@ -82,6 +82,18 @@ In parallel:
 
 If git state has drifted significantly from what the putdown described (e.g. new commits, files modified outside what was listed), flag this to the user — the world may have moved since the putdown.
 
+**Check the putdown's `## Environment state` against reality too** — git is not the only thing that
+drifts. For each line that sets a precondition, test it where you can:
+
+- **"Restart needed: yes"**, or a manual-steps line saying restart / relaunch / fresh session — the
+  skills, MCP servers, or config that changed load reliably only in a freshly launched Codex. If you
+  can't confirm Codex was relaunched after the putdown's timestamp, flag it: quit and relaunch Codex,
+  then `$pickup`.
+- **Dev servers or background processes listed as running** — check they still are (`lsof -i :<port>`,
+  `pgrep -fl <name>`); a reboot or closed terminal kills them.
+- **Other manual steps** (log in, plug in a drive, run a `!` command) — check the ones a command can
+  confirm; list the rest as "not checked" rather than assuming they're done.
+
 ## Step 3 — Brief the user
 
 Reply with a tight summary so the user can confirm you've loaded the right context. Structure:
@@ -91,6 +103,8 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 <If a picker was shown: append " — chosen from N available putdowns in this project">
 
 **Where we left off:** <one sentence>
+
+**Resume here:** <every item from "## What's in progress (resume here)" — file:line (or commit/doc/command), its state, and the next action, kept as specific as the putdown wrote it — omit this line if the section is missing or "none">
 
 **Must address:** <every item from "## Must address next session", verbatim — omit this line if the section is missing or "none">
 
@@ -102,7 +116,7 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 <the "Due now" items verbatim, then the top 2–3 others — omit the whole block if there is no OPEN-THREADS.md>
 <Only if a Closed line is dated after this putdown's day: "Closed since that putdown: <N> — <first outcome, truncated>". Otherwise say nothing about Closed.>
 
-<If git state has drifted: a "⚠️ Note:" line about what changed since the putdown.>
+<If git state has drifted, or an Environment-state precondition failed (no restart since the putdown, a server not running): a "⚠️ Note:" line for each, saying what to do.>
 ```
 
 Never summarize or drop "Must address" items — they exist because the user wanted proof the next
@@ -117,7 +131,7 @@ Then **stop and wait for the user to confirm or redirect.** Do NOT auto-execute 
 
 ## Step 4 — Once confirmed, execute
 
-Pick up the work. Track the "Must address" items (first) — with the plan tool (`update_plan`) if this session has it, otherwise as a Markdown checklist in chat — and the "Immediate next steps" list from the putdown; don't mark the session's work done while a "Must address" item is still open unless the user dropped it. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out. If the user picks an open thread instead of the putdown's next step, that's a normal redirect — work it, and `$openthreads done` it when finished.
+Pick up the work. Track the "Must address" items (first) — with the plan tool (`update_plan`) if this session has it, otherwise as a Markdown checklist in chat —, then the "What's in progress (resume here)" items — a mid-task putdown means the user wants to carry on from exactly that spot, so continue the unfinished work rather than restarting it — then the "Immediate next steps" list from the putdown; don't mark the session's work done while a "Must address" item is still open unless the user dropped it. Honor the "What NOT to redo" section — do not re-attempt approaches the previous session ruled out. If the user picks an open thread instead of the putdown's next step, that's a normal redirect — work it, and `$openthreads done` it when finished.
 
 ## Notes on judgment
 

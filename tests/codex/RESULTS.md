@@ -95,6 +95,9 @@ Session Continuity Loop rather than on its own.
 
 ## Earlier runs
 
+- **2026-11-01 (0.11.5), after the putdown restart test and pickup's environment check + "Resume
+  here" line:** the Codex text of `putdown` and `pickup` changed, so the full suite re-ran on the
+  ChatGPT plan: **42/42**. [last-run.json](last-run.json) is this run.
 - **2026-10-13 (0.11.1), after naming the set the Session Continuity Loop:** `putdown`'s Step 0
   announcement and incomplete-set message changed wording, so `openthreads`, `putdown` and `pickup`
   re-ran on the ChatGPT plan: **22/22**. [last-run.json](last-run.json) stays at the 42/42 full run.

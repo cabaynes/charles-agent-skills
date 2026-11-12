@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.8] — 2026-11-11
+
+### Changed
+
+- **Why:** Claude Code loads only the first **200 lines and 25,000 characters** of a project's
+  `MEMORY.md` and silently drops the rest from the bottom, with only a warning the model sees. In a
+  shared-memory workspace every project's index carries one line per shared memory, so the shared
+  list alone can fill the budget, and the project's own notes, added last, stop loading. The
+  maintainer's own workspace hit this: 124 shared lines took ~28.7 KB in every project.
+- **workspace/fanout-memory.sh:** rebuilds every `MEMORY.md` index on each run instead of only
+  appending missing lines, so stale lines are refreshed too. Layout: shared memories marked
+  `pinned: true` first, with a pointer to a new hub file `SHARED-NOTES.md` (every shared memory with
+  its full description, the fallback if an index is ever cut), then the project's own lines kept
+  word for word, then the other shared memories. A shared memory's line is its new `hook:`
+  frontmatter line (90 characters max), or its description cut to 90 characters. `--all` also
+  rebuilds the hub's own index. A project's own copy of a shared file stays a project line. Every
+  run ends with a size report; the new `--check [name]` reports without writing and exits 1 over
+  22,000 characters or 180 lines. Still plain bash, still runs on macOS's bash 3.2.
+- **workspace/test-fanout.sh:** 8 → 13 scenarios (37 checks): hooks replace stale lines, project
+  lines stay put above the shared list, pinned first, local copies untouched, hub index rebuilt, a
+  second run changes nothing, `--check` flags an oversized index.
+- **pickup:** Step 2 measures this project's `MEMORY.md` and briefs a ⚠️ line at 22,000 characters
+  or 180 lines, or when the context shows Claude Code's "Only part of it was loaded" warning.
+- **putdown:** after the harvest, the same measurement; over the threshold, a ⚠️ line in the summary.
+- **takenotes:** index lines stay under ~150 characters and go near the top (under `## This
+  project` when the index has it); when the sync generates the shared list, a shared memory gets a
+  `hook:` line instead of a hand-written index line.
+- **Workspace guide and umbrella template:** the profile prompt and the universal-rule prompt write
+  a `hook:` line and let the helper build the index.
+- **Codex:** unchanged. Codex has no `MEMORY.md`, so the overlays remove the new passages; the built
+  Codex skills are byte-identical to 0.11.7 (spec check 63/63), so the Codex suite was not re-run.
+
 ## [0.11.7] — 2026-11-01
 
 ### Changed

@@ -115,13 +115,14 @@ Interview me to build my universal user profile memory, then save it. Ask a few 
 ---
 name: user-profile
 description: Who I am, my technical level, and how I like Claude to work with me
+hook: "<who I am, in 90 characters or fewer>"
 metadata:
   type: user
 ---
 
 (the profile, as short bullets, with today's date noted at the top)
 
-Then add one line to MEMORY.md in that same directory in the form "- [User profile](user_profile.md) — <one short hook>". MEMORY.md is an index and only ever holds one line per memory, never the content. Finally run ~/CLAUDE/scripts/fanout-memory.sh with no arguments and show me the output; it should list user_profile.md as a universal memory and say there are no subprojects yet.
+Don't write a MEMORY.md line for it by hand: the helper builds every MEMORY.md index from each universal memory's hook line. Run ~/CLAUDE/scripts/fanout-memory.sh with no arguments and show me the output; it should list user_profile.md as a universal memory and say there are no subprojects yet. Then run ~/CLAUDE/scripts/fanout-memory.sh --all and show me the hub's MEMORY.md: it should list the profile under "Always first" or "Shared notes" and report the index size as ok.
 ```
 
 ## Prompt 3: create the first project
@@ -173,7 +174,7 @@ Once set up, the whole system runs on five habits:
 A prompt for a universal rule at any time:
 
 ```
-Remember this as a universal rule that applies in every project, not just this one: always show me the git diff before committing. Save it in the hub as a feedback memory with Why and How to apply lines, add it to the hub MEMORY.md, and fan it out with ~/CLAUDE/scripts/fanout-memory.sh --all.
+Remember this as a universal rule that applies in every project, not just this one: always show me the git diff before committing. Save it in the hub as a feedback memory with Why and How to apply lines and a hook: line of 90 characters or fewer, then fan it out with ~/CLAUDE/scripts/fanout-memory.sh --all (it rebuilds every project's MEMORY.md, so don't edit the index by hand).
 ```
 
 ## Gotchas
@@ -200,8 +201,8 @@ That path is where Step 1 cloned the repo; macOS clears `/tmp` on reboot, so re-
 
 | File | What it is |
 |---|---|
-| `fanout-memory.sh` | The helper. `fanout-memory.sh` shows status, `fanout-memory.sh <name>` seeds one project, `fanout-memory.sh --all` syncs every project. Honours `WORKSPACE_DIR`. |
-| `test-fanout.sh` | Eight-scenario test against a throwaway `HOME`. Exit 0 means the helper works on this machine. |
+| `fanout-memory.sh` | The helper. `fanout-memory.sh` shows status, `fanout-memory.sh <name>` seeds one project, `fanout-memory.sh --all` syncs every project and rebuilds every `MEMORY.md` index (pinned shared notes, then the project's own, then the rest — Claude Code loads only the first 200 lines / 25,000 characters), `fanout-memory.sh --check` reports index sizes. Honours `WORKSPACE_DIR`. |
+| `test-fanout.sh` | Thirteen-scenario test against a throwaway `HOME`. Exit 0 means the helper works on this machine. |
 | `CLAUDE.md.template` | The umbrella file Step 1 installs. Has the `## Subprojects` heading `/newproject` appends to. |
 | `STACK.md` | Everything the maintainer runs on top of this, in install order, with the reason for each. |
 | `README.md` | This page. |

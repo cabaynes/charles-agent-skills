@@ -86,6 +86,18 @@ Either way, two things hold:
 
 Keep the result — you'll echo a one-line version in Step 5.
 
+**Then measure the memory index** — this step may have just grown it. Claude Code loads only the
+first 200 lines and 25,000 characters of a project's `MEMORY.md` and silently drops the rest from the
+bottom:
+
+```bash
+f="$HOME/.claude/projects/$(pwd | sed 's|[/.]|-|g')/memory/MEMORY.md"; [ -f "$f" ] && echo "$(wc -m <"$f") chars, $(wc -l <"$f") lines"
+```
+
+Over **22,000 characters or 180 lines** → add a ⚠️ line to the Step 5 summary with the numbers and
+the fix: shorten long index lines and move detail into the memory files themselves (in the workspace
+pattern, `fanout-memory.sh --check` reports every project's index). Under it, say nothing.
+
 ## Step 4 — Write the handoff file
 
 Save to `~/.claude/putdowns/<project-slug>/<YYYY-MM-DD-HHMM>.md`. Create the per-project subfolder if it doesn't exist (`mkdir -p`).

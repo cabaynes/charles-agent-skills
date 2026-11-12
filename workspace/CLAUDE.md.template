@@ -9,7 +9,7 @@ _(/newproject adds a line here for each project, in the form `- [name/](name/) �
 ## House rules
 
 - Universal memory (who I am, how I like Claude to work) lives in this folder's memory hub and is symlinked into every subproject by `$WORKSPACE_DIR/scripts/fanout-memory.sh`. Only `feedback_*.md` and `user_*.md` files fan out; `project_*.md` and `reference_*.md` stay local.
-- When you save a universal memory, write it to the hub, add its one-line pointer to the hub's MEMORY.md, then run `$WORKSPACE_DIR/scripts/fanout-memory.sh --all` and tell me it now applies everywhere.
+- When you save a universal memory, write it to the hub with a `hook:` line (the rule in 90 characters or fewer), then run `$WORKSPACE_DIR/scripts/fanout-memory.sh --all` — it rebuilds every MEMORY.md index, so never hand-edit the shared lines — and tell me it now applies everywhere. Relay any size WARNING it prints.
 - Every subproject is its own git repo. End every working session with /putdown (it commits and pushes). Start the next one with /pickup.
 - Never commit .env or any secret file. Check `git status` before committing; never force-add.
 - Keep every CLAUDE.md under 250 lines. Anything longer than about 15 lines goes in a docs/ file with a one-line pointer here that says what the file contains.

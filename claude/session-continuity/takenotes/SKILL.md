@@ -47,7 +47,9 @@ these, then stop:
    applies to every project, not just this one — see **Shared memories** in Step 4a. If it's about
    *this codebase*, it's local.
 4. **Add the one-line pointer to `MEMORY.md`** — a memory file with no index entry is a file
-   nothing loads.
+   nothing loads. Keep it under ~150 characters, and put it near the top (under a `## This project`
+   heading when the index has one): Claude Code loads only the first 200 lines / 25,000 characters
+   and drops the bottom. For a shared memory, see Step 4a — its index line may be generated.
 5. **Say what you did**, including the file path and whether it applies beyond this project.
 
 ### Memory file format
@@ -59,6 +61,7 @@ dotted key:
 ---
 name: short-kebab-case-slug
 description: one-line summary — future sessions match on this, so be specific
+hook: "shared memories only, when the sync generates index lines — the rule in ≤ 90 chars"
 metadata:
   type: user | feedback | project | reference
 ---
@@ -328,7 +331,10 @@ Write to `$MEMDIR/memory/<name>.md` in the shape given under **Memory file forma
 
 - **Check for an existing file on the topic first** and update it instead of duplicating.
 - **Convert relative dates to absolute** — "last week" is meaningless to a future reader.
-- **Add a one-line pointer to `MEMORY.md`** — `- [Title](file.md) — hook`. One line, never content.
+- **Add a one-line pointer to `MEMORY.md`** — `- [Title](file.md) — hook`. One line, under ~150
+  characters, never content — and above any generated shared list (under `## This project` when the
+  index has that heading). Claude Code loads only the first 200 lines / 25,000 characters of the
+  index and silently drops the bottom.
 
 **Shared memories (optional — skip unless Step 1c found symlinks).**
 
@@ -340,6 +346,11 @@ that's how this machine is set up:
   something to do silently. Say so in Step 5.
 - *Creating a new shared memory* means writing it to the canonical store and re-running whatever
   sync step creates the symlinks. Skip that and it exists in one place and applies nowhere else.
+- *Shared index lines may be generated.* If the project indexes carry a `## Shared notes (generated …)`
+  section (the workspace pattern's `fanout-memory.sh` writes one), give each shared memory a `hook:`
+  frontmatter line — the rule in **90 characters or fewer** — and don't hand-write its index line;
+  the sync rebuilds every index from the hooks. `pinned: true` puts a memory in the "Always first"
+  block; keep that to rules that matter in every project. Relay any size WARNING the sync prints.
 - *Deciding which it is:* a rule about **how the assistant should work** regardless of project is
   shared. A fact about **this codebase** is local. When genuinely unsure, write it local — a local
   memory that should have been shared is a small loss; a shared memory that should have been local

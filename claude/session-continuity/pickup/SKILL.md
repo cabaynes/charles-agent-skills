@@ -99,6 +99,18 @@ drifts. For each line that sets a precondition, test it where you can:
 - **Other manual steps** (log in, plug in a drive, run a `!` command) — check the ones a command can
   confirm; list the rest as "not checked" rather than assuming they're done.
 
+**Check the memory index fits.** Claude Code loads only the first 200 lines and 25,000 characters of
+a project's `MEMORY.md` and silently drops the rest from the bottom. Measure this project's index:
+
+```bash
+f="$HOME/.claude/projects/$(pwd | sed 's|[/.]|-|g')/memory/MEMORY.md"; [ -f "$f" ] && echo "$(wc -m <"$f") chars, $(wc -l <"$f") lines"
+```
+
+Over **22,000 characters or 180 lines** — or a `MEMORY.md is … Only part of it was loaded` warning
+in this session's context — goes in the brief as a ⚠️ line with the numbers. The fix: shorten long
+index lines and move detail into the memory files themselves (in the workspace pattern,
+`fanout-memory.sh --check` reports every project's index).
+
 ## Step 3 — Brief the user
 
 Reply with a tight summary so the user can confirm you've loaded the right context. Structure:
@@ -121,7 +133,7 @@ Resumed from: <putdown file path> (<how long ago it was written>)
 <the "Due now" items verbatim, then the top 2–3 others — omit the whole block if there is no OPEN-THREADS.md>
 <Only if a Closed line is dated after this putdown's day: "Closed since that putdown: <N> — <first outcome, truncated>". Otherwise say nothing about Closed.>
 
-<If git state has drifted, or an Environment-state precondition failed (no restart since the putdown, a server not running): a "⚠️ Note:" line for each, saying what to do.>
+<If git state has drifted, or an Environment-state precondition failed (no restart since the putdown, a server not running), or the memory index is near/over its limit: a "⚠️ Note:" line for each, saying what to do.>
 ```
 
 Never summarize or drop "Must address" items — they exist because the user wanted proof the next

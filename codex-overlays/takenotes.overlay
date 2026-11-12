@@ -215,7 +215,10 @@ Write to `$PROJ_NOTES/<name>.md` (or `$GLOBAL_NOTES/<name>.md` — see **Global 
 shape given under **Memory file format** in Step 0.
 
 @@ replace
-- **Add a one-line pointer to `MEMORY.md`** — `- [Title](file.md) — hook`. One line, never content.
+- **Add a one-line pointer to `MEMORY.md`** — `- [Title](file.md) — hook`. One line, under ~150
+  characters, never content — and above any generated shared list (under `## This project` when the
+  index has that heading). Claude Code loads only the first 200 lines / 25,000 characters of the
+  index and silently drops the bottom.
 @@ with
 - **Add a one-line pointer to that folder's `INDEX.md`** — `- [Title](file.md) — hook`. One line,
   never content. Then confirm the Step 1b loader pointer exists; add it if not.
@@ -231,6 +234,11 @@ that's how this machine is set up:
   something to do silently. Say so in Step 5.
 - *Creating a new shared memory* means writing it to the canonical store and re-running whatever
   sync step creates the symlinks. Skip that and it exists in one place and applies nowhere else.
+- *Shared index lines may be generated.* If the project indexes carry a `## Shared notes (generated …)`
+  section (the workspace pattern's `fanout-memory.sh` writes one), give each shared memory a `hook:`
+  frontmatter line — the rule in **90 characters or fewer** — and don't hand-write its index line;
+  the sync rebuilds every index from the hooks. `pinned: true` puts a memory in the "Always first"
+  block; keep that to rules that matter in every project. Relay any size WARNING the sync prints.
 - *Deciding which it is:* a rule about **how the assistant should work** regardless of project is
   shared. A fact about **this codebase** is local. When genuinely unsure, write it local — a local
   memory that should have been shared is a small loss; a shared memory that should have been local
@@ -362,3 +370,9 @@ When something is both memory-worthy and too long for
 @@ with
 When something is both note-worthy and too long for
   AGENTS.md, write the short version in a note
+
+@@ replace
+description: one-line summary — future sessions match on this, so be specific
+hook: "shared memories only, when the sync generates index lines — the rule in ≤ 90 chars"
+@@ with
+description: one-line summary — future sessions match on this, so be specific

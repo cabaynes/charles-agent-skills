@@ -112,4 +112,27 @@ work it, and `/openthreads done` it when finished.
 @@ with
 work it, and `$openthreads done` it when finished.
 
+
+@@ replace
+  confirm; list the rest as "not checked" rather than assuming they're done.
+
+**Check the memory index fits.** Claude Code loads only the first 200 lines and 25,000 characters of
+a project's `MEMORY.md` and silently drops the rest from the bottom. Measure this project's index:
+
+```bash
+f="$HOME/.claude/projects/$(pwd | sed 's|[/.]|-|g')/memory/MEMORY.md"; [ -f "$f" ] && echo "$(wc -m <"$f") chars, $(wc -l <"$f") lines"
+```
+
+Over **22,000 characters or 180 lines** — or a `MEMORY.md is … Only part of it was loaded` warning
+in this session's context — goes in the brief as a ⚠️ line with the numbers. The fix: shorten long
+index lines and move detail into the memory files themselves (in the workspace pattern,
+`fanout-memory.sh --check` reports every project's index).
+@@ with
+  confirm; list the rest as "not checked" rather than assuming they're done.
+
+@@ replace
+, or the memory index is near/over its limit: a "⚠️ Note:"
+@@ with
+: a "⚠️ Note:"
+
 @@ allow shared with the Claude Code version of this skill

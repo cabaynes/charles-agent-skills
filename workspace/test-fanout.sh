@@ -117,6 +117,27 @@ check "--check fails on a huge index"   not "$SCRIPT" --check recipes
 check "--check names the problem"       bash -c "'$SCRIPT' --check recipes | grep -q 'OVER LIMIT'"
 check "--all still finishes and warns"  bash -c "'$SCRIPT' --all | grep -q 'OVER LIMIT'"
 
+echo "14. a big hub: each index stays within the line budget, newest shared notes kept"
+for i in $(seq 1 160); do
+  n="$(printf '%03d' "$i")"; f="$HUB/feedback_bulk$n.md"
+  printf -- '---\nname: bulk-%s\ndescription: Bulk note %s\nhook: Bulk rule %s\nmetadata:\n  type: feedback\n---\n\nx\n' "$n" "$n" "$n" > "$f"
+  touch -t "202601$(printf '%02d' $((1 + i / 24)))$(printf '%02d' $((i % 24)))00" "$f"   # bulk160 is the newest
+done
+GARDEN="$HOME/.claude/projects/$SLUG-garden/memory"
+"$SCRIPT" garden >/dev/null
+printf -- '- [Garden plan](project_plan.md) — beds and seeds\n' >> "$GARDEN/MEMORY.md"
+"$SCRIPT" --all >/dev/null || true
+check "index is at most 150 lines"        test "$(wc -l < "$GARDEN/MEMORY.md")" -le 150
+check "overflow line names the rest"      grep -q '^- …and [0-9][0-9]* older shared notes not listed here' "$GARDEN/MEMORY.md"
+check "newest shared note kept"           grep -qF '(feedback_bulk160.md)' "$GARDEN/MEMORY.md"
+check "oldest shared note left out"       not grep -qF '(feedback_bulk001.md)' "$GARDEN/MEMORY.md"
+check "…but it is in the full list"       grep -qF '[feedback_bulk001.md]' "$HUB/SHARED-NOTES.md"
+check "project line kept verbatim"        grep -qF -- '- [Garden plan](project_plan.md) — beds and seeds' "$GARDEN/MEMORY.md"
+check "pinned note still listed"          grep -qF '(feedback_safety.md)' "$GARDEN/MEMORY.md"
+check "overflow line not kept as a project line" test "$(grep -c '^- …and ' "$GARDEN/MEMORY.md")" = 1
+check "second run changes nothing"        not bash -c "'$SCRIPT' garden | grep -q 'rebuilt'"
+check "FANOUT_INDEX_LINES sets the budget" bash -c "FANOUT_INDEX_LINES=60 '$SCRIPT' garden >/dev/null; test \$(wc -l < '$GARDEN/MEMORY.md') -le 60"
+
 echo ""
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

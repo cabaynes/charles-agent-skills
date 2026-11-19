@@ -201,7 +201,7 @@ That path is where Step 1 cloned the repo; macOS clears `/tmp` on reboot, so re-
 
 | File | What it is |
 |---|---|
-| `fanout-memory.sh` | The helper. `fanout-memory.sh` shows status, `fanout-memory.sh <name>` seeds one project, `fanout-memory.sh --all` syncs every project and rebuilds every `MEMORY.md` index (pinned shared notes, then the project's own, then the rest — Claude Code loads only the first 200 lines / 25,000 characters), `fanout-memory.sh --check` reports index sizes. Honours `WORKSPACE_DIR`. |
+| `fanout-memory.sh` | The helper. `fanout-memory.sh` shows status, `fanout-memory.sh <name>` seeds one project, `fanout-memory.sh --all` syncs every project and rebuilds every `MEMORY.md` index (pinned shared notes, then the project's own, then the rest — Claude Code loads only the first 200 lines / 25,000 characters). Each index stays within 150 lines (`FANOUT_INDEX_LINES` to change it): the shared list keeps the most recently updated notes and one line points to `SHARED-NOTES.md` for the rest. `fanout-memory.sh --check` reports index sizes. Honours `WORKSPACE_DIR`. |
 | `test-fanout.sh` | Thirteen-scenario test against a throwaway `HOME`. Exit 0 means the helper works on this machine. |
 | `CLAUDE.md.template` | The umbrella file Step 1 installs. Has the `## Subprojects` heading `/newproject` appends to. |
 | `STACK.md` | Everything the maintainer runs on top of this, in install order, with the reason for each. |

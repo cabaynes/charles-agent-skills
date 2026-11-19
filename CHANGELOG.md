@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.10] — 2026-11-19
+
+### Changed
+
+- **Why:** 0.11.8 put each project's own notes above the shared list, but the shared list still grew by one line with
+  every new shared memory. The maintainer's indexes reached 175 of Claude Code's 200 lines, and past the limit the
+  bottom of the list is dropped with no say in which notes go.
+- **workspace/fanout-memory.sh:** each `MEMORY.md` index is capped at 150 lines (`FANOUT_INDEX_LINES` changes it). The
+  pinned block and the project's own lines are always written in full; the shared list fills the room left with the most
+  recently updated memories, and one line, "- …and N older shared notes not listed here …", points to `SHARED-NOTES.md`
+  for the rest. That line is regenerated on every run, never kept as a project line. Still plain bash 3.2 (macOS);
+  modification times from `stat -f %m`, falling back to GNU `stat -c %Y`.
+- **workspace/test-fanout.sh:** 13 → 14 scenarios (47 checks): a hub with 160 shared memories keeps the index within
+  the budget, keeps the newest, leaves the oldest to the full list, keeps the project line, changes nothing on a second
+  run, and honours `FANOUT_INDEX_LINES`.
+- **workspace/README.md:** the `fanout-memory.sh` row describes the cap.
+
 ## [0.11.9] — 2026-11-19
 
 ### Changed

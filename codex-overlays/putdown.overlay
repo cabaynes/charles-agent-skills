@@ -50,7 +50,7 @@ Either way this is an announcement, not a prompt — don't wait for confirmation
 - Read the project-level `CLAUDE.md` if one exists in the CWD
 - Read `~/.claude/projects/<project-slug>/memory/MEMORY.md` to know which memory files exist
 - Check the current TodoWrite list state (if you have one in this session — recall from conversation, don't invent)
-- `echo "$CLAUDE_CODE_ENTRYPOINT"` — which surface this is. `cli` = terminal (standalone **or** VSCode's integrated terminal); anything else (or empty) = VSCode's visual-editor chat panel or another GUI surface. This decides the clear-context instructions in Step 5.
+- `echo "$CLAUDE_CODE_ENTRYPOINT"` — which surface this is. `cli` = terminal (standalone **or** VSCode's integrated terminal); a value containing `vscode` = VSCode's visual-editor chat panel; a value containing `desktop` = the Claude desktop app's Code tab; empty or anything else = unknown. This decides the clear-context and finish instructions in Step 5.
 @@ with
 - Read the project-level `AGENTS.md` if one exists in the CWD
 - Read `$CODEX_DIR/notes/projects/<slug>/INDEX.md` if it exists (`<slug>` = the CWD with every `/` turned into `-`) to know which notes exist

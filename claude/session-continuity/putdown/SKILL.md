@@ -49,7 +49,7 @@ Before writing anything, gather context. Run these in parallel:
 - Read the project-level `CLAUDE.md` if one exists in the CWD
 - Read `~/.claude/projects/<project-slug>/memory/MEMORY.md` to know which memory files exist
 - Check the current TodoWrite list state (if you have one in this session — recall from conversation, don't invent)
-- `echo "$CLAUDE_CODE_ENTRYPOINT"` — which surface this is. `cli` = terminal (standalone **or** VSCode's integrated terminal); anything else (or empty) = VSCode's visual-editor chat panel or another GUI surface. This decides the clear-context instructions in Step 5.
+- `echo "$CLAUDE_CODE_ENTRYPOINT"` — which surface this is. `cli` = terminal (standalone **or** VSCode's integrated terminal); a value containing `vscode` = VSCode's visual-editor chat panel; a value containing `desktop` = the Claude desktop app's Code tab; empty or anything else = unknown. This decides the clear-context and finish instructions in Step 5.
 
 Also pull from your conversation memory:
 - What was the user actually trying to accomplish in this session?
@@ -204,10 +204,18 @@ Skip this step entirely if the CWD is not a git repo.
 
 After saving, print to chat — in this exact order:
 1. The full path to the saved putdown file (so they can re-open it later)
-2. **A clear-the-context reminder, matched to the current surface.** Use the `CLAUDE_CODE_ENTRYPOINT` value you read in Step 1 — the right way to free context differs by surface, so don't give the wrong one:
-   - **Terminal CLI** (`CLAUDE_CODE_ENTRYPOINT` is `cli`) — this covers both a standalone terminal and VSCode's *integrated terminal*. Here `/clear` genuinely frees the context window. Tell the user to type `/clear`, then `/pickup`. No window juggling needed.
-     - **Exception — the handoff says "Restart needed: yes":** `/clear` won't unload the old plugins, MCP servers, hooks, skills, or settings — the process must be restarted. Tell them to fully quit (`/exit`, or `Ctrl+C` twice) and relaunch `claude`, then `/pickup`. Don't mention `/clear` at all in this case.
-   - **VSCode visual-editor panel, or any other/unknown surface** (`CLAUDE_CODE_ENTRYPOINT` is anything other than `cli`, or empty) — `/clear` does **not** reliably free context here. Tell the user to **`Cmd+W` to close this Claude Code window, then open a new Claude Code window** in VSCode. (Closing affects only this window — other VSCode windows stay untouched. Note: `Cmd+Shift+P → "Developer: Reload Window"` does NOT actually free the context window — you confirmed this.)
+2. **How to go on from here, matched to the current surface.** Use the `CLAUDE_CODE_ENTRYPOINT` value you read in Step 1 — the right way to free context differs by surface, so don't give the wrong one. Give two short lines: **keep going fresh** (clear the context, then `/pickup`) and **finished for now** (end the session). Both matter: a putdown saves the work but does not end the session, and a terminal session whose window is closed without ending it keeps running in the background — a later resume of the same conversation then runs a second copy of it.
+   - **Terminal CLI** (`CLAUDE_CODE_ENTRYPOINT` is `cli`) — this covers both a standalone terminal and VSCode's *integrated terminal*.
+     - Keep going fresh: `/clear` genuinely frees the context window here — type `/clear`, then `/pickup`. No window juggling needed.
+     - Finished for now: type `/exit` (or press `Ctrl+C` twice), then close the terminal tab. Closing the window alone leaves Claude running in the background.
+     - **Exception — the handoff says "Restart needed: yes"** (replaces *Keep going fresh*): `/clear` won't unload the old plugins, MCP servers, hooks, skills, or settings — the process must be restarted. Tell them to fully quit (`/exit`, or `Ctrl+C` twice) and relaunch `claude`, then `/pickup`. Don't mention `/clear` at all in this case.
+   - **VSCode chat panel** (`CLAUDE_CODE_ENTRYPOINT` contains `vscode`) — `/clear` does **not** reliably free context here.
+     - Keep going fresh: **`Cmd+W` to close this Claude Code tab, then open a new one** (Command Palette → *Claude Code: Open in New Tab*), then `/pickup`. (Closing affects only this tab — other VSCode windows stay untouched. `Cmd+Shift+P → "Developer: Reload Window"` does NOT free the context window — you confirmed this.)
+     - Finished for now: `Cmd+W` to close the Claude Code tab.
+   - **Claude desktop app, Code tab** (`CLAUDE_CODE_ENTRYPOINT` contains `desktop`) — there is no `/exit` here.
+     - Keep going fresh: click **+ New** in the sidebar (or `Cmd+N`), pick the same project folder, then `/pickup`.
+     - Finished for now: close the session with `Cmd+W`, or archive it from its menu in the sidebar.
+   - **Unknown surface** (empty, or any other value) — give the VSCode chat panel and desktop app lines both, each labelled.
 3. A code block containing exactly `/pickup` — what they type once the context is cleared (in the CLI, right after `/clear`; in a new/reopened window otherwise)
 4. **The result of Steps 2–3, labelled with its source** — what memory, `CLAUDE.md`, and `docs/` files were written or corrected. If `/takenotes` ran, label it as such so the user can see each skill fired, e.g. `takenotes: 2 memories updated, 1 created, CLAUDE.md +3 lines`. If nothing durable was found, say so explicitly rather than omitting the line — a silent absence looks like a skipped step.
 5. **The `/openthreads reconcile` delta, labelled** — `openthreads: 2 closed, 3 added, 1 now due, 0 pruned`,

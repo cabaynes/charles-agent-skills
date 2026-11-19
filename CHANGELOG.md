@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.9] — 2026-11-19
+
+### Changed
+
+- **Why:** a putdown saves the work but doesn't end the session. A terminal session whose window is closed without
+  ending it keeps running in the background, and resuming that conversation later starts a second copy, so stale and
+  doubled sessions pile up. The maintainer found 15 running at once. Separately, `/putdown` treated every non-terminal
+  surface as VS Code's chat panel, so people on the Claude desktop app were told to open a new VS Code window.
+- **putdown:** the closing instructions now give two lines for the current surface: **keep going fresh** and
+  **finished for now**. Terminal: `/clear` then `/pickup`, or `/exit` (or `Ctrl+C` twice) and close the tab. VS Code
+  chat panel: close the tab with `Cmd+W` and open a new one, or just close it. Claude desktop app (new): **+ New** (`Cmd+N`)
+  in the same folder then `/pickup`, or close the session with `Cmd+W` / archive it; there's no `/exit` there. An unknown
+  surface gets the VS Code and desktop lines both. Step 1 now reads `CLAUDE_CODE_ENTRYPOINT` values containing `vscode`
+  or `desktop`. The "Restart needed" exception is unchanged.
+- **Codex:** output unchanged (its closing section is its own); the overlay's quoted Step 1 line follows the new wording.
+
 ## [0.11.8] — 2026-11-11
 
 ### Changed

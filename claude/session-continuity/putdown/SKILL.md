@@ -98,6 +98,32 @@ Over **22,000 characters or 180 lines** → add a ⚠️ line to the Step 5 summ
 the fix: shorten long index lines and move detail into the memory files themselves (in the workspace
 pattern, `fanout-memory.sh --check` reports every project's index). Under it, say nothing.
 
+**Then measure CLAUDE.md** — it loads in full every session (and so does every CLAUDE.md in the
+folders above the project):
+
+```bash
+wc -m -l CLAUDE.md 2>/dev/null; awk 'length>1000{print "line "NR": "length" chars"}' CLAUDE.md 2>/dev/null
+```
+
+Over **12,000 characters**, or any line over 1,000 characters → add a ⚠️ line to the Step 5 summary
+with the numbers and suggest a dedicated trim pass (`/doctor prompt-audit` for a second opinion, then a
+reviewed rewrite that moves history and procedures to `docs/`). Don't attempt a whole-file rewrite at
+the end of a putdown. Under it, say nothing.
+
+**Every 10th putdown, suggest an instruction audit.** `/takenotes` only reconciles what a session
+touched, so facts that change outside any session (a server's cron, a cloud console setting) and
+contradictions between CLAUDE.md and its `docs/` go stale unnoticed. Count this project's putdowns,
+including the one Step 4 is about to write:
+
+```bash
+echo $(( $(ls ~/.claude/putdowns/<project-slug>/*.md 2>/dev/null | wc -l) + 1 ))
+```
+
+When the number is a multiple of 10, add to the Step 5 summary: `🩺 Putdown #<n> for this project —
+worth running /doctor prompt-audit at the start of the next session (stale facts, contradictions
+between CLAUDE.md and docs/, references to files that no longer exist).` `/doctor` is a built-in
+command the user types; Claude can't invoke it. Otherwise say nothing.
+
 ## Step 4 — Write the handoff file
 
 Save to `~/.claude/putdowns/<project-slug>/<YYYY-MM-DD-HHMM>.md`. Create the per-project subfolder if it doesn't exist (`mkdir -p`).

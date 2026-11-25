@@ -84,6 +84,16 @@ Either way, two things hold:
 
 Keep the result — you'll echo a one-line version in Step 5.
 
+**Then measure AGENTS.md** — Codex assembles every AGENTS.md from the repo root down into each session:
+
+```bash
+wc -m -l AGENTS.md 2>/dev/null; awk 'length>1000{print "line "NR": "length" chars"}' AGENTS.md 2>/dev/null
+```
+
+Over **12,000 characters**, or any line over 1,000 characters → add a ⚠️ line to the Step 5 summary
+with the numbers and suggest a dedicated trim pass (a reviewed rewrite that moves history and
+procedures to `docs/`). Don't attempt a whole-file rewrite at the end of a putdown. Under it, say nothing.
+
 @@ replace
 Save to `~/.claude/putdowns/<project-slug>/<YYYY-MM-DD-HHMM>.md`.
 @@ with

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.12] — 2026-11-25
+
+### Changed
+
+- **putdown** measures CLAUDE.md at the end of the harvest step: over 12,000 characters, or a line over 1,000,
+  adds a ⚠️ line suggesting a dedicated trim pass (never a rewrite during the putdown).
+- **putdown** suggests `/doctor prompt-audit` on every 10th putdown of a project, counted from the handoff files
+  already in `~/.claude/putdowns/<project-slug>/` (no new state). **Why:** `/takenotes` only reconciles what a
+  session touched; facts that change outside any session (a server's cron, a cloud console setting) and
+  contradictions between CLAUDE.md and its docs were found stale in four of the maintainer's projects at once.
+  The user types `/doctor` — Claude can't invoke built-in commands.
+- **Codex:** putdown measures AGENTS.md the same way; there is no `/doctor` equivalent, so no audit line. Codex build clean; the Codex test re-run is pending (Codex usage limit reached on 2026-11-25).
+
 ## [0.11.11] — 2026-11-25
 
 ### Changed

@@ -94,6 +94,17 @@ drifts. For each line that sets a precondition, test it where you can:
 - **Other manual steps** (log in, plug in a drive, run a `!` command) — check the ones a command can
   confirm; list the rest as "not checked" rather than assuming they're done.
 
+**Check the AGENTS.md files fit their budget** — Codex assembles every AGENTS.md from the repo root
+down to the working directory into each session:
+
+```bash
+wc -m -l AGENTS.md 2>/dev/null; awk 'length>500{print "line "NR": "length" chars"}' AGENTS.md 2>/dev/null
+```
+
+Over **12,000 characters or 200 lines**, or any line over 500 characters → one ⚠️ line in the brief
+with the numbers (e.g. `⚠️ AGENTS.md 38,963 / 12,000 chars — worth a trim pass`). Don't trim during
+a pickup; it's a flag, not a task. Under budget → say nothing.
+
 ## Step 3 — Brief the user
 
 Reply with a tight summary so the user can confirm you've loaded the right context. Structure:

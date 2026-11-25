@@ -111,6 +111,17 @@ in this session's context — goes in the brief as a ⚠️ line with the number
 index lines and move detail into the memory files themselves (in the workspace pattern,
 `fanout-memory.sh --check` reports every project's index).
 
+**Check the CLAUDE.md files fit their budget** — they load in full every session, along with every
+CLAUDE.md in the folders above:
+
+```bash
+wc -m -l CLAUDE.md 2>/dev/null; awk 'length>500{print "line "NR": "length" chars"}' CLAUDE.md 2>/dev/null
+```
+
+Over **12,000 characters or 200 lines**, or any line over 500 characters → one ⚠️ line in the brief
+with the numbers (e.g. `⚠️ CLAUDE.md 38,963 / 12,000 chars — worth a trim pass`). Don't trim during
+a pickup; it's a flag, not a task. Under budget → say nothing.
+
 ## Step 3 — Brief the user
 
 Reply with a tight summary so the user can confirm you've loaded the right context. Structure:

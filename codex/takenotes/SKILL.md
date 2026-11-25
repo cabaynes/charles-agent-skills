@@ -401,10 +401,16 @@ fact about one project's code never belongs above that project.
 
 Before writing, apply this gate in order:
 
-1. **Does it belong here at all?** AGENTS.md holds stable, structural facts: what the project is,
-   critical gotchas, entry-point files, build/test/run commands, pointers to docs. It does **not**
-   hold history, rationale, session state, long prose, or anything already in a parent AGENTS.md.
-   Rationale and history go to **notes**. If it fails this test, stop — route it elsewhere.
+1. **Does it belong here at all?** AGENTS.md holds what Codex can't get from the code: commands
+   (build/test/run, and how to check work), gotchas and places the code misleads, decisions not
+   recorded in the repo, entry points, pointers to docs. Test each line: *could Codex find this by
+   reading the code, and would it actually look?* If both, leave it out. It does **not** hold
+   history, rationale, session state, long prose, file-layout tours, or anything already in a parent
+   AGENTS.md. Rationale and history go to **notes**. If it fails this test, stop — route it elsewhere.
+
+   **When a fact changes, replace it — don't annotate it** with "was X until …". That trail is how
+   files grow sideways past a line cap. Already over budget? Trim history and code tours before
+   adding; the file must end smaller than it started.
 
 2. **How many lines would it add?**
    - **≤ 15 lines** → inline it.
@@ -418,8 +424,9 @@ Before writing, apply this gate in order:
 
 3. **Backstop: the combined instruction cap.** Codex loads roughly 32 KiB of `AGENTS.md` guidance in
    total by default (global plus every file in the chain); guidance past the cap may not be seen.
-   Keep the project file to a few KiB (well under ~250 lines, target ~150). If an edit would push it
-   past that, refactor an existing oversized section out to `docs/` rather than declining to write.
+   Keep the project file under 12,000 characters and 200 lines, no line over 500 characters
+   (`wc -m -l AGENTS.md`). If an edit would push it past that, refactor an existing oversized section
+   out to `docs/` rather than declining to write.
 
 4. **Structural changes get shown before saving — but only actual restructuring.** Writing a *new*
    `docs/` spoke for new content moves nothing; just write it. Moving content that is *already in*

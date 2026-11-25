@@ -2,7 +2,7 @@
  {
   "scenario": "grill-me",
   "pass": true,
-  "check": "codex exited 0 (24s)"
+  "check": "codex exited 0 (23s)"
  },
  {
   "scenario": "grill-me",
@@ -22,7 +22,7 @@
  {
   "scenario": "takenotes",
   "pass": true,
-  "check": "codex exited 0 (48s)"
+  "check": "codex exited 0 (42s)"
  },
  {
   "scenario": "takenotes",
@@ -52,12 +52,12 @@
  {
   "scenario": "takenotes",
   "pass": true,
-  "check": "second run keeps one pointer (was 1, now 1; 16s)"
+  "check": "second run keeps one pointer (was 1, now 1; 23s)"
  },
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "codex exited 0 (35s)"
+  "check": "codex exited 0 (27s)"
  },
  {
   "scenario": "openthreads",
@@ -82,7 +82,7 @@
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "list prints both items with section counts and the closed count (21s)"
+  "check": "list prints both items with section counts and the closed count (20s)"
  },
  {
   "scenario": "openthreads",
@@ -92,7 +92,7 @@
  {
   "scenario": "openthreads",
   "pass": true,
-  "check": "done removes that line from the open sections only (31s)"
+  "check": "done removes that line from the open sections only (32s)"
  },
  {
   "scenario": "openthreads",
@@ -107,7 +107,7 @@
  {
   "scenario": "putdown",
   "pass": true,
-  "check": "codex exited 0 (86s)"
+  "check": "codex exited 0 (63s)"
  },
  {
   "scenario": "putdown",
@@ -147,7 +147,7 @@
  {
   "scenario": "pickup",
   "pass": true,
-  "check": "codex exited 0 (38s)"
+  "check": "codex exited 0 (33s)"
  },
  {
   "scenario": "pickup",
@@ -167,7 +167,7 @@
  {
   "scenario": "newproject",
   "pass": true,
-  "check": "codex exited 0 (34s)"
+  "check": "codex exited 0 (35s)"
  },
  {
   "scenario": "newproject",
@@ -192,7 +192,7 @@
  {
   "scenario": "skill-dict",
   "pass": true,
-  "check": "codex exited 0 (114s)"
+  "check": "codex exited 0 (124s)"
  },
  {
   "scenario": "skill-dict",
@@ -207,6 +207,6 @@
  {
   "scenario": "skill-dict",
   "pass": true,
-  "check": "show pickup prints its entry (18s)"
+  "check": "show pickup prints its entry (15s)"
  }
 ]

@@ -12,4 +12,4 @@ _(/newproject adds a line here for each project, in the form `- [name/](name/) �
 - When you save a universal memory, write it to the hub with a `hook:` line (the rule in 90 characters or fewer), then run `$WORKSPACE_DIR/scripts/fanout-memory.sh --all` — it rebuilds every MEMORY.md index, so never hand-edit the shared lines — and tell me it now applies everywhere. Relay any size WARNING it prints.
 - Every subproject is its own git repo. End every working session with /putdown (it commits and pushes). Start the next one with /pickup.
 - Never commit .env or any secret file. Check `git status` before committing; never force-add.
-- Keep every CLAUDE.md under 250 lines. Anything longer than about 15 lines goes in a docs/ file with a one-line pointer here that says what the file contains.
+- Keep every project CLAUDE.md under 12,000 characters and 200 lines, no line over 500 characters, and this file much smaller (it loads in every subproject). Only what Claude can't find in the code; replace a changed fact rather than noting what it used to be. Anything longer than about 15 lines goes in a docs/ file with a one-line pointer here that says what the file contains.

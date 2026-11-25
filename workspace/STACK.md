@@ -39,7 +39,7 @@ claude plugin marketplace add anthropics/claude-plugins-official
 Listed so the picture is complete, not as recommendations. None of these ship in this repo.
 
 - **PreToolUse hooks that hard-block a rule.** Memory and `CLAUDE.md` are advisory; Claude can still forget. When a rule has been violated twice, or the word is "never", the maintainer writes a small shell hook in `~/.claude/hooks/` wired into `settings.json` that denies the tool call outright. Example targets: forcing a specific browser for automation, forbidding session files from landing outside their folder. The hooks are personal because the rules are.
-- **A CLAUDE.md size reminder.** A hook that prints the current line count whenever Claude edits any `CLAUDE.md`, with the house target. Cheap, and it is why the umbrella template says "under 250 lines".
+- **A CLAUDE.md size check.** A small script that measures every `CLAUDE.md` in characters and lines (a line cap alone missed files that grew to 58,000 characters in 222 lines) and flags lines over 500 characters. A hook runs it whenever Claude edits any `CLAUDE.md`, and the session skills run it at handoff. It is why the umbrella template gives a character budget.
 - **Language servers.** `swift-lsp@claude-plugins-official` exists here for one Swift project. Install a language-server plugin only for languages you actually write.
 
 ## After installing anything

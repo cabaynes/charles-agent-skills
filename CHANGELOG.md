@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.11] — 2026-11-25
+
+### Changed
+
+- **Why:** takenotes guarded CLAUDE.md with a 250-line cap, and the maintainer's files all passed it while growing
+  sideways: bullets were rewritten in place with "since …" / "was X until …" trails, so one file reached 58,196
+  characters in 222 lines (one line was 5,313 characters). Context cost is characters. Anthropic's current guidance
+  (code.claude.com/docs/en/memory and /best-practices) is under 200 lines, and only what Claude can't find in the code.
+- **takenotes:** CLAUDE.md is measured in characters — budget 12,000 characters and 200 lines, no line over 500
+  characters (Step 1d measures with `wc -m` and `awk`). New gate 0: a file already over budget is trimmed before
+  anything is added (history, code tours, procedures out first) and must end smaller than it started. Gate 1 adds the
+  test "could Claude find this by reading the code, and would it look?" and "replace a changed fact, don't annotate it".
+- **pickup:** flags a CLAUDE.md over budget as a ⚠️ line in the brief; it never trims.
+- **Codex:** the same rules for `AGENTS.md` (overlays for takenotes and pickup). Codex tests 42/42.
+- **workspace:** `CLAUDE.md.template` gives the character budget; `STACK.md` describes the size check.
+
 ## [0.11.10] — 2026-11-19
 
 ### Changed

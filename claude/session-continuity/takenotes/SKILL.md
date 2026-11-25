@@ -132,12 +132,18 @@ are **symlinks**, they point at a shared store used by more than one project —
 the rule everywhere. See **Shared memories** in Step 4a. If everything is a real file, all memory
 here is local to this project and you can skip that section entirely.
 
-**1d. Find the CLAUDE.md files and their line counts.**
+**1d. Find the CLAUDE.md files and measure them.**
 
 ```bash
-wc -l ./CLAUDE.md 2>/dev/null
+wc -m -l ./CLAUDE.md 2>/dev/null                              # characters, lines
+awk 'length>500{print "line "NR": "length" chars"}' ./CLAUDE.md 2>/dev/null
 ls docs/ 2>/dev/null
 ```
+
+Measure **characters**, not just lines: context cost is characters, and a line cap alone lets a file
+grow sideways — bullets rewritten in place until one "line" is a 5,000-character paragraph. Budget
+for a project file: **12,000 characters and 200 lines, no line over 500 characters.** Step 4b uses
+these numbers.
 
 List `docs/` too — you need to know which spoke files exist before creating new ones.
 
@@ -379,8 +385,9 @@ If Step 1c found no symlinks, none of this applies — write everything local.
 
 ### 4b. CLAUDE.md — guarded
 
-CLAUDE.md is auto-loaded into context on **every session start**. Every line costs tokens forever.
-Treat it as an index, not a document.
+CLAUDE.md is loaded in full on **every session start** — and so is every CLAUDE.md in the folders
+above the working directory. Every character costs context forever, and longer files lower
+adherence. Treat it as an index, not a document.
 
 **Which CLAUDE.md?** Default to the project's own (`./CLAUDE.md`). If the workspace has a parent or
 umbrella CLAUDE.md, that one is only correct for facts about the *workspace itself* — a new
@@ -388,23 +395,39 @@ subproject, a convention spanning projects. A fact about one project's code neve
 
 Before writing, apply this gate in order:
 
-1. **Does it belong here at all?** CLAUDE.md holds stable, structural facts: what the project is,
-   critical gotchas, entry-point files, build/test/run commands, pointers to docs. It does **not**
-   hold history, rationale, session state, long prose, or anything already in a parent CLAUDE.md.
-   Rationale and history go to **memory**. If it fails this test, stop — route it elsewhere.
+0. **Is the file already over budget (Step 1d)?** Then trim before you add. Take out, in this
+   order, from the sections nearest what you're adding: dated history ("since …", "was X until …",
+   "renamed from …" — git and `docs/` hold it); descriptions of what the code does or how files are
+   laid out (Claude reads the repo itself); procedures longer than a few steps (→ a `docs/` spoke or
+   a skill); then anything a parent CLAUDE.md already says. Moving existing text out is a refactor —
+   rule 4 applies. The file must end **smaller than it started**, never bigger.
 
-2. **How many lines would it add?**
-   - **≤ 15 lines** → inline it.
-   - **> 15 lines** → **extract to a `docs/` spoke** (4c) and inline only a pointer. Apply this
-     *regardless of the current line count*. A 40-line block that fits under any cap still costs
-     context on every session start — size is the trigger, not the cap.
+1. **Does it belong here at all?** CLAUDE.md holds what Claude can't get from the code: commands
+   (build/test/run, and how to check work), gotchas and places the code misleads, decisions not
+   recorded in the repo, entry points, pointers to docs, and anything the user has corrected twice.
+   Test each line: *could Claude find this by reading the code, and would it actually look?* If
+   both, leave it out. It does **not** hold history, rationale, session state, long prose, file-
+   layout or architecture tours, or anything already in a parent CLAUDE.md. Rationale and history
+   go to **memory** or `docs/`. If it fails this test, stop — route it elsewhere.
+
+   **When a fact in CLAUDE.md changes, replace it — don't annotate it.** "Publishes 3×/day", not
+   "Publishes 3×/day (was 2×/day until March; changed because …)". That trail is how files grow
+   sideways past a line cap.
+
+2. **How much would it add?**
+   - **≤ 15 lines and ≤ ~1,000 characters** → inline it, no line over 500 characters.
+   - **More than that** → **extract to a `docs/` spoke** (4c) and inline only a pointer. Apply this
+     *regardless of the file's current size*. A 40-line block that fits under the budget still
+     costs context on every session start — size is the trigger, not the budget. Growing an
+     existing bullet counts too: if your edit takes a line past 500 characters, split it or spoke it.
 
    Measure the version you would actually write, not the tersest one you could compress it to —
    otherwise the threshold just ratifies whichever way you were already leaning. Anchor: if it needs
    more than a pointer plus two or three facts, it's a spoke.
 
-3. **Backstop: keep CLAUDE.md under ~250 lines.** If an edit would breach that, refactor an existing
-   oversized section out to `docs/` rather than declining to write. Target ~150 for headroom.
+3. **Backstop: the file stays inside its budget** — 12,000 characters, 200 lines, no line over 500
+   characters; re-measure after writing. If the edit breached it, refactor an existing oversized
+   section out to `docs/` rather than declining to write. Aim for ~75% of budget for headroom.
 
 4. **Structural changes get shown before saving — but only actual restructuring.** Writing a *new*
    `docs/` spoke for new content moves nothing; just write it. Moving content that is *already in*
